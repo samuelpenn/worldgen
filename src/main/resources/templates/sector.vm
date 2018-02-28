@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+        integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+
+  <link href="/css/worldgen.css" rel="stylesheet" type="text/css"/>
+    <title>Sector ${sector.name}</title>
+</head>
+
+<body>
+<div class="container-fluid">
+  <h1>${sector.name} (${sector.x}, ${sector.y})</h1>
+
+  <ul class="sector_neighbours">
+    #if ($spinward)
+      <li title="Spinward" onclick="location.href='/sector/${spinward.id}'"><big>⇦</big> ${spinward.name}</li>
+    #end
+    #if ($coreward)
+      <li title="Coreward" onclick="location.href='/sector/${coreward.id}'"><big>⇧</big>${coreward.name}</li>
+    #end
+    #if ($rimward)
+      <li title="Rimward" onclick="location.href='/sector/${rimward.id}'"><big>⇩</big>${rimward.name}</li>
+    #end
+    #if ($trailing)
+      <li title="Trailing" onclick="location.href='/sector/${trailing.id}'"><big>⇨</big> ${trailing.name}</li>
+    #end
+  </ul>
+
+  #if ($sector.id == 0)
+    <p>
+      This sector is uncharted. No information is available.
+    </p>
+  #else
+
+  <table class="systemlist">
+    <tr>
+      <th style="width: 5em">XXYY</th>
+      <th style="width: 15em">System</th>
+      <th style="width: 5em">Zone</th>
+      <th style="width: 10em">Stars</th>
+      <th style="width: 5em">Planets</th>
+      <th style="width: 4em">Port</th>
+      <th style="width: 4em">TL</th>
+      <th style="width: 10em">Population</th>
+    </tr>
+
+    #foreach ($system in $systems)
+      <tr>
+        <td>$numberTool.format("#00", $system.x)$numberTool.format("#00", $system.y)</td>
+        <td><a href="/system/${system.id}">${system.name}</a></td>
+        <td>${system.zone}</td>
+        <td>
+          #foreach ($star in $system.stars)
+              $star.spectralType $star.luminosity
+          #end
+        </td>
+        <td>${system.planetCount}</td>
+        <td>${system.starPort}</td>
+        <td>${system.techLevel}</td>
+        <td>${system.population}</td>
+      </tr>
+    #end
+
+  </table>
+  #end
+</div>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+        integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
+        integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+        crossorigin="anonymous"></script>
+
+
+</body>
+</html>
