@@ -65,7 +65,9 @@ public abstract class PlanetGenerator {
 
     protected Planet definePlanet(Planet planet) {
         planet.setSystemId(system.getId());
-        planet.setParentId(star.getId());
+        if (star != null) {
+            planet.setParentId(star.getId());
+        }
         if (planet.getDistance() == 0) {
             planet.setDistance(distance);
         }
@@ -74,7 +76,7 @@ public abstract class PlanetGenerator {
         }
         planet.setTemperature(star.getOrbitTemperature(distance));
         planet.setAtmosphere(Atmosphere.Vacuum);
-        planet.setPressure(Pressure.None);
+        planet.setPressure(0);
         planet.setMagneticField(MagneticField.None);
         planet.setStarPort(StarPort.X);
         planet.setPopulation(0);
@@ -110,7 +112,7 @@ public abstract class PlanetGenerator {
         }
     }
 
-    private static final Class getMapClass(PlanetType type) throws UnsupportedException {
+    private static Class getMapClass(PlanetType type) throws UnsupportedException {
         String mapRoot = "uk.org.glendale.worldgen.astro.planets.maps";
         String typeName = String.format("%s.%s.%sMapper", mapRoot, type.getGroup().name().toLowerCase(), type.name());
 
@@ -128,9 +130,7 @@ public abstract class PlanetGenerator {
             PlanetMapper map = (PlanetMapper) c.newInstance(planet);
 
             map.generate();
-            SimpleImage img = map.draw(Server.getConfiguration().getPlanetMapResolution());
-
-            return img;
+            return map.draw(Server.getConfiguration().getPlanetMapResolution());
         } catch (UnsupportedException e) {
             throw e;
         } catch (Exception e) {

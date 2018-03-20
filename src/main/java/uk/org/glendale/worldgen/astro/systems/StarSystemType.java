@@ -12,9 +12,23 @@ package uk.org.glendale.worldgen.astro.systems;
  */
 public enum StarSystemType {
     // Completely empty system, no stars or planets.
-    EMPTY,
+    EMPTY(0),
     // A system with a single star.
-    SINGLE,
-    BINARY,
-    TRIPLE
+    SINGLE(1),
+    CONJOINED_BINARY(2),
+    CLOSE_BINARY(2),
+    MEDIUM_BINARY(2),
+    FAR_BINARY(2),
+    TRIPLE(3),
+    ROGUE_PLANET(0);
+
+    private final int numStars;
+
+    private StarSystemType(final int numStars) {
+        this.numStars = numStars;
+    }
+
+    public int getNumberOfStars() {
+        return numStars;
+    }
 }

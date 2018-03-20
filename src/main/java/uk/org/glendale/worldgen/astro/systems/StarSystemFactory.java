@@ -146,9 +146,21 @@ public class StarSystemFactory {
         }
     }
 
+    private static String getLetter(int value) {
+        final String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+        if (value > 0 && value < 27)  {
+            return LETTERS.substring(value - 1, value);
+        } else if (value > 26) {
+            return getLetter(value / 26) + getLetter(value % 26);
+        }
+        return "";
+    }
+
     private static void validateCoord(String coord) {
         if (coord != null && coord.length() == 4) {
             try {
+                //noinspection ResultOfMethodCallIgnored
                 Integer.parseInt(coord);
             } catch (NumberFormatException e) {
                 // Invalid format.
@@ -179,7 +191,11 @@ public class StarSystemFactory {
     }
 
 
-    public String getPlanetName(Star star, int orbit) {
+    public static String getPlanetName(Star star, int orbit) {
         return star.getName() + " " + getRoman(orbit);
+    }
+
+    public static String getBeltName(Star star, int orbit) {
+        return star.getName() + " Belt " + getLetter(orbit);
     }
 }

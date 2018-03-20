@@ -28,9 +28,9 @@ public class StarGenerator {
     private boolean multipleStars;
     private Star primary, secondary, tertiary;
 
-    public static final String FIRST_SUFFIX = " Alpha";
-    public static final String SECOND_SUFFIX = " Beta";
-    public static final String THIRD_SUFFIX = " Gamma";
+    private static final String FIRST_SUFFIX = " Alpha";
+    private static final String SECOND_SUFFIX = " Beta";
+    private static final String THIRD_SUFFIX = " Gamma";
 
     /**
      * Star Generator for a system that has only a single star.
@@ -59,6 +59,17 @@ public class StarGenerator {
         this.factory = worldgen.getStarFactory();
     }
 
+    private Star generateStar(String name, Luminosity luminosity, SpectralType type) {
+        Star star = new Star();
+        star.setSystem(system);
+        star.setName(name);
+        star.setLuminosity(luminosity);
+        star.setSpectralType(type);
+        star.setStandardMass();
+
+        return star;
+    }
+
     /**
      * Generates a specific type of star as the primary.
      *
@@ -69,105 +80,128 @@ public class StarGenerator {
      * @return      Created and persisted star.
      */
     public Star generatePrimary(Luminosity luminosity, SpectralType type) throws DuplicateStarException {
-        primary = new Star();
-        primary.setSystem(system);
-        primary.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
-        primary.setLuminosity(luminosity);
-        primary.setSpectralType(type);
-
+        primary = generateStar(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""), luminosity, type);
         factory.persist(primary);
 
         return primary;
     }
 
-    /**
-     * Generates a specific class of star, and randomly generates its spectral type from that.
-     *
-     * @param luminosity    The general size of the star.
-     * @return              Created and persisted star.
-     */
-    public Star generatePrimary(Luminosity luminosity) throws DuplicateStarException {
-        primary = new Star();
-        primary.setSystem(system);
-        primary.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
-        primary.setLuminosity(luminosity);
-        primary.setSpectralType(luminosity.getSpectralType());
-
+    public Star generatePrimary(Star star) throws DuplicateStarException {
+        star.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
+        this.primary = star;
         factory.persist(primary);
 
         return primary;
     }
 
-    /**
-     * Generate a primary star for an empty star system. An empty system has a single star with no planets,
-     * and the star type will generally be a dwarf star of some kind.
-     *
-     * @return	A suitable random cool dwarf star.
-     */
-    public Star generateEmptyPrimary() throws DuplicateStarException {
-        primary = new Star();
-        primary.setSystem(system);
-        if (multipleStars) {
-            primary.setName(system.getName() + FIRST_SUFFIX);
-        } else {
-            primary.setName(system.getName());
-        }
-
-        switch (Die.d6(2)) {
-            case 2: case 3:
-                primary.setLuminosity(Luminosity.D);
-                break;
-            case 4: case 5: case 6:
-                if (multipleStars) {
-                    primary.setLuminosity(Luminosity.D);
-                } else {
-                    primary.setLuminosity(Luminosity.VII);
-                }
-                break;
-            case 7: case 8: case 9:
-                primary.setLuminosity(Luminosity.VI);
-                break;
-            case 10:
-                primary.setLuminosity(Luminosity.V);
-                break;
-            case 11:
-                primary.setLuminosity(Luminosity.II);
-                break;
-            case 12:
-                primary.setLuminosity(Luminosity.Ib);
-                break;
-        }
-        primary.setSpectralType(primary.getLuminosity().getSpectralType());
-        factory.persist(primary);
-
-        return primary;
-    }
-
-
-    /**
-     * Generate a primary star for an empty star system. An empty system has a single star with no planets,
-     * and the star type will generally be a dwarf star of some kind.
-     *
-     * @return	A suitable random cool dwarf star.
-     */
-    public Star generateEmptySecondary() throws DuplicateStarException {
-        if (primary.getLuminosity().getCompanionStar() != null) {
-            secondary = new Star();
-            secondary.setSystem(system);
-            secondary.setName(system.getName() + SECOND_SUFFIX);
-
-            secondary.setLuminosity(primary.getLuminosity().getCompanionStar());
-            secondary.setSpectralType(secondary.getLuminosity().getSpectralType());
-
-            // Distance, in millions of kilometres.
-            secondary.setDistance(100 + Die.d20(2) * 100);
-            secondary.setParentId(primary.getId());
-            factory.persist(secondary);
-        }
+    public Star generateSecondary(Luminosity luminosity, SpectralType type) throws DuplicateStarException {
+        secondary = generateStar(system.getName() + ((multipleStars) ? SECOND_SUFFIX : ""), luminosity, type);
+        factory.persist(secondary);
 
         return secondary;
     }
 
+    public Star generateSecondary(Star star) throws DuplicateStarException {
+        star.setName(system.getName() + SECOND_SUFFIX);
+        this.secondary = secondary;
+        factory.persist(primary);
+
+        return secondary;
+    }
+
+    /**
+     * Generate a random main sequence 'yellow' star. This will be of type  F, G or K.
+     * G type will be most common. F will only be cooler F spectra, K will be warmer K spectra.
+     *
+     * @return Newly created random 'yellow' star.
+     */
+    public Star generateYellowStar() {
+        Star            star;
+        Luminosity      luminosity = Luminosity.V;
+        SpectralType    type = SpectralType.G2;
+
+        switch (Die.d6()) {
+            case 1:
+                // A cool F type star.
+                type = SpectralType.valueOf("F" + (Die.d3() + 6));
+                break;
+            case 2: case 3:
+                // A warm K type star.
+                type = SpectralType.valueOf("K" + (Die.d4() - 1));
+                break;
+            case 4: case 5: case 6:
+                // A G type star.
+                type = SpectralType.valueOf("G" + (Die.d10() - 1));
+                break;
+        }
+
+        return generateStar("unnamed", luminosity, type);
+    }
+
+    /**
+     * Generate a random main sequence 'orange' star. These are cooler stars still on the main
+     * sequence, with a bias towards 'K' type, with some chance of cool 'G' or warm 'M'.
+     *
+     * @return      New randomly generated main sequence star.
+     */
+    public Star generateOrangeStar() {
+        Star            star;
+        Luminosity      luminosity = Luminosity.V;
+        SpectralType    type = SpectralType.K5;
+
+        switch (Die.d6()) {
+            case 1:
+                // A cool G type star.
+                type = SpectralType.valueOf("G" + (Die.d3() + 6));
+                break;
+            case 2: case 3:
+                // A warm M type star.
+                type = SpectralType.valueOf("M" + (Die.d3() - 1));
+                break;
+            case 4: case 5: case 6:
+                // A G type star.
+                type = SpectralType.valueOf("K" + (Die.d10() - 1));
+                break;
+        }
+
+        return generateStar("unnamed", luminosity, type);
+    }
+
+    /**
+     * Generate a random main sequence 'red' star. These are the coolest stars still on the
+     * main sequence, with a bias towards 'M' type, with some chance of cool 'K' or warm 'L'.
+     *
+     * @return      New randomly generate main sequence star.
+     */
+    public Star generateRedStar() {
+        Star            star;
+        Luminosity      luminosity = Luminosity.V;
+        SpectralType    type = SpectralType.M5;
+
+        switch (Die.d6()) {
+            case 1:
+                // A warm L type star.
+                type = SpectralType.valueOf("L" + (Die.d3() - 1));
+                break;
+            case 2: case 3:
+                // A cool K type star.
+                type = SpectralType.valueOf("K" + (Die.d4() + 5));
+                break;
+            case 4: case 5: case 6:
+                // An M type star.
+                type = SpectralType.valueOf("M" + (Die.d10() - 1));
+                break;
+        }
+
+        return generateStar("unnamed", luminosity, type);
+    }
+
+    public Star generateWhiteDwarf() {
+        Luminosity      luminosity = Luminosity.VII;
+        SpectralType    type = SpectralType.valueOf("D" + (Die.d6() - 1));
+
+        return generateStar("unnamed", luminosity, type);
+    }
 
     /**
      * Generate a primary star for a simple star system. A simple system
@@ -176,67 +210,78 @@ public class StarGenerator {
      * @return	A suitable, random class V star.
      */
     public Star generateSimplePrimary() throws DuplicateStarException {
-        primary = new Star();
-        primary.setSystem(system);
-        primary.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
+        Star star = generateYellowStar();
+        star.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
 
-        primary.setLuminosity(Luminosity.V);
-        primary.setSpectralType(Luminosity.V.getSpectralType());
-
-        return primary;
+        return generatePrimary(star);
     }
 
     /**
      * Generates a dwarf star, most likely class VI, but a chance of VII or V as well.
      *
      * @return  Created and persisted star.
-     * @throws DuplicateStarException
+     * @throws DuplicateStarException If there is a duplicate.
      */
     public Star generateDwarfPrimary() throws DuplicateStarException {
-        primary = new Star();
-        primary.setSystem(system);
-        primary.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
+        Star star;
 
         switch (Die.d6(2)) {
             case 2: case 3: case 4:
-                primary.setLuminosity(Luminosity.VII);
-                break;
-            case 5: case 6: case 7: case 8: case 9: case 10:
-                primary.setLuminosity(Luminosity.VI);
+                star = generateOrangeStar();
                 break;
             case 11: case 12:
-                primary.setLuminosity(Luminosity.V);
+                star = generateYellowStar();
+                break;
+            default:
+                star = generateRedStar();
                 break;
         }
-        primary.setSpectralType(primary.getLuminosity().getSpectralType());
-        factory.persist(primary);
+        star.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
 
-        return primary;
+        return generatePrimary(star);
     }
 
     /**
-     * Generates a brown dwarf star. There is a small chance of a type VI instead.
+     * Generates a brown dwarf star.
      *
      * @return  Created and persisted star.
-     * @throws DuplicateStarException
+     * @throws DuplicateStarException If there is a duplicate.
      */
     public Star generateBrownDwarfPrimary() throws DuplicateStarException {
         primary = new Star();
         primary.setSystem(system);
         primary.setName(system.getName() + ((multipleStars) ? FIRST_SUFFIX : ""));
+        primary.setLuminosity(Luminosity.V);
 
-        switch (Die.d6(2)) {
-            case 2: case 3: case 4: case 5:
-                primary.setLuminosity(Luminosity.VI);
+        int digit = 0;
+        switch (Die.d6()) {
+            case 1: case 2:
+                // About as hot as a brown dwarf can get.
+                digit = 6 + Die.d3();
+                primary.setSpectralType(SpectralType.getSpectralType('L', digit));
+                primary.setRadius(95000 + (9 - digit) * 250);
                 break;
-            default:
-                primary.setLuminosity(Luminosity.VII);
+            case 3: case 4: case 5:
+                // Methane dwarfs. Often magenta in colour.
+                digit = Die.d10() - 1;
+                primary.setSpectralType(SpectralType.getSpectralType('T', digit));
+                primary.setRadius(90000 + (9 - digit) * 500);
+                break;
+            case 6:
+                // Coolest type of brown dwarf.
+                digit = Die.d6() - 1;
+                primary.setSpectralType(SpectralType.getSpectralType('Y', digit));
+                primary.setRadius(85000 + (9 - digit) * 1000);
                 break;
         }
-        primary.setSpectralType(primary.getLuminosity().getSpectralType());
+        primary.setStandardMass();
         factory.persist(primary);
 
         return primary;
+    }
+
+    public void persist(Star star) throws DuplicateStarException {
+        factory.persist(star);
     }
 
     /**
@@ -268,7 +313,9 @@ public class StarGenerator {
         }
 
         primary.setSpectralType(SpectralType.valueOf("M" + Die.rollZero(10)));
+        primary.setStandardMass();
 
+        factory.persist(primary);
 
         return primary;
     }
@@ -289,24 +336,27 @@ public class StarGenerator {
         switch (Die.d6(3)) {
             case 3:
                 primary.setLuminosity(Luminosity.B);
+                primary.setSpectralType(SpectralType.X3);
                 break;
             case 4: case 5: case 6:
                 primary.setLuminosity(Luminosity.N);
+                primary.setSpectralType(SpectralType.X5);
                 break;
             default:
-                primary.setLuminosity(Luminosity.D);
+                primary.setLuminosity(Luminosity.VII);
+                primary.setSpectralType(SpectralType.D3);
                 break;
         }
-        primary.setSpectralType(primary.getLuminosity().getSpectralType());
+        primary.setStandardMass();
+
         factory.persist(primary);
 
         return primary;
     }
 
-    public Star generatePrimary() {
-        primary = new Star();
+    public Star generatePrimary() throws DuplicateStarException {
+        Star star = null;
         primary.setSystem(system);
-        primary.setName(system.getName() + ((multipleStars) ? " Alpha" : ""));
 
         Luminosity luminosity = null;
 
@@ -314,15 +364,15 @@ public class StarGenerator {
         // are larger stars.
         switch (Die.d6(3)) {
             case 3:
-                luminosity = Luminosity.II;
+                star = generateRedStar();
                 break;
             case 4:
             case 5:
-                luminosity = Luminosity.III;
+                star = generateRedStar();
                 break;
             case 6:
             case 7:
-                luminosity = Luminosity.IV;
+                star = generateRedStar();
                 break;
             case 8:
             case 9:
@@ -330,18 +380,17 @@ public class StarGenerator {
             case 11:
             case 12:
             case 13:
-                luminosity = Luminosity.V;
+                star = generateOrangeStar();
                 break;
             case 14:
             case 15:
             case 16:
             case 17:
             case 18:
-                luminosity = Luminosity.VI;
+                star = generateYellowStar();
                 break;
         }
-        primary.setLuminosity(luminosity);
-        primary.setSpectralType(luminosity.getSpectralType());
+        generatePrimary(star);
 
         return primary;
     }
@@ -353,18 +402,10 @@ public class StarGenerator {
         if (primary == null || primary.getId() == 0) {
             throw new IllegalStateException("Primary star has not been defined");
         }
-        secondary = new Star();
-        secondary.setSystem(system);
-        secondary.setName(system.getName() + " Beta");
-
-        secondary.setLuminosity(primary.getLuminosity().getCompanionStar());
-        secondary.setSpectralType(secondary.getLuminosity().getSpectralType());
-
-        // This is a place holder value.
-        secondary.setParentId(primary.getId());
-        secondary.setDistance(distance);
-
-        factory.persist(secondary);
+        Star star = generateRedStar();
+        star.setParentId(primary.getId());
+        star.setDistance(distance);
+        generateSecondary(star);
 
         return secondary;
     }
@@ -381,11 +422,12 @@ public class StarGenerator {
         tertiary.setSystem(system);
         tertiary.setName(system.getName() + " Gamma");
 
-        tertiary.setLuminosity(Luminosity.D);
+        tertiary.setLuminosity(Luminosity.VII);
         tertiary.setSpectralType(SpectralType.D7);
 
         tertiary.setParentId(secondary.getId());
         tertiary.setDistance(Die.d10(5) * 1000);
+        tertiary.setStandardMass();
 
         return tertiary;
     }

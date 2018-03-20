@@ -135,7 +135,7 @@ public class SectorAPI extends Controller {
 
             return image.save().toByteArray();
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            logger.error("Unable to get image for sector", e);
         }
         return null;
     }

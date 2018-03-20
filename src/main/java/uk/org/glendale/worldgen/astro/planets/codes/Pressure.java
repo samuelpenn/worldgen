@@ -18,36 +18,38 @@ public enum Pressure {
      * This is a vacuum world with no appreciable atmosphere. It requires a full pressure suit
      * for survival by humans, and produces no weather of any note. It is less than 0.001 atmospheres.
      */
-    None(1.0, 0.0, 10),
+    None(0, 1.0, 0.0, 10),
     /**
      * A Trace atmosphere is less than 0.1 atmospheres. It requires a full pressure suit for
      * survival by humans.
      */
-    Trace(1.0, 0.0, 10),
+    Trace(5000, 1.0, 0.0, 10),
     /**
      * Very Thin atmospheres are between 0.1 and 0.3 atmospheric pressure. They can be survived
      * with breathing gear, but don't require a full pressure suit.
      */
-    VeryThin(0.9, 0.01, 6),
+    VeryThin(20000, 0.9, 0.01, 6),
     /**
      * Thin atmospheres range from 0.3 to 0.6 atmospheric pressure. Humans can live and work in
      * such atmospheres without breathing equipment, but many tasks may be fatiguing.
      */
-    Thin(0.8, 0.5, 2),
+    Thin(45000, 0.8, 0.5, 2),
     /**
      * Standard atmospheric pressure ranges between 0.6 and 1.5. This is considered normal for
      * humans.
      */
-    Standard(0.7, 1.0, 0),
-    Dense(0.6, 0.9, 1),
-    VeryDense(0.5, 0.75, 5),
-    SuperDense(0.4, 0.5, 50);
+    Standard(100000, 0.7, 1.0, 0),
+    Dense(150000, 0.6, 0.9, 1),
+    VeryDense(500000, 0.5, 0.75, 5),
+    SuperDense(2500000, 0.4, 0.5, 50);
 
+    private int     pascals = 0;
     private double	distance = 1.0;
     private double  suitability = 1.0;
     private int		badness = 0;
 
-    Pressure(double distance, double suitability, int badness) {
+    Pressure(int pascals, double distance, double suitability, int badness) {
+        this.pascals = pascals;
         this.distance = distance;
         this.suitability = suitability;
         this.badness = badness;
@@ -68,6 +70,10 @@ public enum Pressure {
 
     public int getBadness() {
         return badness;
+    }
+
+    public int getPascals() {
+        return pascals;
     }
 
     /**

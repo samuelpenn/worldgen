@@ -45,8 +45,23 @@ public enum SpectralType {
     O9, O8, O7, O6, O5, O4, O3, O2, O1, O0,
     // White Dwarfs
     D9, D8, D7, D6, D5, D4, D3, D2, D1, D0,
-    // Neutron Stars and Black Holes
+    // Neutron Stars (X9 - X7) and Black Holes (X6 and hotter)
     X9, X8, X7, X6, X5, X4, X3, X2, X1, X0;
+
+
+    /**
+     * Create a spectral type from a letter designation and digit.
+     * The lower the digit, the cooler the star.
+     *
+     * @param letter    Letter, one of YTLMKGFABOD or X.
+     * @param digit     Digit, from 0 to 9.
+     * @return
+     */
+    public static SpectralType getSpectralType(char letter, int digit) {
+        String name = "" + letter + digit;
+
+        return valueOf(name);
+    }
 
     private char getFirst() {
         return toString().charAt(0);
@@ -56,6 +71,12 @@ public enum SpectralType {
         return Integer.parseInt("" + toString().charAt(1));
     }
 
+    /**
+     * Gets the inverse of the digit part of this spectral type. Used because 0 is hotter than 9,
+     * but it makes some calculations easier if higher numbers are hotter.
+     *
+     * @return  Gets value of 9 - digit.
+     */
     private int getInverseDigit() {
         return 9 - Integer.parseInt("" + toString().charAt(1));
     }
@@ -151,8 +172,8 @@ public enum SpectralType {
         int k = 0;
         switch (getFirst()) {
             case 'D':
-                // White Dwarfs.
-                k = 1000 + getInverseDigit() * getInverseDigit() * 1500;
+                // White Dwarfs. This does not use the proper way of calculating this.
+                k = (int) (40 + Math.pow(getInverseDigit(), 2.5) * 5) * 100;
                 break;
             case 'X':
                 // X-Ray remnants, Neutron Stars and Black Holes.
@@ -198,28 +219,108 @@ public enum SpectralType {
     }
 
     /**
-     * Get the mass of the star, relative to Sol.
+     * Get the mass of a main sequence star with this spectral type, relative to Sol.
+     * This needs to be multiplied with the Luminosity mass modifier to find the actual
+     * mass of a specific star.
+     *
+     * @return  Mass in Sols.
      */
     public double getMass() {
         double mass = 1.0;
+        int    digit = getInverseDigit();
 
-        if (toString().startsWith("M")) {
-            mass = 0.25;
-        } else if (toString().startsWith("K")) {
-            mass = 0.7;
-        } else if (toString().startsWith("G")) {
-            mass = 1.0;
-        } else if (toString().startsWith("F")) {
-            mass = 1.4;
-        } else if (toString().startsWith("A")) {
-            mass = 2.0;
-        } else if (toString().startsWith("B")) {
-            mass = 10.0;
-        } else if (toString().startsWith("O")) {
-            mass = 50.0;
+        switch (getFirst()) {
+            case 'D':
+                mass = 0.1 * digit * 0.14;
+                break;
+            case 'Y':
+                mass = 0.020 + digit * 0.0005;
+                break;
+            case 'T':
+                mass = 0.025 + digit * 0.0005;
+                break;
+            case 'C':
+                mass = 0.030 + digit * 0.001;
+                break;
+            case 'L':
+                mass = 0.04 + digit * 0.005;
+                break;
+            case 'M':
+                mass = 0.08 + digit * 0.04;
+                break;
+            case 'K':
+                mass = 0.44 + digit * 0.04;
+                break;
+            case 'G':
+                mass = 0.8 + digit * 0.029;
+                break;
+            case 'F':
+                mass = 1.04 + digit * 0.04;
+                break;
+            case 'A':
+                mass = 1.4 + digit * 0.77;
+                break;
+            case 'B':
+                mass = 2.1 + digit * 1.5;
+                break;
+            case 'O':
+                mass = 16.0 + digit * 2.5;
+                break;
+            case 'X':
+                mass = 1.4 + digit * digit * 0.2;
+                break;
         }
 
         return mass;
+    }
+
+    /**
+     * Gets the radius modifier for this spectral type. Multiply this by the radius of
+     * the luminosity class to get an actual radius of a star in Sol radius.
+     *
+     * @return      Radius relative to Sol.
+     */
+    public double getRadius() {
+        double radius = 1.0;
+        int    digit = getInverseDigit();
+
+        switch (getFirst()) {
+            case 'D':
+                radius =  0.75 * digit * 0.05;
+                break;
+            case 'Y': case 'T': case 'C':
+                radius = 0.1 + digit * 0.01;
+                break;
+            case 'L':
+                radius = 5.5 + digit * 0.1;
+                break;
+            case 'M':
+                radius = 4.5 + digit * 0.1;
+                break;
+            case 'K':
+                radius = 0.44 + digit * 0.04;
+                break;
+            case 'G':
+                radius = 0.86 + digit * 0.02;
+                break;
+            case 'F':
+                radius = 1.04 + digit * 0.04;
+                break;
+            case 'A':
+                radius = 1.4 + digit * 0.77;
+                break;
+            case 'B':
+                radius = 2.0 + digit * 0.2;
+                break;
+            case 'O':
+                radius = 7.0 + digit * 0.5;
+                break;
+            case 'X':
+                radius = 1.0;
+                break;
+        }
+
+        return radius;
     }
 
     /**
@@ -255,5 +356,28 @@ public enum SpectralType {
         }
 
         return billions;
+    }
+
+    public SpectralType getColder() {
+        if (this.ordinal() == 0) {
+            return this;
+        } else {
+            return SpectralType.values()[this.ordinal() - 1];
+        }
+    }
+
+    public SpectralType getHotter() {
+        if (this.ordinal() == SpectralType.values().length - 1) {
+            return this;
+        } else {
+            return SpectralType.values()[this.ordinal() + 1];
+        }
+    }
+
+    public static void main(String[] args) {
+
+        for (SpectralType t : new SpectralType[] { D9, D8, D7, D6, D5, D4, D3, D2, D1, D0 }) {
+            System.out.println(t.name() + ": " + t.getSurfaceTemperature());
+        }
     }
 }

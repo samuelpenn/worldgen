@@ -13,6 +13,7 @@ import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFeature;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.planets.generators.Dwarf;
+import uk.org.glendale.worldgen.astro.planets.maps.DwarfMapper;
 import uk.org.glendale.worldgen.astro.planets.maps.PlanetMapper;
 import uk.org.glendale.worldgen.astro.planets.maps.SmallBodyMapper;
 import uk.org.glendale.worldgen.astro.planets.tiles.Cratered;
@@ -30,7 +31,7 @@ import static uk.org.glendale.worldgen.astro.planets.maps.dwarf.AreanMapper.DEFA
  * Defines a surface map for a Hermian class world. These are generally grey, barren
  * and airless worlds close to their star. They are extremely hot, and heavily cratered.
  */
-public class HermianMapper extends SmallBodyMapper {
+public class HermianMapper extends DwarfMapper {
 
     protected static final Tile DARK_GREY = new Tile("Dark Grey", "#808280", false, 2);
     protected static final Tile MID_GREY = new Tile("Mid Grey", "#848684", false, 2);

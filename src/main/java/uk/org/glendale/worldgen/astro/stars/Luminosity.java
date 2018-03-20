@@ -7,6 +7,7 @@
 package uk.org.glendale.worldgen.astro.stars;
 
 import uk.org.glendale.utils.rpg.Die;
+import uk.org.glendale.worldgen.astro.systems.Physics;
 
 /**
  * The luminosity, which is the size of the star. This provides a finer grained
@@ -14,27 +15,28 @@ import uk.org.glendale.utils.rpg.Die;
  * it on the star map.
  */
 public enum Luminosity {
-    B("Black Hole", 0.25, 0.0000001),
-    N("Neutron Star", 0.25, 0.000001),
-    D("White Dwarf", 0.25, 0.001),
-    VII("Brown Dwarf", 0.5, 0.3),
-    VI("Sub Dwarf", 0.75, 0.5),
-    V("Main Sequence", 1.0, 1.0),
-    IV("Sub Giant", 1.25, 2.0),
-    III("Giant", 1.25, 10),
-    II("Large Giant", 1.25, 25),
-    Ib("Super Giant", 1.50, 50),
-    Ia("Super Giant", 1.50, 100),
-    O("Hypergiant", 1.50, 200);
+    B("Black Hole", 0.25, 0.0000043, 1.0),
+    N("Neutron Star", 0.25, 0.000013, 1.0),
+    VII("White Dwarf", 0.5, 0.01, 1.0),
+    VI("Sub Dwarf", 0.75, 0.5, 0.50),
+    V("Main Sequence", 1.0, 1.0, 1.0),
+    IV("Sub Giant", 1.25, 2.0, 1.5),
+    III("Giant", 1.25, 10, 2.0),
+    II("Large Giant", 1.25, 25, 2.5),
+    Ib("Super Giant", 1.50, 50, 3.0),
+    Ia("Super Giant", 1.50, 100, 4.0),
+    O("Hypergiant", 1.50, 200, 5.0);
 
     private String name = null;
     private double size = 0.0;
     private double radius = 0;
+    private double mass = 1.0;
 
-    Luminosity(String name, double size, double radius) {
+    Luminosity(String name, double size, double radius, double mass) {
         this.name = name;
         this.size = size;
         this.radius = radius;
+        this.mass = mass;
     }
 
     /**
@@ -47,10 +49,25 @@ public enum Luminosity {
     }
 
     /**
-     * Get radius of star, in multiple's of Sol.
+     * Gets the standard radius of a main sequence star of this luminosity,
+     * relative to Sol. This would be modified by the radius of the Spectral Type
+     * for an actual star. Cool (M) stars have a much larger radius than hot (O)
+     * stars of the same luminosity class.
      */
     public double getRadius() {
         return radius;
+    }
+
+    /**
+     * Gets the mass multiplier for this class of star. When combined with the mass from
+     * the SpectralType, will give the actual mass of the star. Note that for stellar
+     * remnants, the mass is entirely dictated by its spectral type, so these luminosity
+     * classes all have a mass of 1.0.
+     *
+     * @return  Relative Solar mass for this Luminosity class.
+     */
+    public double getMass() {
+        return mass;
     }
 
     public String getDescription() {
@@ -86,9 +103,6 @@ public enum Luminosity {
         switch (this) {
             case B:
             case N:
-            case D:
-                sc = VII;
-                break;
             case VII:
                 sc = VII;
                 break;
@@ -119,7 +133,7 @@ public enum Luminosity {
      *
      * @return Random spectral type.
      */
-    public SpectralType getSpectralType() {
+    private SpectralType getSpectralType() {
         SpectralType type = SpectralType.M0;
         SpectralType[] values = SpectralType.values();
 
@@ -132,10 +146,11 @@ public enum Luminosity {
                 // Radiate in X-ray frequencies.
                 type = SpectralType.valueOf("X" + (Die.d4() + 5));
                 break;
-            case D:
+            case VII:
                 // Surprisingly hot, actually. These are white dwarfs.
                 type = SpectralType.valueOf("D" + (Die.d8() + 1));
                 break;
+                /*
             case VII:
                 // Brown dwarf stars, very cool, barely undergoing fusion.
                 switch (Die.d6(2)) {
@@ -153,6 +168,7 @@ public enum Luminosity {
                         break;
                 }
                 break;
+                */
             case VI:
                 // Sub-dwarf stars, most will be cool, of type M or L.
                 switch (Die.d6()) {

@@ -79,14 +79,14 @@ public class Hermian extends Dwarf {
 
         planet.setRadius(radius);
         planet.setAtmosphere(Atmosphere.Vacuum);
-        planet.setPressure(Pressure.None);
+        planet.setPressure(0);
 
         switch (Die.d6(3)) {
         case 3: case 4:
             planet.setMagneticField(MagneticField.VeryWeak);
             if (Die.d3() == 1) {
                 planet.setAtmosphere(Atmosphere.InertGases);
-                planet.setPressure(Pressure.Trace);
+                planet.setPressure(50 + Die.die(100, 1));
             }
             break;
         case 5: case 6: case 7:
@@ -102,7 +102,7 @@ public class Hermian extends Dwarf {
             if (Die.d2() == 1) {
                 // Outgassing from the liquid metal on the surface.
                 planet.setAtmosphere(Atmosphere.Exotic);
-                planet.setPressure(Pressure.Trace);
+                planet.setPressure(50 + Die.die(100, 2));
             }
         }
 

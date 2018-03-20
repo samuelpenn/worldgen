@@ -32,6 +32,10 @@ public class Belt extends PlanetGenerator {
             distance = previousDistance + (int)(radius * 1.3);
         }
 
+        if (radius > distance / 3) {
+            radius = distance / 3;
+        }
+
         return radius;
     }
 

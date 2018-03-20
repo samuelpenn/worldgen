@@ -18,11 +18,16 @@ import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.stars.*;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
+import uk.org.glendale.worldgen.web.Server;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
- * Generator for star systems.
+ * Abstract Generator for star systems. An actual star system generator will extend this. Each
+ * generator defines a different type of star system. Each must define a generate() method which
+ * creates a new random star system at the given coordinates within a sector.
  */
 public abstract class StarSystemGenerator {
     private static final Logger logger = LoggerFactory.getLogger(StarSystemGenerator.class);
@@ -37,6 +42,16 @@ public abstract class StarSystemGenerator {
         this.starFactory = worldgen.getStarFactory();
     }
 
+    /**
+     * Abstract class which must be extended by a star system generator.
+     *
+     * @param sector    Sector to generate star system in.
+     * @param name      Name of star system to be generated.
+     * @param x         X coordinate (01..32) in the sector.
+     * @param y         Y coordinate (01..40) in the sector.
+     * @return          Newly created star system.
+     * @throws DuplicateObjectException     If a system already exists at this position.
+     */
     public abstract StarSystem generate(Sector sector, String name, int x, int y) throws DuplicateObjectException;
 
     protected void updateStarSystem(StarSystem system) {

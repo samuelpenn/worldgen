@@ -14,7 +14,11 @@ import uk.org.glendale.worldgen.astro.systems.generators.Barren;
 import uk.org.glendale.worldgen.astro.systems.generators.BlueGiant;
 import uk.org.glendale.worldgen.astro.systems.generators.Simple;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
+import uk.org.glendale.worldgen.exceptions.UnsupportedException;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 /**
@@ -54,6 +58,29 @@ public class StarSystemSelector {
 
         return generator.generate(sector, name, x, y);
     }
+
+    /**
+     * Generate a new star system using the named generator and type.
+     *
+     * @param sector
+     * @param name
+     * @param x
+     * @param y
+     * @param generator
+     * @param type
+     * @return
+     * @throws UnsupportedException
+     * @throws DuplicateObjectException
+     */
+    public StarSystem createByGeneratorType(Sector sector, String name, int x, int y, String generator, String type) throws UnsupportedException, DuplicateObjectException {
+        logger.info(String.format("createNamedType: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
+
+        validate(sector, name, x, y);
+
+        NamedGenerator g = new NamedGenerator(worldgen);
+        return g.generate(sector, name, x, y, generator, type);
+    }
+
 
     /**
      * Generate a complete random star system. This selects a type of star system from all the
@@ -110,4 +137,5 @@ public class StarSystemSelector {
         }
         return generator.generate(sector, name, x, y);
     }
+
 }

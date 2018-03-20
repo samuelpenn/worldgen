@@ -62,8 +62,8 @@ public class Planet {
     @Column @Enumerated (EnumType.STRING)
     private Atmosphere atmosphere;
 
-    @Column @Enumerated (EnumType.STRING)
-    private Pressure pressure;
+    @Column
+    private int pressure;
 
     @Column @Enumerated (EnumType.STRING)
     private MagneticField field;
@@ -270,12 +270,36 @@ public class Planet {
         this.atmosphere = atmosphere;
     }
 
-    public Pressure getPressure() {
+    /**
+     * Gets the atmospheric pressure of this planet, in Pascals. 100,000 Pa is considered
+     * to be standard pressure.
+     *
+     * @return      Pressure in Pascals.
+     */
+    public int getPressure() {
         return pressure;
     }
 
+    /**
+     * Sets the atmsopheric pressure of the planet, in Pascals. 100,000 Pa is considered
+     * to be standard pressure.
+     *
+     * @param pascals   Pressure in pascals.
+     */
+    public void setPressure(int pascals) {
+        if (pascals < 0) {
+            this.pressure = 0;
+        } else {
+            this.pressure = pascals;
+        }
+    }
+
     public void setPressure(Pressure pressure) {
-        this.pressure = pressure;
+        if (pressure != null) {
+            this.pressure = pressure.getPascals();
+        } else {
+            this.pressure = 0;
+        }
     }
 
     /**

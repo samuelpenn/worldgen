@@ -17,7 +17,7 @@ import uk.org.glendale.worldgen.astro.planets.Planet;
  * There maps tend to be incredibly simple.
  */
 public class SmallBodyMapper extends PlanetMapper {
-    protected static final int    DEFAULT_FACE_SIZE = 24;
+    protected static final int    DEFAULT_FACE_SIZE = 12;
 
     public SmallBodyMapper(final Planet planet, final int size) {
         super(planet, size);
@@ -28,6 +28,6 @@ public class SmallBodyMapper extends PlanetMapper {
     }
 
     public void generate() {
-        generateHeightMap(24, DEFAULT_FACE_SIZE);
+        generateHeightMap(12, DEFAULT_FACE_SIZE);
     }
 }

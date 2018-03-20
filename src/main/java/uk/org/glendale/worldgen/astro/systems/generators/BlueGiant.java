@@ -72,8 +72,6 @@ public class BlueGiant extends StarSystemGenerator {
                 break;
         }
 
-        primary.setSpectralType(primary.getLuminosity().getSpectralType());
-
         logger.debug(String.format("Creating %s %s super giant",
                 primary.getLuminosity(), primary.getSpectralType()));
 

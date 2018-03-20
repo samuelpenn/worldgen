@@ -13,17 +13,14 @@ import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
-import uk.org.glendale.worldgen.astro.stars.DuplicateStarException;
-import uk.org.glendale.worldgen.astro.stars.Luminosity;
-import uk.org.glendale.worldgen.astro.stars.Star;
-import uk.org.glendale.worldgen.astro.stars.StarGenerator;
+import uk.org.glendale.worldgen.astro.stars.*;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.astro.systems.StarSystemGenerator;
 import uk.org.glendale.worldgen.astro.systems.StarSystemType;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 
 /**
- * Generate a barren star system. These are mostly devoid of life and habitable planets.
+ * Generate a barren star system. These are devoid of native life and habitable planets.
  */
 public class Barren extends StarSystemGenerator {
     private static final Logger logger = LoggerFactory.getLogger(Barren.class);
@@ -52,8 +49,11 @@ public class Barren extends StarSystemGenerator {
             case 1:
                 createRedGiant(system);
                 break;
-            case 2: case 3: case 4:
+            case 2: case 3:
                 createSmallDwarf(system);
+                break;
+            case 4:
+                createProtoDwarf(system);
                 break;
             case 5: case 6:
                 createSmallDwarfPair(system);
@@ -64,7 +64,13 @@ public class Barren extends StarSystemGenerator {
         return system;
     }
 
-    private StarSystem createSmallDwarf(StarSystem system) throws DuplicateStarException {
+    /**
+     * Create a single small dwarf star with a few barren worlds around it.
+     *
+     * @param system
+     * @throws DuplicateStarException
+     */
+    public void createSmallDwarf(StarSystem system) throws DuplicateStarException {
         system.setType(StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
         Star primary = null;
@@ -89,21 +95,73 @@ public class Barren extends StarSystemGenerator {
                 addProtoWorlds(system, primary);
                 break;
         }
-
-        return system;
     }
 
-    private StarSystem createSmallDwarfPair(StarSystem system) throws DuplicateStarException {
-        system.setType(StarSystemType.BINARY);
+    /**
+     * Creates a small dwarf star with a proto-planetary disc.
+     */
+    public void createProtoDwarf(StarSystem system) throws DuplicateStarException {
+        system.setType(StarSystemType.SINGLE);
+        StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
+        Star primary = null;
+
+        primary = starGenerator.generateDwarfPrimary();
+        addProtoWorlds(system, primary);
+    }
+
+    /**
+     * Creates a brown dwarf star. Most will be without any planets, but a few will have
+     * some cold minor worlds.
+     */
+    public void createBrownDwarf(StarSystem system) throws DuplicateStarException {
+        system.setType(StarSystemType.SINGLE);
+        StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
+        Star primary = null;
+
+        primary = starGenerator.generateBrownDwarfPrimary();
+
+        if (Die.d3() == 1) {
+            PlanetFactory planetFactory = worldgen.getPlanetFactory();
+            String planetName;
+            Planet planet;
+            int distance = 5 + Die.d6(2);
+            int orbit = 1;
+
+            planetName = factory.getPlanetName(primary, orbit++);
+            planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
+        }
+    }
+
+    /**
+     * Creates a system with a couple of close binary dwarf stars. The two stars are very similar
+     * in mass, if not identical, and orbit a common centre of gravity.
+     *
+     * @param system        Star system to add stars to.
+     * @throws DuplicateStarException  If stars already exist.
+     */
+    public void createSmallDwarfPair(StarSystem system) throws DuplicateStarException {
+        system.setType(StarSystemType.CLOSE_BINARY);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, true);
 
-        Star primary = starGenerator.generatePrimary(Luminosity.VI);
-        int d = addBarrenWorlds(system, primary);
+        int distance = 5 + Die.d6(2);
+        Star primary = starGenerator.generatePrimary(Luminosity.VI, SpectralType.G5);
+        primary.setDistance(distance);
 
-        Star secondary = starGenerator.generateSecondary(d * 5 + Die.d100());
-        addBarrenWorlds(system, secondary);
+        // Get a possibly cooler variant of the primary star. There is a 50% chance that
+        // it is at least one step cooler, and 50% chance for each step down beyond that.
+        SpectralType hr = primary.getSpectralType();
+        while (Die.d2() == 1) {
+            hr = hr.getColder();
+        }
+        Star secondary = starGenerator.generateSecondary(Luminosity.VI, hr);
 
-        return system;
+        distance = (int)(distance * primary.getMass() / secondary.getMass());
+        secondary.setDistance(distance);
+
+        primary.setParentId(secondary.getId());
+        secondary.setParentId(primary.getId());
+
+        addBarrenWorlds(system, primary, secondary);
     }
 
     /**
@@ -111,19 +169,23 @@ public class Barren extends StarSystemGenerator {
      * burnt to a cinder long ago, leaving a warmed outer system of planets.
      *
      * @param system    System to create stars and planets in.
-     * @return          Updated system.
-     * @throws DuplicateStarException
+     * @throws DuplicateStarException If stars already exist.
      */
-    private StarSystem createRedGiant(StarSystem system) throws DuplicateStarException {
+    public void createRedGiant(StarSystem system) throws DuplicateStarException {
         system.setType(StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
 
         Star primary = starGenerator.generateRedGiantPrimary();
         addBarrenWorlds(system, primary);
-
-        return system;
     }
 
+    /**
+     * Creates a proto-planetary disc around the star.
+     *
+     * @param system    Star System worlds are being added to.
+     * @param star      Star worlds are orbiting around.
+     * @return          Orbit distance of the most distant planet.
+     */
     private int addProtoWorlds(StarSystem system, Star star) {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
         Planet      planet;
@@ -176,7 +238,7 @@ public class Barren extends StarSystemGenerator {
                 break;
         }
 
-        return 1;
+        return distance;
     }
 
     /**
@@ -229,5 +291,61 @@ public class Barren extends StarSystemGenerator {
         }
 
         return distance;
+    }
+
+    /**
+     * Adds worlds to a close binary star system.
+     *
+     * @param system
+     * @param primary
+     * @param secondary
+     */
+    private void addBarrenWorlds(StarSystem system, Star primary, Star secondary) {
+        PlanetFactory planetFactory = worldgen.getPlanetFactory();
+        Planet planet;
+        String          planetName;
+        int             orbit = 1;
+        int             distance = primary.getMinimumDistance() + secondary.getMinimumDistance();
+        distance += secondary.getDistance() + Die.d6(3);
+
+        Star center = new Star(system.getName(), system, 0, 0,
+                primary.getLuminosity(), primary.getSpectralType());
+        center.setMass(primary.getMass() + secondary.getMass());
+
+        switch (Die.d6()) {
+            case 1:
+                planetName = factory.getPlanetName(primary, orbit++);
+                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.VulcanianBelt, distance);
+                logger.info(String.format("Created world [%s]", planetName));
+                distance += planet.getRadius() * 3;
+
+                planetName = factory.getPlanetName(primary, orbit++);
+                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, distance);
+                logger.info(String.format("Created world [%s]", planetName));
+                distance += (planet.getRadius() / 500) + Die.dieV(20);
+                break;
+            case 2: case 3:
+                planetName = factory.getPlanetName(primary, orbit++);
+                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Hermian, distance);
+                logger.info(String.format("Created world [%s]", planetName));
+                distance += Die.d20(3);
+                break;
+            case 4: case 5:
+                planetName = factory.getPlanetName(primary, orbit++);
+                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Ferrinian, distance);
+                logger.info(String.format("Created world [%s]", planetName));
+                distance += Die.d20(3);
+                break;
+            case 6:
+                distance += 50 + Die.d20(3);
+                break;
+        }
+
+        if (Die.d2() == 1) {
+            planetName = factory.getPlanetName(primary, orbit++);
+            planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
+            logger.info(String.format("Created world [%s]", planetName));
+            distance += planet.getRadius() * 3;
+        }
     }
 }

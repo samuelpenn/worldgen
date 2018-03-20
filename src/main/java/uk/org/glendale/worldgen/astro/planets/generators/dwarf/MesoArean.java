@@ -60,24 +60,18 @@ public class MesoArean extends Dwarf {
         planet.setPressure(determinePressure(0));
         planet.setMagneticField(MagneticField.Minimal);
 
-        switch (planet.getPressure()) {
-            case None:
-                // Shouldn't happen.
-                planet.setHydrographics(0);
-                break;
-            case Trace:
-                planet.setHydrographics(Die.d4());
-                break;
-            case VeryThin:
-                planet.setHydrographics(Die.d4(2));
-                break;
-            case Thin:
-                planet.setMagneticField(MagneticField.VeryWeak);
-                planet.setHydrographics(Die.d6(3));
-                break;
-            default:
-                // Shouldn't happen.
-                planet.setHydrographics(Die.d8(3));
+        int pascals = planet.getPressure();
+        if (pascals < 1000) {
+            // Shouldn't happen.
+            planet.setHydrographics(0);
+        } else if (pascals < 10000) {
+            planet.setHydrographics(Die.d4());
+        } else if (pascals < 30000) {
+            planet.setMagneticField(MagneticField.VeryWeak);
+            planet.setHydrographics(Die.d6(3));
+        } else {
+            // Shouldn't happen.
+            planet.setHydrographics(Die.d8(3));
         }
 
         addFeatures(planet);

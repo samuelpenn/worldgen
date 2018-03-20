@@ -12,22 +12,23 @@ import uk.org.glendale.worldgen.astro.sectors.NoSuchSectorException;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.sectors.SectorFactory;
 import uk.org.glendale.worldgen.astro.sectors.SectorGenerator;
-import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
 import uk.org.glendale.worldgen.astro.systems.StarSystemSelector;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
-import uk.org.glendale.worldgen.text.NameGenerator;
 import uk.org.glendale.worldgen.web.Server;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
+/**
+ * Command line based interface to WorldGen. Provides a number of simple commands that allow
+ * the universe to be manipulated directly from the command line. Mostly designed for testing
+ * purposes, but can be used to manipulate real data.
+ */
 public class CommandLine extends Main {
     private static final Logger logger = LoggerFactory.getLogger(CommandLine.class);
-
 
     private CommandLine() {
     }
@@ -200,14 +201,26 @@ public class CommandLine extends Main {
 
             String name;
 
-            if (options.length > 2) {
-                name = options[2];
+            if (options.length < 4) {
+                if (options.length == 3) {
+                    name = options[2];
+                } else {
+                    name = wg.getStarSystemNameGenerator().generateName();
+                }
+                StarSystemSelector selector = new StarSystemSelector(wg);
+                selector.createRandomSystem(sector, name, x, y);
             } else {
-                name = wg.getStarSystemNameGenerator().generateName();
-            }
+                String generator = options[2];
+                String type = options[3];
 
-            StarSystemSelector selector = new StarSystemSelector(wg);
-            selector.createRandomSystem(sector, name, x, y);
+                if (options.length > 4) {
+                    name = options[4];
+                } else {
+                    name = wg.getStarSystemNameGenerator().generateName();
+                }
+                StarSystemSelector selector = new StarSystemSelector(wg);
+                selector.createByGeneratorType(sector, name, x, y, generator, type);
+            }
 
         } catch (NoSuchSectorException e) {
             System.out.println(e.getMessage());
