@@ -11,9 +11,11 @@ import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.graphics.SimpleImage;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
+import uk.org.glendale.worldgen.astro.planets.maps.belt.DustDiscMapper;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.sectors.SubSector;
 import uk.org.glendale.worldgen.astro.sectors.SubSectorImage;
@@ -45,7 +47,7 @@ public class StarSystemImage {
     private boolean     drawTitle   = false;
     private boolean     drawLabels  = true;
     private ScaleType   scaleType   = MKM;
-    private int         maxDistance = 150;
+    private long        maxDistance = 150;
 
     public enum ScaleType {
         NONE,
@@ -67,12 +69,11 @@ public class StarSystemImage {
         this.planets = planetFactory.getPlanets(system);
 
         this.currentTime = worldgen.getUniverse().getSimTime();
-
     }
 
     /**
-     * Set the scale of the map to be generated. Scale gives number of pixels
-     * per 100 million kilometres.
+     * Set the scale of the map to be generated. Scale gives size of each pixel,
+     * in kilometres. So scale = 1000, 1 pixel = 1000km.
      *
      * @param scale
      *            Size of the map.
@@ -82,6 +83,11 @@ public class StarSystemImage {
         this.objectScale = (int) Math.sqrt(scale);
     }
 
+    /**
+     * Gets the scale of the map. This is the number of km per pixel.
+     *
+     * @return      Scale in kilometres per pixel.
+     */
     public int getScale() {
         return scale;
     }
@@ -170,14 +176,15 @@ public class StarSystemImage {
      * Set a default scale based on the size of the solar system.
      */
     private void setScale() {
-        maxDistance = 10;
+        maxDistance = Physics.MKM;
         switch (system.getType()) {
             case EMPTY:
-                maxDistance = 150;
+                maxDistance = Physics.AU;
                 break;
             case SINGLE:
+            case CONJOINED_BINARY:
                 for (Planet p: planets) {
-                    int d = p.getDistance();
+                    long d = p.getDistance();
                     if (p.getType().getGroup().equals(PlanetGroup.Belt)) {
                         d += p.getRadius();
                     }
@@ -196,7 +203,7 @@ public class StarSystemImage {
                 List<Star> stars = system.getStars();
                 for (Planet p: planets) {
                     if (p.getParentId() == stars.get(1).getId()) {
-                        int d = p.getDistance();
+                        long d = p.getDistance();
                         if (p.getType().getGroup().equals(PlanetGroup.Belt)) {
                             d += p.getRadius();
                         }
@@ -210,10 +217,11 @@ public class StarSystemImage {
                 break;
             default:
                 // More complex systems not yet fully supported, so just guess.
-                maxDistance = 1500;
+                maxDistance = 1500 * Physics.MKM;
                 break;
         }
-        scale = (int) (100.0 * (width / 2.0) / (maxDistance * 1.1));
+        maxDistance *= 1.1;
+        scale = (int) (maxDistance * 2) / width;
         objectScale = (int) Math.sqrt(scale);
     }
 
@@ -223,11 +231,9 @@ public class StarSystemImage {
         if (scale == -1) {
             setScale();
         }
-
-        drawScale();
+        logger.info(String.format("Drawing system map for [%s] at scale of [%d]", system.getName(), getScale()));
 
         Star primary, secondary;
-
         switch(system.getType()) {
             case EMPTY:
                 // Nothing to do.
@@ -235,6 +241,21 @@ public class StarSystemImage {
             case SINGLE:
                 primary = system.getStars().get(0);
                 drawStar(primary, width/2, width/2);
+                break;
+            case CONJOINED_BINARY:
+            case CLOSE_BINARY:
+                primary = system.getStars().get(0);
+                secondary = system.getStars().get(1);
+                if (primary.getParentId() == StarSystem.PRIMARY_COG && secondary.getParentId() == StarSystem.PRIMARY_COG) {
+                    if (drawZones) {
+                        double constant = Physics.getSolarConstant(primary) + Physics.getSolarConstant(secondary);
+                        drawZones(image, width/2, width/2, constant);
+                    }
+                    drawStar(primary, width/2 - (int)getScaledPixels(primary.getDistance()), width/2);
+                    drawStar(secondary, width/2 + (int)getScaledPixels(secondary.getDistance()), width/2);
+                } else {
+                    logger.error(String.format("Conjoined stars in [%s] do not share each other as a parent", system.getName()));
+                }
                 break;
             case FAR_BINARY:
                 primary = system.getStars().get(0);
@@ -244,19 +265,27 @@ public class StarSystemImage {
                 drawStar(secondary, width/2 + (int)getScaledPixels(secondary.getDistance()), width/2);
                 break;
         }
+        drawScale();
 
         return image;
     }
 
+    private void drawZones(SimpleImage image, int cx, int cy, double constant) {
+        image.circle(cx, cy, (int) getScaledPixels(constant * Physics.SNOW_DISTANCE), "#FFFFDD");
+        image.circle(cx, cy, (int) getScaledPixels(constant * Physics.OUTER_DISTANCE), "#DDFFDD");
+        image.circle(cx, cy, (int) getScaledPixels(constant * Physics.INNER_DISTANCE), "#FFDDDD");
+        image.circle(cx, cy, (int) getScaledPixels(constant * Physics.MINIMUM_DISTANCE), "#FFFFFF");
+    }
+
     /**
-     * Gets a distance scaled to fit on the map. Distance is specified in millions of KM,
+     * Gets a distance scaled to fit on the map. Distance is specified in KM,
      * and value is returned in pixels.
      *
-     * @param millionKm     Solar system distance to scale.
-     * @return              Number of pixels in size.
+     * @param km     Actual star system distance in kilometres.
+     * @return       Scaled distance in pixels.
      */
-    private double getScaledPixels(double millionKm) {
-        return (millionKm * scale * 0.01);
+    private double getScaledPixels(double km) {
+        return (km / scale);
     }
 
     /**
@@ -271,15 +300,15 @@ public class StarSystemImage {
         } else if (scaleType == MKM) {
             scaleWidth = 100;
 
-            if (maxDistance < 10) {
+            if (maxDistance < 10 * Physics.MKM) {
                 scaleWidth = 1;
-            } else if (maxDistance < 30) {
+            } else if (maxDistance < 30 * Physics.MKM) {
                 scaleWidth = 10;
-            } else if (maxDistance < 100) {
+            } else if (maxDistance < 100 * Physics.MKM) {
                 scaleWidth = 25;
-            } else if (maxDistance < 300) {
+            } else if (maxDistance < 300 * Physics.MKM) {
                 scaleWidth = 50;
-            } else if (maxDistance < 1000) {
+            } else if (maxDistance < 1000 * Physics.MKM) {
                 scaleWidth = 100;
             } else {
                 scaleWidth = 500;
@@ -291,7 +320,7 @@ public class StarSystemImage {
         System.out.println(scaleWidth);
 
         int left = width / 2;
-        int right = width / 2 + (int) getScaledPixels(scaleWidth);
+        int right = width / 2 + (int) getScaledPixels(scaleWidth * Physics.MKM);
         image.line(left, width - 10, right, width - 10, "#000000", 2);
         image.line(left, width - 10, left, width - 20, "#000000", 2);
         image.line(right, width - 10, right, width - 20, "#000000", 2);
@@ -331,15 +360,17 @@ public class StarSystemImage {
      * @param planet    Planet to draw.
      */
     private void drawAsteroidBelt(Star star, int cx, int cy, Planet planet) {
-        int     distance = planet.getDistance();
+        long    distance = planet.getDistance();
         Random  random = new Random(star.getId() * distance);
-        int     number = 150 + random.nextInt(distance * 10) + random.nextInt(distance * 10);
+
+        int     maxNumber = (int) ((distance * 10) / Physics.MKM);
+        int     number = 150 + random.nextInt(maxNumber) + random.nextInt(maxNumber);
         int     sizeModifier = 0;
-        if (distance < 10) {
+        if (distance < 10 * Physics.MKM) {
             sizeModifier = 99;
-        } else if (distance < 30) {
+        } else if (distance < 30 * Physics.MKM) {
             sizeModifier = 50;
-        } else if (distance < 100) {
+        } else if (distance < 100 * Physics.MKM) {
             sizeModifier = 9;
         }
         logger.info("drawAsteroidBelt " + number);
@@ -371,14 +402,16 @@ public class StarSystemImage {
     }
 
     private void drawPlanetesimalDisc(Star star, int cx, int cy, Planet planet) {
-        int     distance = planet.getDistance();
+        long    distance = planet.getDistance();
         Random  random = new Random(star.getId() * distance);
-        int     number = distance * 10 + random.nextInt(distance * 5) + random.nextInt(distance * 5);
+
+        int     maxNumber = (int) ((distance * 5) / Physics.MKM);
+        int     number = (int)((distance * 10) / Physics.MKM) + random.nextInt(maxNumber) + random.nextInt(maxNumber);
         logger.info("drawPlanetesimalDisc " + number);
 
         String darker = image.getDarker(planet.getType().getColour());
         for (; number > 0; number --) {
-            int     d = planet.getDistance() + random.nextInt(planet.getRadius()) - random.nextInt(planet.getRadius());
+            long    d = planet.getDistance() + random.nextInt(planet.getRadius()) - random.nextInt(planet.getRadius());
             double  angle = random.nextDouble() * 360.0 + getAngleOffset(star, d);
             int     x = cx + (int) getScaledPixels((int) (Math.cos(Math.toRadians(angle)) * d));
             int     y = cy + (int) getScaledPixels((int) (Math.sin(Math.toRadians(angle)) * d));
@@ -388,27 +421,9 @@ public class StarSystemImage {
     }
 
     private void drawDustDisc(Star star, int cx, int cy, Planet planet) {
-        int     distance = planet.getDistance();
-        Random  random = new Random(star.getId() * distance);
-        int     number = 50 + random.nextInt(20) + random.nextInt(20);
-        logger.info("drawDustDisc " + number);
+        DustDiscMapper mapper = new DustDiscMapper(planet);
 
-        int d = distance - planet.getRadius();
-        while (d < distance + planet.getRadius()) {
-            String colour = planet.getType().getColour();
-            switch (random.nextInt(3)) {
-                case 0:
-                    colour = SimpleImage.getDarker(colour, 6 + random.nextInt(6));
-                    break;
-                case 1:
-                    colour = SimpleImage.getLighter(colour, 6 + random.nextInt(6));
-                    break;
-                default:
-                    // Colour remains unchanged.
-            }
-            image.circleOutline(cx, cy, (int) getScaledPixels(d), colour, 15);
-            d += 1 + random.nextInt(3);
-        }
+        mapper.drawOrbit(image, cx, cy, getScale());
     }
 
     /**
@@ -470,17 +485,19 @@ public class StarSystemImage {
 
     private void drawStar(Star star, int cx, int cy) {
         // Draw regions.
+        /*
         if (drawZones) {
             image.circle(cx, cy, (int) getScaledPixels(star.getSnowLineDistance()), "#FFFFDD");
             image.circle(cx, cy, (int) getScaledPixels(star.getOuterWarmDistance()), "#DDFFDD");
             image.circle(cx, cy, (int) getScaledPixels(star.getInnerWarmDistance()), "#FFDDDD");
             image.circle(cx, cy, (int) getScaledPixels(star.getMinimumDistance()), "#FFFFFF");
         }
+        */
 
         // Draw the star itself.
-        image.circle(cx, cy, (int)(star.getLuminosity().getSize() * objectScale * 0.3),
+        image.circle(cx, cy, (int)(star.getRadius() / scale),
                 star.getSpectralType().getRGBColour());
-        image.circleOutline(cx, cy, (int)(star.getLuminosity().getSize() * objectScale * 0.3), "#000000");
+        image.circleOutline(cx, cy, (int)(star.getRadius() / scale), "#000000");
 
         for (Planet planet : planets) {
             if (planet.getParentId() != star.getId()) {
@@ -488,7 +505,7 @@ public class StarSystemImage {
             }
 
             int distance = (int) getScaledPixels(planet.getDistance());
-            logger.info(String.format("Planet [%s] at [%d] MKm", planet.getName(), distance));
+            logger.info(String.format("Planet [%s] at [%d] KM", planet.getName(), distance));
 
             switch (planet.getType().getGroup()) {
                 case Belt:

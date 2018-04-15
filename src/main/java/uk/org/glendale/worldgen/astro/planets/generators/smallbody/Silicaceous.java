@@ -19,7 +19,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
  * A Silicaceous asteroid is mostly silicate material. They are fairly common in most systems.
  */
 public class Silicaceous extends SmallBody {
-    public Silicaceous(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Silicaceous(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

@@ -26,7 +26,7 @@ import static uk.org.glendale.worldgen.astro.planets.generators.Jovian.JovianFea
 public class Sokarian extends Jovian {
     private static final Logger logger = LoggerFactory.getLogger(Sokarian.class);
 
-    public Sokarian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Sokarian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

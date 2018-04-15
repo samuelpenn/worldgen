@@ -31,7 +31,7 @@ import static uk.org.glendale.worldgen.astro.planets.generators.Dwarf.DwarfFeatu
 public class Selenian extends Dwarf {
     private static final Logger logger = LoggerFactory.getLogger(Selenian.class);
 
-    public Selenian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Selenian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

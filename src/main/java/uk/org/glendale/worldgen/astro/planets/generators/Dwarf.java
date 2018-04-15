@@ -37,7 +37,7 @@ public class Dwarf extends PlanetGenerator {
         ReMelted
     }
 
-    public Dwarf(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Dwarf(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

@@ -25,7 +25,7 @@ import uk.org.glendale.worldgen.exceptions.UnsupportedException;
  */
 public class SmallBody extends PlanetGenerator {
 
-    public SmallBody(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public SmallBody(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

@@ -26,7 +26,7 @@ import static uk.org.glendale.worldgen.astro.planets.generators.Dwarf.DwarfFeatu
 public class Hermian extends Dwarf {
     private static final Logger logger = LoggerFactory.getLogger(Hermian.class);
 
-    public Hermian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Hermian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

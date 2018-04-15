@@ -3,8 +3,9 @@
  * See the file LICENSE at the root of the project.
  */
 
-package uk.org.glendale.worldgen.astro.systems;
+package uk.org.glendale.worldgen.astro;
 
+import uk.org.glendale.worldgen.astro.stars.Luminosity;
 import uk.org.glendale.worldgen.astro.stars.SpectralType;
 import uk.org.glendale.worldgen.astro.stars.Star;
 
@@ -24,14 +25,60 @@ public class Physics {
     // Length of a standard year, in seconds.
     public static final long STANDARD_YEAR = 31557600L;
 
-    // Distance of one Astronomical Unit, in millions of kilometres.
-    public static final double  AU = 150.0;
+    public static final long STANDARD_DAY = 86400L;
+
+    // Distance of one Astronomical Unit, in kilometres.
+    public static final long  AU = 150000000;
+
+    // Distance unit of millions of kilometres.
+    public static final long MKM = 1000000;
 
     public static final double G = 6.67408e-11;
+
+    public static final long SNOW_DISTANCE = 400 * MKM;
+    public static final long OUTER_DISTANCE = 250 * MKM;
+    public static final long INNER_DISTANCE = 100 * MKM;
+    public static final long MINIMUM_DISTANCE = 25 * MKM;
 
     // Can't be instantiated.
     private Physics() {
 
+    }
+
+    /**
+     * Rounds a number to the given number of significant digits.
+     *
+     * @param number      Number to be rounded.
+     * @param digits      Number of digits to round it to. Must be at least one.
+     *
+     * @return            The number after it has been rounded.
+     */
+    public static final long round(long number, int digits) {
+        int sign = (number < 0)?-1:1;
+        number = Math.abs(number);
+
+        if (digits < 1) {
+            throw new IllegalArgumentException("Number of significant digits must be at least one.");
+        }
+        if (number <= Math.pow(10, digits)) {
+            // Nothing to do.
+        } else {
+            int  log = (int) Math.log10(number);
+            digits = 1 + log - digits;
+
+            number += Math.pow(10, digits) / 2;
+            number -= number % (long)Math.pow(10, digits);
+        }
+
+        return sign * number;
+    }
+
+    public static final long round(long number) {
+        return round(number, 4);
+    }
+
+    public static final long round(double number) {
+        return round((long) number, 4);
     }
 
     /**
@@ -63,28 +110,20 @@ public class Physics {
         // Start with the basic surface temperature.
         double t = (1.0 * star.getSpectralType().getSurfaceTemperature()) / SpectralType.G2.getSurfaceTemperature();
         // Radius of the star.
-        double r = 1.0 * star.getLuminosity().getRadius();
+        double r = 1.0 * star.getRadius() / SOL_RADIUS;
 
         // Get power output relative to Sol.
-        double l = Math.pow(r, 2.0) * Math.pow(t, 4);
-
-        return l;
+        return Math.pow(r, 2.0) * Math.pow(t, 4);
     }
 
-    public static int getOrbitTemperature(Star star, int distance) {
-        // Start with the basic surface temperature.
-        double t = (1.0 * star.getSpectralType().getSurfaceTemperature()) / SpectralType.G2.getSurfaceTemperature();
-        // Radius of the star.
-        double r = 1.0 * star.getLuminosity().getRadius();
-
-        // Distance in AU.
-        double d = (1.0 * distance) / 150;
-
-        // Get power output relative to Sol.
-        double l = Math.pow(r, 2.0) * Math.pow(t, 4);
-        l = l / Math.pow(d, 2.0);
+    public static int getOrbitTemperature(double solarConstant, long distance) {
+        double l = solarConstant / Math.pow(1.0 * distance / AU, 2.0);
 
         return (int) (280 * Math.pow(l, 0.25));
+    }
+
+    public static int getOrbitTemperature(Star star, long distance) {
+        return getOrbitTemperature(getSolarConstant(star), distance);
     }
 
     /**
@@ -99,11 +138,16 @@ public class Physics {
      */
     public static long getOrbitalPeriod(double kg, long m) {
         double rhs = Math.pow(m, 3);
-        System.out.println(rhs);
         rhs = rhs / ( G * kg);
-        System.out.println(rhs);
 
         return (long) (2 * Math.PI * Math.pow(rhs, 0.5));
     }
 
+    public static void main(String[] args) {
+        for (SpectralType type : new SpectralType[] { SpectralType.A2, SpectralType.F2, SpectralType.G2, SpectralType.K2, SpectralType.M2, SpectralType.L2, SpectralType.T2, SpectralType.Y2 }) {
+            Star star = new Star("foo", null, 0, 0, Luminosity.V, type);
+            star.setStandardRadius();
+            System.out.println(type + ": " + getSolarConstant(star));
+        }
+    }
 }

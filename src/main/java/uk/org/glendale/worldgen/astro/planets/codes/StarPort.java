@@ -10,11 +10,6 @@ package uk.org.glendale.worldgen.astro.planets.codes;
  * Starport classification for a world. This uses the standard Traveller
  * classifications, from A (best) to E (worst) and X as no starport at all.
  *
- * The type of starport may modify the World Trade Number, and the types define
- * how this modification happens. Modifiers are stored in an array, with the
- * modifier for an initial WTN of 0 to 7. These modifiers are from GURPS Free
- * Trader.
- *
  * Starports also have a minimum Tech Level, which is required to support a
  * starport of the given type.
  *
@@ -22,23 +17,25 @@ package uk.org.glendale.worldgen.astro.planets.codes;
  */
 public enum StarPort {
 
-	A(10, 1000000, new double[] { 1.5, 1, 1, 0.5, 0.5, 0, 0, 0 }, "Major"),
-	B(9,  100000, new double[] { 1, 1, 0.5, 0.5, 0, 0, -0.5, -1 }, "Large"),
-	C(8,  10000, new double[] { 1, 0.5, 0.5, 0, 0, -0.5, -1, -1.5 }, "Medium"),
-	D(7,  1000, new double[] { 0.5, 0.5, 0, 0, -0.5, -1, -1.5, -2 }, "Small"),
-	E(5,  0, new double[] { 0.5, 0, 0, -0.5, -1, -1.5, -2, -2.5 }, "Minimal"),
-	X(0,  0, new double[] { 0, 0, -2.5, -3, -3.5, -4, -4.5, -5 }, "None");
+	A(10, 1_000_000, "Major"),
+	Ao(10, 1_000_000, "Major Orbital"),
+	B(9,  100_000, "Large"),
+	Bo(9, 100_000, "Large Orbital"),
+	C(8,  10_000, "Medium"),
+	Co(8, 10_000, "Medium Orbital"),
+	D(7,  1_000, "Small"),
+	Do(7, 1_000, "Small Orbital"),
+	E(5,  0, "Minimal"),
+	Eo(5, 0, "Minimal Orbital"),
+	X(0,  0, "None");
 
 	int			minTechLevel	= 0;
 	int			minPopulation	= 0;
-	double[]	wtnModifier		= null;
 	String		description		= null;
 
-	StarPort(int minTechLevel, int minPopulation, double[] wtn,
-			String description) {
+	StarPort(int minTechLevel, int minPopulation, String description) {
 		this.minTechLevel = minTechLevel;
 		this.minPopulation = minPopulation;
-		this.wtnModifier = wtn;
 		this.description = description;
 	}
 
@@ -62,40 +59,32 @@ public enum StarPort {
 	}
 
 	/**
-	 * Given a World Trade Number, returns the modified WTN depending on this
-	 * type of starport. Small starports tend to heavily modify large WTNs
-	 * downwards, but have a smaller (or even beneficial) effect on small WTNs.
-	 */
-	public double getModifiedWTN(double wtn) {
-		int i = (int) wtn;
-		if (i >= wtnModifier.length) {
-			i = wtnModifier.length - 1;
-		}
-		if (i < 0) {
-			i = 0;
-		}
-		return wtn + wtnModifier[i];
-	}
-
-	/**
 	 * Gets the star port type one better than this one. A Star port type of A
 	 * will return A.
 	 */
 	public StarPort getBetter() {
 		switch (this) {
-		case A:
-			return A;
-		case B:
-			return A;
-		case C:
-			return B;
-		case D:
-			return C;
-		case E:
-			return D;
-		case X:
-			return E;
-		}
+            case A:
+            case B:
+                return A;
+            case C:
+                return B;
+            case D:
+                return C;
+            case E:
+                return D;
+            case X:
+                return E;
+            case Ao:
+            case Bo:
+                return Ao;
+            case Co:
+                return Bo;
+            case Do:
+                return Co;
+            case Eo:
+                return Do;
+        }
 
 		return E;
 	}
@@ -106,17 +95,26 @@ public enum StarPort {
 	 */
 	public StarPort getWorse() {
 		switch (this) {
-		case A:
-			return B;
-		case B:
-			return C;
-		case C:
-			return D;
-		case D:
-			return E;
-		case E:
-			return X;
-		}
+            case A:
+                return B;
+            case B:
+                return C;
+            case C:
+                return D;
+            case D:
+                return E;
+            case E:
+            case Eo:
+                return X;
+            case Ao:
+                return Bo;
+            case Bo:
+                return Co;
+            case Co:
+                return Do;
+            case Do:
+                return Eo;
+        }
 
 		return X;
 	}

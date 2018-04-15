@@ -23,7 +23,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
  * distinct core and crust, preventing formation of more complex materials.
  */
 public class Aggregate extends SmallBody {
-    public Aggregate(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Aggregate(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

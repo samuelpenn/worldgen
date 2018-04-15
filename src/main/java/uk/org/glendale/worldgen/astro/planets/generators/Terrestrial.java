@@ -39,7 +39,7 @@ public class Terrestrial extends PlanetGenerator {
         BorderedInGreen
     }
 
-    public Terrestrial(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Terrestrial(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

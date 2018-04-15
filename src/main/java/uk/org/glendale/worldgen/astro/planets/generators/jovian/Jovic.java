@@ -26,7 +26,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
 public class Jovic extends Jovian {
     private static final Logger logger = LoggerFactory.getLogger(Jovic.class);
 
-    public Jovic(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Jovic(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 
@@ -39,7 +39,7 @@ public class Jovic extends Jovian {
     }
 
     public Planet getPlanet(String name) {
-        Planet planet =  definePlanet(name, PlanetType.Sokarian);
+        Planet planet =  definePlanet(name, PlanetType.Jovic);
         planet.setRadius(45000 + Die.die(5000, 4));
 
         planet.setAtmosphere(Atmosphere.Hydrogen);

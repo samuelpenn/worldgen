@@ -12,16 +12,12 @@ import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
-import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.stars.*;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
-import uk.org.glendale.worldgen.web.Server;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 /**
@@ -77,8 +73,6 @@ public abstract class StarSystemGenerator {
      * @throws DuplicateObjectException     If duplicate system is created.
      */
     protected StarSystem createEmptySystem(Sector sector, String name, int x, int y) throws DuplicateObjectException {
-        logger.info(String.format("createEmptySystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
-
         if (sector == null || sector.getId() == 0) {
             throw new IllegalArgumentException("StarSystem must be part of an existing Sector");
         }
@@ -92,6 +86,7 @@ public abstract class StarSystemGenerator {
                     String.format("StarSystem [%s] at [%d,%d] is outside of normal sector boundary",
                             name, x, y));
         }
+        logger.info(String.format("createEmptySystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
 
         return factory.createStarSystem(sector, name.trim(), x, y, StarSystemType.EMPTY);
     }
@@ -99,16 +94,14 @@ public abstract class StarSystemGenerator {
     /**
      * Create a star system with a hot Jovian world in close orbit around its star.
      *
-     * @param sector
-     * @param name
-     * @param x
-     * @param y
-     * @return
-     * @throws DuplicateObjectException
+     * @param sector    Sector in which to create this star system.
+     * @param name      Name to give the star system.
+     * @param x         X position in the sector, 1..32.
+     * @param y         Y position in the sector, 1..40.
+     * @return          Created star system.
+     * @throws DuplicateObjectException If this star system already exists.
      */
     public StarSystem createEpiStellarSystem(Sector sector, String name, int x, int y) throws DuplicateObjectException {
-        logger.info(String.format("createEpiStellarSystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
-
         if (sector == null || sector.getId() == 0) {
             throw new IllegalArgumentException("StarSystem must be part of an existing Sector");
         }
@@ -122,6 +115,7 @@ public abstract class StarSystemGenerator {
                     String.format("StarSystem [%s] at [%d,%d] is outside of normal sector boundary",
                             name, x, y));
         }
+        logger.info(String.format("createEpiStellarSystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
 
         StarSystem system = factory.createStarSystem(sector, name.trim(), x, y, StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system);
@@ -136,24 +130,24 @@ public abstract class StarSystemGenerator {
 
         try {
             if (Die.d2() == 1) {
-                planetName = factory.getPlanetName(primary, orbit++);
+                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
                 planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
                 distance += planet.getRadius();
             }
 
-            planetName = factory.getPlanetName(primary, orbit++);
+            planetName = StarSystemFactory.getPlanetName(primary, orbit++);
             distance += Die.d100(2);
             planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Junic, distance);
 
             if (Die.d3() == 1) {
-                planetName = factory.getPlanetName(primary, orbit++);
+                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
                 distance += Die.d6(4);
                 planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
                 distance += planet.getRadius();
             }
 
             if (Die.d2() == 1) {
-                planetName = factory.getPlanetName(primary, orbit++);
+                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
                 distance += Die.d6(5);
                 planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, distance);
                 distance += planet.getRadius();
@@ -168,16 +162,14 @@ public abstract class StarSystemGenerator {
     /**
      * Creates a young star system with a protoplanetary disc.
      *
-     * @param sector
-     * @param name
-     * @param x
-     * @param y
-     * @return
-     * @throws DuplicateObjectException
+     * @param sector    Sector in which to create this star system.
+     * @param name      Name to give the star system.
+     * @param x         X position in the sector, 1..32.
+     * @param y         Y position in the sector, 1..40.
+     * @return          Created star system.
+     * @throws DuplicateObjectException If this star system already exists.
      */
     public StarSystem createProtoStellarSystem(Sector sector, String name, int x, int y) throws DuplicateObjectException {
-        logger.info(String.format("createProtoStellarSystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
-
         if (sector == null || sector.getId() == 0) {
             throw new IllegalArgumentException("StarSystem must be part of an existing Sector");
         }
@@ -192,6 +184,8 @@ public abstract class StarSystemGenerator {
                             name, x, y));
         }
 
+        logger.info(String.format("createProtoStellarSystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
+
         StarSystem system = factory.createStarSystem(sector, name.trim(), x, y, StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system);
         Star primary = starGenerator.generatePrimary();
@@ -201,30 +195,30 @@ public abstract class StarSystemGenerator {
         Planet          planet;
         String          planetName;
         int             orbit = 1;
-        int             distance = primary.getMinimumDistance();
+        long            distance = primary.getMinimumDistance();
 
         try {
             if (Die.d2() == 1) {
                 // Potentially a belt of hot rocks forming close to the star.
-                planetName = factory.getPlanetName(primary, orbit++);
+                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
                 planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.VulcanianBelt, distance);
                 distance += planet.getRadius();
             }
 
-            planetName = factory.getPlanetName(primary, orbit++);
+            planetName = StarSystemFactory.getPlanetName(primary, orbit++);
             distance += Die.d100(2);
             planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Junic, distance);
 
             if (Die.d2() == 1) {
-                planetName = factory.getPlanetName(primary, orbit++);
+                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
                 distance += Die.d6(4);
                 planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
                 distance += planet.getRadius();
             }
 
             if (Die.d2() == 1) {
-                planetName = factory.getPlanetName(primary, orbit++);
-                distance += Die.d6(5);
+                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+                distance += Die.d8(4);
                 planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, distance);
                 distance += planet.getRadius();
             }
@@ -234,6 +228,4 @@ public abstract class StarSystemGenerator {
 
         return system;
     }
-
-
 }

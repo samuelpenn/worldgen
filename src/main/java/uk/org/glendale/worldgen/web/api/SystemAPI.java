@@ -61,6 +61,7 @@ public class SystemAPI extends Controller {
             int  width = getIntParamWithDefault(request,"width", 2048);
             int  scale = getIntParamWithDefault(request, "scale", -1);
             long time = getLongParamWithDefault(request,"time", -1);
+            boolean zones = getBooleanParamWithDefault(request, "zones", false);
 
 
             // Width should be between 64px and 4096px.
@@ -78,6 +79,7 @@ public class SystemAPI extends Controller {
 
                 image.setWidth(width);
                 image.setScale(scale);
+                image.setZones(zones);
                 if (time > -1) {
                     image.setTime(time);
                 }

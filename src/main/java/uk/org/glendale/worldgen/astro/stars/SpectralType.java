@@ -63,11 +63,11 @@ public enum SpectralType {
         return valueOf(name);
     }
 
-    private char getFirst() {
+    public char getLetter() {
         return toString().charAt(0);
     }
 
-    private int getDigit() {
+    public int getDigit() {
         return Integer.parseInt("" + toString().charAt(1));
     }
 
@@ -86,7 +86,7 @@ public enum SpectralType {
 
         if (Server.getConfiguration().getUseRealStarColours()) {
             // The colours for O - M are taken from http://www.vendian.org/mncharity/dir3/starcolor/
-            switch (getFirst()) {
+            switch (getLetter()) {
                 case 'O':
                     rgb = "#9bb0ff";
                     break;
@@ -122,7 +122,7 @@ public enum SpectralType {
                     break;
             }
         } else {
-            switch (getFirst()) {
+            switch (getLetter()) {
                 case 'D':
                     rgb = "#ffffff";
                     break;
@@ -170,7 +170,7 @@ public enum SpectralType {
      */
     public int getSurfaceTemperature() {
         int k = 0;
-        switch (getFirst()) {
+        switch (getLetter()) {
             case 'D':
                 // White Dwarfs. This does not use the proper way of calculating this.
                 k = (int) (40 + Math.pow(getInverseDigit(), 2.5) * 5) * 100;
@@ -229,7 +229,7 @@ public enum SpectralType {
         double mass = 1.0;
         int    digit = getInverseDigit();
 
-        switch (getFirst()) {
+        switch (getLetter()) {
             case 'D':
                 mass = 0.1 * digit * 0.14;
                 break;
@@ -284,7 +284,7 @@ public enum SpectralType {
         double radius = 1.0;
         int    digit = getInverseDigit();
 
-        switch (getFirst()) {
+        switch (getLetter()) {
             case 'D':
                 radius =  0.75 * digit * 0.05;
                 break;
@@ -292,10 +292,10 @@ public enum SpectralType {
                 radius = 0.1 + digit * 0.01;
                 break;
             case 'L':
-                radius = 5.5 + digit * 0.1;
+                radius = 0.14 + digit * 0.01;
                 break;
             case 'M':
-                radius = 4.5 + digit * 0.1;
+                radius = 0.24 + digit * 0.02;
                 break;
             case 'K':
                 radius = 0.44 + digit * 0.04;

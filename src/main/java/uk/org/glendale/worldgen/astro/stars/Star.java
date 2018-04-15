@@ -8,7 +8,7 @@ package uk.org.glendale.worldgen.astro.stars;
 
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.astro.planets.codes.Temperature;
-import uk.org.glendale.worldgen.astro.systems.Physics;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
 
 import javax.persistence.*;
@@ -49,7 +49,7 @@ public class Star {
     @Column(name = "parent_id")
     private int parentId;
     @Column(name = "distance")
-    private int distance;
+    private long distance;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "luminosity")
@@ -161,17 +161,17 @@ public class Star {
     }
 
     /**
-     * Gets the orbit distance of this star, in millions of kilometres. If the
+     * Gets the orbit distance of this star, in kilometres. If the
      * star has no parent, this will normally be zero. Support for multiple
      * stars orbiting a common centre of gravity is not yet supported.
      *
-     * @return Distance from parent star, in Mkm.
+     * @return Distance from parent star, in KM.
      */
-    public int getDistance() {
+    public long getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
+    public void setDistance(long distance) {
         if (distance < 0) {
             throw new IllegalArgumentException("Distance cannot be negative");
         }
@@ -250,7 +250,7 @@ public class Star {
      * @param distance  Distance from star in millions of km.
      * @return          Temperature, in kelvin.
      */
-    public int getOrbitTemperature(int distance) {
+    public int getOrbitTemperature(long distance) {
         // Start with the basic surface temperature.
         double t = (1.0 * getSpectralType().getSurfaceTemperature()) / SpectralType.G2.getSurfaceTemperature();
         // Radius of the star.
@@ -275,32 +275,32 @@ public class Star {
      *
      * @return  Distance, in millions of kilometres.
      */
-    public int getMinimumDistance() {
-        int distance;
+    public long getMinimumDistance() {
+        long distance;
 
         if (luminosity == Luminosity.B || luminosity == Luminosity.N || luminosity == Luminosity.VII) {
-            distance = 250;
+            distance = 250000000;
         } else {
-            distance = (int)(25 * getSolarConstant());
+            distance = (int)(25000000 * getSolarConstant());
         }
 
         return distance;
     }
 
-    public int getInnerWarmDistance() {
-        return (int)(100 * getSolarConstant());
+    public long getInnerWarmDistance() {
+        return (long)(100000000 * getSolarConstant());
     }
 
-    public int getOuterWarmDistance() {
-        return (int)(250 * getSolarConstant());
+    public long getOuterWarmDistance() {
+        return (long)(250000000 * getSolarConstant());
     }
 
-    public int getSnowLineDistance() {
-        return (int)(400 * getSolarConstant());
+    public long getSnowLineDistance() {
+        return (long)(400000000 * getSolarConstant());
     }
 
-    public int getHotDistance() {
-        int distance = 100;
+    public long getHotDistance() {
+        long distance = 100000000;
         distance *= Math.sqrt(luminosity.getSize());
         distance *= (1.0 * type.getSurfaceTemperature()) / SpectralType.G2.getSurfaceTemperature();
 
@@ -309,7 +309,6 @@ public class Star {
 
     // Length of a standard year, in seconds.
     private static final long STANDARD_YEAR = 31557600L;
-    private static final double  AU = 150.0;
 
     /**
      * Given a distance from the star, get the orbital period of that orbit in seconds.
@@ -317,8 +316,8 @@ public class Star {
      * @param distance  Distance in millions of kilometres.
      * @return          Orbital period in seconds.
      */
-    public long getPeriod(int distance) {
-        long period = (long) (STANDARD_YEAR * Math.pow((1.0 * distance) / AU, 3.0/2.0));
+    public long getPeriod(long distance) {
+        long period = (long) (STANDARD_YEAR * Math.pow((1.0 * distance) / Physics.AU, 3.0/2.0));
 
         return (long) (period / Math.sqrt(getMass()));
     }
@@ -357,7 +356,7 @@ public class Star {
      * @return      Star mass in solar masses.
      */
     public double getMass() {
-        return type.getMass() * luminosity.getMass();
+        return mass;
     }
 
     public void setStandardRadius() {

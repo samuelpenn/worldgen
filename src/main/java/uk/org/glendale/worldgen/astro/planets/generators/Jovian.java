@@ -34,7 +34,7 @@ public class Jovian extends PlanetGenerator {
         SilicateClouds // Greenish
     }
 
-    public Jovian(WorldGen worldgen, StarSystem system, Star primary, Planet previous, int distance) {
+    public Jovian(WorldGen worldgen, StarSystem system, Star primary, Planet previous, long distance) {
         super(worldgen, system, primary, previous, distance);
     }
 

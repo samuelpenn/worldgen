@@ -259,25 +259,49 @@ public class StarGenerator {
                 // About as hot as a brown dwarf can get.
                 digit = 6 + Die.d3();
                 primary.setSpectralType(SpectralType.getSpectralType('L', digit));
-                primary.setRadius(95000 + (9 - digit) * 250);
                 break;
             case 3: case 4: case 5:
                 // Methane dwarfs. Often magenta in colour.
                 digit = Die.d10() - 1;
                 primary.setSpectralType(SpectralType.getSpectralType('T', digit));
-                primary.setRadius(90000 + (9 - digit) * 500);
                 break;
             case 6:
                 // Coolest type of brown dwarf.
                 digit = Die.d6() - 1;
                 primary.setSpectralType(SpectralType.getSpectralType('Y', digit));
-                primary.setRadius(85000 + (9 - digit) * 1000);
                 break;
         }
-        primary.setStandardMass();
+        StarGenerator.calculateBrownDwarf(primary);
         factory.persist(primary);
 
         return primary;
+    }
+
+    /**
+     * Set mass and radius for a brown dwarf star. Assumes that the Luminosity class and
+     * spectral type have already been set correctly.
+     *
+     * @param star  Brown dwarf star to calculate properties for.
+     */
+    public static void calculateBrownDwarf(Star star) {
+        if (star.getLuminosity() != Luminosity.V) {
+            throw new IllegalStateException("Invalid luminosity class for a brown dwarf.");
+        }
+        int digit = star.getSpectralType().getDigit();
+        switch (star.getSpectralType().getLetter()) {
+            case 'L':
+                star.setRadius(95000 + (9 - digit) * 250 + Die.dieV(125));
+                break;
+            case 'T':
+                star.setRadius(90000 + (9 - digit) * 500 + Die.dieV(250));
+                break;
+            case 'Y':
+                star.setRadius(85000 + (9 - digit) * 500 + Die.dieV(250));
+                break;
+            default:
+                throw new IllegalStateException("Invalid spectral type for a brown dwarf.");
+        }
+        star.setMass((star.getRadius() / 95500.0)  * 0.08);
     }
 
     public void persist(Star star) throws DuplicateStarException {

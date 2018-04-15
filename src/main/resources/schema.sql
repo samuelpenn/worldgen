@@ -58,7 +58,7 @@ CREATE TABLE stars (
   system_id INT NOT NULL,
   name VARCHAR(32) NOT NULL,
   parent_id INT NOT NULL,
-  distance INT NOT NULL,
+  distance BIGINT NOT NULL,
   luminosity VARCHAR(4) NOT NULL,
   type VARCHAR(4) NOT NULL,
   mass DOUBLE NOT NULL DEFAULT 1.0,
@@ -92,14 +92,16 @@ ALTER TABLE systems AUTO_INCREMENT = 1;
 DROP TABLE IF EXISTS resources;
 DROP TABLE IF EXISTS commodities;
 DROP TABLE IF EXISTS planets;
+DROP TABLE IF EXISTS facilities;
 CREATE TABLE planets (
   id INT AUTO_INCREMENT,
   system_id INT NOT NULL,
   name VARCHAR(64) NOT NULL,
   parent_id INT NOT NULL,
   moon_of INT NOT NULL DEFAULT 0,
-  distance INT NOT NULL DEFAULT 0,
+  distance BIGINT NOT NULL DEFAULT 0,
   radius INT NOT NULL DEFAULT 0,
+  period BIGINT NOT NULL DEFAULT 0,
   day BIGINT NOT NULL DEFAULT 0,
   type VARCHAR(24) NOT NULL,
   temperature INT NOT NULL DEFAULT 0,
@@ -117,6 +119,7 @@ CREATE TABLE planets (
   KEY (system_id)
 );
 ALTER TABLE planets AUTO_INCREMENT = 1;
+
 
 DROP VIEW IF EXISTS p;
 CREATE VIEW p (id, name, distance, type, radius, temperature, atmosphere, pressure, hydro) AS
@@ -184,4 +187,15 @@ CREATE TABLE resources (
   PRIMARY KEY (id),
   FOREIGN KEY (planet_id) REFERENCES planets(id) ON DELETE CASCADE,
   FOREIGN KEY (commodity_id) REFERENCES commodities(id) ON DELETE CASCADE
+);
+
+CREATE TABLE facilities (
+  id INT AUTO_INCREMENT,
+  planet_id INT NOT NULL,
+  name VARCHAR(24) NOT NULL,
+  type VARCHAR(24) NOT NULL,
+  rating int NOT NULL,
+  tech int NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (planet_id) REFERENCES planets(id) ON DELETE CASCADE
 );

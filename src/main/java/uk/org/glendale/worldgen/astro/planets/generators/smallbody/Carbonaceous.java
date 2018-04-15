@@ -20,7 +20,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
  * often the most common type of body found in a system.
  */
 public class Carbonaceous extends SmallBody {
-    public Carbonaceous(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Carbonaceous(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

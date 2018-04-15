@@ -186,12 +186,12 @@ public class Barren extends StarSystemGenerator {
      * @param star      Star worlds are orbiting around.
      * @return          Orbit distance of the most distant planet.
      */
-    private int addProtoWorlds(StarSystem system, Star star) {
+    private long addProtoWorlds(StarSystem system, Star star) {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
         Planet      planet;
         String      planetName;
         int         orbit = 1;
-        int         distance = star.getMinimumDistance();
+        long        distance = star.getMinimumDistance();
 
         switch (Die.d6()) {
             case 1: case 2: case 3:
@@ -247,12 +247,12 @@ public class Barren extends StarSystemGenerator {
      * @param system    System to create planets in.
      * @param star      Parent star of these planets.
      */
-    private int addBarrenWorlds(StarSystem system, Star star) {
+    private long addBarrenWorlds(StarSystem system, Star star) {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
         Planet planet;
         String          planetName;
         int             orbit = 1;
-        int             distance = star.getMinimumDistance() + Die.d10(2);
+        long            distance = star.getMinimumDistance() + Die.d10(2);
 
         switch (Die.d6()) {
             case 1:
@@ -305,7 +305,7 @@ public class Barren extends StarSystemGenerator {
         Planet planet;
         String          planetName;
         int             orbit = 1;
-        int             distance = primary.getMinimumDistance() + secondary.getMinimumDistance();
+        long            distance = primary.getMinimumDistance() + secondary.getMinimumDistance();
         distance += secondary.getDistance() + Die.d6(3);
 
         Star center = new Star(system.getName(), system, 0, 0,

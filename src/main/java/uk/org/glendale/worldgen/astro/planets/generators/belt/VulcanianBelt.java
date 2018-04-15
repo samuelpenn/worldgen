@@ -19,13 +19,14 @@ import uk.org.glendale.worldgen.text.TextGenerator;
 import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
 import static uk.org.glendale.worldgen.astro.commodities.CommodityName.HeavyMetals;
 import static uk.org.glendale.worldgen.astro.commodities.CommodityName.PreciousMetals;
+import static uk.org.glendale.worldgen.astro.Physics.MKM;
 
 /**
  * Rocky asteroid belt close to its star. Tends to have very few volatiles, but high in heavy metals.
  */
 public class VulcanianBelt extends Belt {
 
-    public VulcanianBelt(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public VulcanianBelt(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 
@@ -33,7 +34,7 @@ public class VulcanianBelt extends Belt {
         Planet planet = definePlanet(name, PlanetType.VulcanianBelt);
 
         // Radius of a Belt is in millions of km, and represents its width.
-        int radius = Die.d6(3);
+        int radius = (int) (Die.d6(3) * MKM);
 
         if (distance < 10) {
             radius = Die.d4(2);

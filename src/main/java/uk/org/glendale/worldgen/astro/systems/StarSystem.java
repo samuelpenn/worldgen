@@ -58,6 +58,10 @@ public class StarSystem {
     @OneToMany(mappedBy = "system", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Star> stars = new ArrayList<>();
 
+
+    public static final int PRIMARY_COG = -1;
+    public static final int SECONDARY_COG = -2;
+
     /**
      * Private constructor for the persistence layer.
      */

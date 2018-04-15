@@ -20,7 +20,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
  * of small planetesimals not more than a few metres in radius.
  */
 public class PlanetesimalDisc extends Belt {
-    public PlanetesimalDisc(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public PlanetesimalDisc(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 
@@ -30,7 +30,7 @@ public class PlanetesimalDisc extends Belt {
 
     public Planet getPlanet(String name, PlanetType type) {
         Planet planet = definePlanet(name, PlanetType.PlanetesimalDisc);
-        int radius = distance / 3;
+        int radius = (int) (distance / 3);
 
         radius = checkDistance(radius);
         planet.setRadius(radius);

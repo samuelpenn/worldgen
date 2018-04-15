@@ -18,7 +18,7 @@ public enum PlanetType {
     MetallicBelt(PlanetClass.Circumstellar, "#555555"),
     IceBelt(PlanetClass.Circumstellar, "#aaaaaa"),
     OortCloud(PlanetClass.Circumstellar, "#aaaaaa"),
-    DustDisc(PlanetClass.Circumstellar, "#997777"),
+    DustDisc(PlanetClass.Circumstellar, "#ddbbbb"),
     PlanetesimalDisc(PlanetClass.Circumstellar, "#997777"),
     IceRing(PlanetClass.PlanetaryRing, "#aaaaaa"),
 

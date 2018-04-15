@@ -17,6 +17,7 @@ import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.stars.Star;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
+import uk.org.glendale.worldgen.civ.Facility;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
 import uk.org.glendale.worldgen.exceptions.WorldGenException;
 
@@ -44,6 +45,7 @@ public class PlanetFactory {
 
     private static String SYSTEM_QUERY = "FROM Planet WHERE systemId = :systemId ORDER BY parentId, distance";
     private static String STAR_QUERY = "FROM Planet WHERE parentId = :starId ORDER BY distance";
+    private static String FACILITY_QUERY = "FROM Facility WHERE planetId = :planetId ORDER BY id";
 
     /**
      * Constructor using a session object.
@@ -123,6 +125,16 @@ public class PlanetFactory {
         return (int) count.get(0).intValue();
     }
 
+    public List<Facility> getFacilities(Planet planet) {
+        Query query = session.createQuery(FACILITY_QUERY);
+        query.setParameter("planetId", planet.getId());
+
+        return (ArrayList<Facility>) query.getResultList();
+    }
+
+    public void setFacility(Facility facility) {
+        session.persist(facility);
+    }
 
     /**
      * Stores the map for a given planet. Each map is stored as its own entry in the database,
@@ -212,7 +224,7 @@ public class PlanetFactory {
         throw new UnsupportedException(String.format("Planet [%s] has unsupported type [%s]", name, type.name()));
     }
 
-    public Planet createPlanet(StarSystem system, Star star, String name, PlanetType type, int distance) throws UnsupportedException {
+    public Planet createPlanet(StarSystem system, Star star, String name, PlanetType type, long distance) throws UnsupportedException {
         return createPlanet(system, star, name, type, distance, null);
     }
 
@@ -223,14 +235,14 @@ public class PlanetFactory {
      * @param system
      * @return
      */
-    public Planet createPlanet(StarSystem system, Star star, String name, PlanetType type, int distance, Planet previous) throws UnsupportedException {
+    public Planet createPlanet(StarSystem system, Star star, String name, PlanetType type, long distance, Planet previous) throws UnsupportedException {
         Class genClass = getGeneratorClass(name, type);
         PlanetGenerator generator;
 
         logger.info(String.format("Creating planet [%s] of type [%s]", name, type.name()));
 
         try {
-            Constructor c = genClass.getConstructor(WorldGen.class, StarSystem.class, Star.class, Planet.class, Integer.TYPE);
+            Constructor c = genClass.getConstructor(WorldGen.class, StarSystem.class, Star.class, Planet.class, Long.TYPE);
             generator = (PlanetGenerator) c.newInstance(worldgen, system, star, previous, distance);
 
             Planet planet;
@@ -242,6 +254,13 @@ public class PlanetFactory {
 
             session.persist(planet);
             session.flush();
+
+            // Try to colonise the planet.
+            if (generator.colonise(planet) > 0) {
+                logger.info(String.format("Planet [%s] has a population of [%d]", name, planet.getPopulation()));
+                //session.persist(planet);
+                //session.flush();
+            }
 
             if (type.getGroup() != PlanetGroup.Belt) {
                 Map<String,SimpleImage> maps = generator.getPlanetMaps(planet);

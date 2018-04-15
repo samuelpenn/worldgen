@@ -19,7 +19,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
  * A Metallic asteroid with metal content greater than 50%.
  */
 public class Metallic extends SmallBody {
-    public Metallic(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Metallic(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

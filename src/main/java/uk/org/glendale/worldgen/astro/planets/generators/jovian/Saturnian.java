@@ -31,7 +31,7 @@ import static uk.org.glendale.worldgen.astro.planets.generators.Jovian.JovianFea
 public class Saturnian extends Jovian {
     private static final Logger logger = LoggerFactory.getLogger(Saturnian.class);
 
-    public Saturnian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Saturnian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

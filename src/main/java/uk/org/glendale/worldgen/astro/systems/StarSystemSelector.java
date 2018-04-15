@@ -12,6 +12,7 @@ import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.systems.generators.Barren;
 import uk.org.glendale.worldgen.astro.systems.generators.BlueGiant;
+import uk.org.glendale.worldgen.astro.systems.generators.BrownDwarf;
 import uk.org.glendale.worldgen.astro.systems.generators.Simple;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
@@ -102,7 +103,7 @@ public class StarSystemSelector {
         StarSystemGenerator generator = null;
         switch (Die.d6(2)) {
             case 2:
-                generator = new BlueGiant(worldgen);
+                generator = new BrownDwarf(worldgen);
                 break;
             case 3:
                 generator = new Barren(worldgen);
@@ -132,7 +133,7 @@ public class StarSystemSelector {
                 generator = new Barren(worldgen);
                 break;
             case 12:
-                generator = new Barren(worldgen);
+                generator = new BlueGiant(worldgen);
                 break;
         }
         return generator.generate(sector, name, x, y);

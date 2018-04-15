@@ -10,6 +10,27 @@ function getPlural(value, text) {
     }
 }
 
+function getDistance(km) {
+    let formatter = new Intl.NumberFormat('en-GB', {
+    });
+    let result = km;
+    let MILLION = 1000000;
+
+    if (km < 10 * MILLION) {
+        result = formatter.format(km) + " km";
+    } else if (km < 1000 * MILLION) {
+        km = parseInt(km / MILLION);
+        result = formatter.format(km) + " Mkm";
+    } else {
+        km = parseInt(km / MILLION);
+        result = formatter.format(km) + " Mkm";
+        let au = parseInt(km / 150);
+        result += " (" + formatter.format(au) + " AU)";
+    }
+
+    return result;
+}
+
 function getPeriod(seconds) {
     let period = "";
     seconds = parseInt(seconds);
@@ -179,8 +200,8 @@ function showPlanet(starId, planet) {
     let $planetData = $('#planet-data-'+planet.id);
 
     $planetData.append(`<dt>Type</dt><dd>${planet.type}</dd>`);
-    $planetData.append(`<dt>Distance</dt><dd>${planet.distance} Mkm</dd>`);
-    $planetData.append(`<dt>Radius</dt><dd>${planet.radius} Km</dd>`);
+    $planetData.append(`<dt>Distance</dt><dd>${getDistance(planet.distance)}</dd>`);
+    $planetData.append(`<dt>Radius</dt><dd>${getDistance(planet.radius)}</dd>`);
     if (planet.dayLength > 0) {
         $planetData.append(`<dt>Length of Day</dt><dd>${getPeriod(planet.dayLength)}</dd>`);
     }

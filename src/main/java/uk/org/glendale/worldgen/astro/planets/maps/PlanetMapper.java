@@ -13,8 +13,10 @@ public class PlanetMapper extends Icosahedron {
     protected final Planet planet;
     protected static final int    DEFAULT_FACE_SIZE = 24;
 
+    protected boolean hasMainMap = true;
     protected boolean hasHeightMap = false;
     protected boolean hasCloudMap = false;
+    protected boolean hasOrbitMap = false;
 
     public PlanetMapper(final Planet planet, final int faceSize) {
         super(faceSize);
@@ -26,6 +28,8 @@ public class PlanetMapper extends Icosahedron {
         this.planet = planet;
     }
 
+    public boolean hasMainMap() { return hasMainMap; }
+
     public boolean hasHeightMap() {
         return hasHeightMap;
     }
@@ -33,6 +37,8 @@ public class PlanetMapper extends Icosahedron {
     public boolean hasCloudMap() {
         return hasCloudMap;
     }
+
+    public boolean hasOrbitMap() { return hasOrbitMap; }
 
     /**
      * Gets the latitude of the current tileY in degrees, between 0 and 90.

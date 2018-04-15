@@ -23,6 +23,7 @@ import uk.org.glendale.worldgen.astro.planets.maps.PlanetMapper;
 import uk.org.glendale.worldgen.astro.stars.Star;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.astro.systems.StarSystemGenerator;
+import uk.org.glendale.worldgen.civ.CivilisationFeature;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
 import uk.org.glendale.worldgen.exceptions.WorldGenException;
 import uk.org.glendale.worldgen.web.Server;
@@ -42,16 +43,18 @@ public abstract class PlanetGenerator {
     protected final StarSystem system;
     protected final Star star;
     protected final Planet previousPlanet;
-    protected int   distance;
+    protected long  distance;
     protected final CommodityFactory commodityFactory;
+    protected final WorldGen worldGen;
 
-    public PlanetGenerator(WorldGen worldgen, StarSystem system, Star primary, Planet previous, int distance) {
+    public PlanetGenerator(WorldGen worldGen, StarSystem system, Star primary, Planet previous, long distance) {
+        this.worldGen = worldGen;
         this.system = system;
         this.star = primary;
         this.distance = distance;
         this.previousPlanet = previous;
 
-        this.commodityFactory = worldgen.getCommodityFactory();
+        this.commodityFactory = worldGen.getCommodityFactory();
     }
 
     public abstract Planet getPlanet(String name, PlanetType type);
@@ -104,7 +107,7 @@ public abstract class PlanetGenerator {
      *
      * @return  Distance from star of previous planet, in millions of km.
      */
-    protected int getPreviousDistance() {
+    protected long getPreviousDistance() {
         if (previousPlanet == null) {
             return 0;
         } else {
@@ -145,10 +148,15 @@ public abstract class PlanetGenerator {
             Constructor c = getMapClass(planet.getType()).getConstructor(Planet.class);
             PlanetMapper mapper = (PlanetMapper) c.newInstance(planet);
 
-            mapper.generate();
-            maps.put(PlanetMap.MAIN, mapper.draw(Server.getConfiguration().getPlanetMapResolution()));
+            if (mapper.hasMainMap()) {
+                mapper.generate();
+                maps.put(PlanetMap.MAIN, mapper.draw(Server.getConfiguration().getPlanetMapResolution()));
+            }
             if (mapper.hasHeightMap()) {
                 maps.put(PlanetMap.HEIGHT, mapper.drawHeightMap(Server.getConfiguration().getPlanetMapResolution()));
+            }
+            if (mapper.hasOrbitMap()) {
+
             }
 
             return maps;
@@ -187,6 +195,20 @@ public abstract class PlanetGenerator {
 
     public List<Planet> getMoons(Planet primary) {
         return new ArrayList<Planet>();
+    }
+
+    /**
+     * Try to colonise a world. Determines whether the world should be colonised, and
+     * creates a new civilisation on it if so.
+     *
+     * @param planet    Planet to try to colonise.
+     * @param features  List of features of any civilisation.
+     * @return          Population (if any) of the new world.
+     */
+    public long colonise(Planet planet, CivilisationFeature... features) {
+        // By default, a planet is unlikely to be colonised.
+
+        return 0;
     }
 
 }

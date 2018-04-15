@@ -45,13 +45,16 @@ public class Planet {
     private int moonOf;
 
     @Column
-    private int distance;
+    private long distance;
 
     @Column
     private int radius;
 
     @Column (name = "day")
     private long dayLength;
+
+    @Column (name = "period")
+    private long period;
 
     @Column @Enumerated (EnumType.STRING)
     private PlanetType type;
@@ -203,16 +206,18 @@ public class Planet {
     }
 
     /**
-     * Distance is in million of kilometres if this is not a moon, kilometres if it is.
+     * Distance is always in kilometres. This is the distance from the planet's primary. If the
+     * planet is a moon, this is the distance from the parent parent. If it's a planet, then it's
+     * distance from the star.
      *
      * @return  Distance of planet from primary.
      */
-    public int getDistance() {
+    public long getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
-        this.distance = Math.max(distance, 0);
+    public void setDistance(long km) {
+        this.distance = Math.max(km, 0);
     }
 
     public PlanetType getType() {
@@ -230,8 +235,8 @@ public class Planet {
         return radius;
     }
 
-    public void setRadius(int radius) {
-        this.radius = Math.max(radius, 0);
+    public void setRadius(int km) {
+        this.radius = Math.max(km, 0);
     }
 
     public int getBeltWidth() {
@@ -247,19 +252,34 @@ public class Planet {
         return dayLength;
     }
 
-    public void setDayLength(long dayLength) {
-        if (dayLength < 1) {
-            throw new IllegalArgumentException("Length of day must be strictly positive.");
-        }
-        this.dayLength = dayLength;
+    public void setDayLength(long seconds) {
+        this.dayLength = Math.max(seconds, 0);
     }
 
+    /**
+     * Gets the length of the year of this planet in seconds.
+     *
+     * @return      Year length in seconds.
+     */
+    public long getPeriod() { return period; }
+
+    public void setPeriod(long seconds) {
+        this.period = Math.max(seconds, 0);
+    }
+
+    /**
+     * Gets the surface temperature of this planet in Kelvin. This is the average surface
+     * temperature - there will be wide fluctuations based on latitude and time of year.
+     * A standard temperature is considered to be around 285K - 290K.
+     *
+     * @return  Surface temperature in Kelvin.
+     */
     public int getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(int temperature) {
-        this.temperature = temperature;
+    public void setTemperature(int k) {
+        this.temperature = Math.max(k, 0);
     }
 
     public Atmosphere getAtmosphere() {
@@ -287,11 +307,7 @@ public class Planet {
      * @param pascals   Pressure in pascals.
      */
     public void setPressure(int pascals) {
-        if (pascals < 0) {
-            this.pressure = 0;
-        } else {
-            this.pressure = pascals;
-        }
+        this.pressure = Math.max(pascals, 0);
     }
 
     public void setPressure(Pressure pressure) {
@@ -436,7 +452,7 @@ public class Planet {
      * Gets the diameter of the planet. This is simply the radius * 2. This is sometimes used
      * by the TextGenerator which can't do the arithmetic itself.
      *
-     * @return  Diameter of the planet in km, or width of a Belt in Mkm.
+     * @return  Diameter of the planet in km, or width of a Belt.
      */
     public int getDiameter() {
         return radius * 2;

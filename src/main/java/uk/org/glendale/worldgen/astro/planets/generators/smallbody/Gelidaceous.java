@@ -20,7 +20,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
  * stable, and volatile loss is minimal.
  */
 public class Gelidaceous extends SmallBody {
-    public Gelidaceous(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Gelidaceous(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

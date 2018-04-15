@@ -7,11 +7,13 @@ package uk.org.glendale.worldgen;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.astro.Universe;
 import uk.org.glendale.worldgen.astro.sectors.NoSuchSectorException;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.sectors.SectorFactory;
 import uk.org.glendale.worldgen.astro.sectors.SectorGenerator;
+import uk.org.glendale.worldgen.astro.systems.NoSuchStarSystemException;
 import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
 import uk.org.glendale.worldgen.astro.systems.StarSystemSelector;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
@@ -187,6 +189,38 @@ public class CommandLine extends Main {
         }
     }
 
+    /**
+     * Searches for an empty parsec within the sector. If one is found, returns x and y coordinates
+     * in an array. If not found, returns null. Looks for a random location first, and if that fails
+     * starts searching from top left to bottom right.
+     *
+     * @param sector    Sector to search in.
+     * @param factory   Factory for finding systems.
+     * @return          Array of { x, y } if empty parsec found, otherwise null.
+     */
+    private int[] findEmptyParsec(Sector sector, StarSystemFactory factory) {
+        int y = Die.die(40);
+        int x = Die.die(32);
+        try {
+            factory.getStarSystem(sector, x, y);
+        } catch (NoSuchStarSystemException e) {
+            // This is an empty parsec, so return x and y values in array.
+            return new int[] { x, y };
+        }
+
+        for (y = 1; y <= 40; y++) {
+            for (x = 1; x < 32; x++) {
+                try {
+                    factory.getStarSystem(sector, x, y);
+                } catch (NoSuchStarSystemException e) {
+                    // This is an empty parsec, so return x and y values in array.
+                    return new int[] { x, y };
+                }
+            }
+        }
+        return null;
+    }
+
     private void commandCreateSystem(String[] options) {
         try (WorldGen wg = Main.getWorldGen()) {
             SectorFactory sectorFactory = wg.getSectorFactory();
@@ -195,9 +229,19 @@ public class CommandLine extends Main {
             String sectorId = options[0];
             Sector sector = sectorFactory.getSectorByIdentifier(sectorId);
 
-            String coord = options[1];
-            int x = StarSystemFactory.getXCoord(coord);
-            int y = StarSystemFactory.getYCoord(coord);
+            String  coord = options[1];
+            int     x, y;
+            if (coord.startsWith("x")) {
+                int[] coords = findEmptyParsec(sector, factory);
+                if (coords == null || coords.length != 2) {
+                    throw new IllegalStateException("Unable to locate an empty hex within this sector.");
+                }
+                x = coords[0];
+                y = coords[1];
+            } else {
+                x = StarSystemFactory.getXCoord(coord);
+                y = StarSystemFactory.getYCoord(coord);
+            }
 
             String name;
 

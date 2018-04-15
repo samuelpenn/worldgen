@@ -17,19 +17,20 @@ import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.text.TextGenerator;
 
 import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
+import static uk.org.glendale.worldgen.astro.Physics.MKM;
 
 /**
  * Generates an asteroid belt. Mostly rocky, with some volatiles.
  */
 public class AsteroidBelt extends Belt {
 
-    public AsteroidBelt(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public AsteroidBelt(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 
     public Planet getPlanet(String name) {
         Planet planet = definePlanet(name, PlanetType.AsteroidBelt);
-        int radius = Die.d6(4 * 5);
+        int radius = (int) (Die.d6(4 * 5) * MKM);
 
         radius = checkDistance(radius);
         planet.setRadius(radius);

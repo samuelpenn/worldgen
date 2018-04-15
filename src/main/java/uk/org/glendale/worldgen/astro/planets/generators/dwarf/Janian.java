@@ -31,7 +31,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.Radioacti
 public class Janian extends Dwarf {
     private static final Logger logger = LoggerFactory.getLogger(Janian.class);
 
-    public Janian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Janian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

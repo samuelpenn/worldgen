@@ -40,7 +40,7 @@ public class StarSystemFactory {
         Query query = session.createQuery(BY_SECTOR_QUERY);
         query.setParameter("sector", sector.getId());
 
-        return query.getResultList();
+        return (List<StarSystem>) query.getResultList();
     }
 
     /**
@@ -50,7 +50,7 @@ public class StarSystemFactory {
      */
     public int getStarSystemCount() {
         Query query = session.createNativeQuery("SELECT COUNT(*) FROM systems");
-        List<BigInteger> count = query.getResultList();
+        List<BigInteger> count = (List<BigInteger>) query.getResultList();
 
         return (int) count.get(0).intValue();
     }

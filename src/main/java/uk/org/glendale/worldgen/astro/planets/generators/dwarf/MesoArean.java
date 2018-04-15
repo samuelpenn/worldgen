@@ -25,7 +25,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
 public class MesoArean extends Dwarf {
     private static final Logger logger = LoggerFactory.getLogger(MesoArean.class);
 
-    public MesoArean(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public MesoArean(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

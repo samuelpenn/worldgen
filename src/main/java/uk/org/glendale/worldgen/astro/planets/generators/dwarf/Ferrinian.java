@@ -27,7 +27,7 @@ import static uk.org.glendale.worldgen.astro.planets.generators.Dwarf.DwarfFeatu
 public class Ferrinian extends Dwarf {
     private static final Logger logger = LoggerFactory.getLogger(Ferrinian.class);
 
-    public Ferrinian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Ferrinian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

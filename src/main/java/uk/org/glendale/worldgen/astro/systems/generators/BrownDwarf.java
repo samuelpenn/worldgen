@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
@@ -18,6 +19,8 @@ import uk.org.glendale.worldgen.astro.stars.Star;
 import uk.org.glendale.worldgen.astro.stars.StarGenerator;
 import uk.org.glendale.worldgen.astro.systems.*;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
+
+import static uk.org.glendale.worldgen.astro.Physics.MKM;
 
 /**
  * A Brown Dwarf is not quite a star, not having enough mass to properly undergo fusion. A system with a
@@ -48,6 +51,9 @@ public class BrownDwarf extends StarSystemGenerator {
                 createDwarfWithAsteroid(system);
                 break;
             case 16: case 17:
+                createClosePair(system);
+                break;
+            case 18:
                 createConjoinedTwins(system);
                 break;
             default:
@@ -84,14 +90,14 @@ public class BrownDwarf extends StarSystemGenerator {
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
         Star dwarf = starGenerator.generateBrownDwarfPrimary();
 
-        String planetName = StarSystemFactory.getPlanetName(dwarf, 1);
-        int    distance = 30 + Die.d20(5);
+        String planetName = StarSystemFactory.getBeltName(dwarf, 1);
+        long   distance = Die.d20(5) * MKM + Die.die(1000000);
 
-        planetFactory.createPlanet(system, dwarf, planetName, PlanetType.DustDisc, distance);
+        planetFactory.createPlanet(system, dwarf, planetName, PlanetType.DustDisc, Physics.round(distance));
     }
 
     /**
-     * Creates a single small brown dwarf star with a single asteroid in ordit.
+     * Creates a single small brown dwarf star with a single asteroid in orbit.
      *
      * @param system    System this star is created in.
      * @throws DuplicateStarException   Internal error, shouldn't occur.
@@ -122,75 +128,93 @@ public class BrownDwarf extends StarSystemGenerator {
         planetFactory.createPlanet(system, dwarf, planetName, type, distance);
     }
 
+    /**
+     * Creates two very similar stars in very tight orbit around each other, close enough that their
+     * atmospheres merge.
+     *
+     * @param system    System to create stars in.
+     * @throws DuplicateStarException   If there is an error.
+     */
     public void createConjoinedTwins(StarSystem system) throws DuplicateStarException {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
 
         system.setType(StarSystemType.CONJOINED_BINARY);
+        system.setZone(Zone.AMBER);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, true);
         Star primary = starGenerator.generateBrownDwarfPrimary();
         Star secondary = new Star(primary);
 
+        secondary.setSpectralType(secondary.getSpectralType().getColder());
+        StarGenerator.calculateBrownDwarf(secondary);
+
         starGenerator.generateSecondary(secondary);
         starGenerator.persist(secondary);
 
-        primary.setParentId(secondary.getId());
-        secondary.setParentId(primary.getId());
+        primary.setParentId(StarSystem.PRIMARY_COG);
+        secondary.setParentId(StarSystem.PRIMARY_COG);
 
-        // Work out orbital distance and period of the pair. The stored distance is in MKm,
-        // and the actual value is probably less than 1Mkm, so will get rounded down to zero.
-        // Work out period before rounding down, so that this is at least accurate.
+        // Work out orbital distance and period of the pair.
         double totalMass = primary.getMass() + secondary.getMass();
         int    radius = primary.getRadius() + secondary.getRadius();
+        radius *= (1.0 + Die.d10() / 100.0);
 
         long period = Physics.getOrbitalPeriod(totalMass * Physics.SOL_MASS, radius * 1000);
         primary.setPeriod(period);
         secondary.setPeriod(period);
 
+        primary.setDistance((long)(radius * secondary.getMass() / totalMass));
+        secondary.setDistance((long)(radius * primary.getMass() / totalMass));
+
         starGenerator.persist(primary);
         starGenerator.persist(secondary);
 
+        String      planetName = StarSystemFactory.getBeltName(primary, 1);
+        long        distance = Physics.round((3 + Die.d6(3)) * MKM + Die.die(1000000));
 
-        String      planetName = StarSystemFactory.getPlanetName(primary, 1);
-        int         distance = 20 + Die.d20(3);
-        PlanetType  type = null;
+        planetFactory.createPlanet(system, primary, planetName, PlanetType.DustDisc, distance);
     }
 
+    /**
+     * Creates two stars in close orbit around each other, a few million kilometres in separation.
+     *
+     * @param system
+     * @throws DuplicateStarException
+     */
     public void createClosePair(StarSystem system) throws DuplicateStarException {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
 
-        system.setType(StarSystemType.CONJOINED_BINARY);
+        system.setType(StarSystemType.CLOSE_BINARY);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, true);
         Star primary = starGenerator.generateBrownDwarfPrimary();
         Star secondary = new Star(primary);
 
         while (Die.d2() == 1) {
             secondary.setSpectralType(secondary.getSpectralType().getColder());
-            secondary.setRadius(secondary.getRadius() - 500);
         }
-        secondary.setStandardMass();
+        StarGenerator.calculateBrownDwarf(secondary);
         starGenerator.generateSecondary(secondary);
         starGenerator.persist(secondary);
-        System.out.println(system.getStars().size());
 
-        System.out.println("Have secondary " + secondary.getName() + " with " + secondary.getId());
-        primary.setParentId(secondary.getId());
-        secondary.setParentId(primary.getId());
+        primary.setParentId(StarSystem.PRIMARY_COG);
+        secondary.setParentId(StarSystem.PRIMARY_COG);
 
-        // Work out orbital distance of the pair.
+        // Work out orbital distance and period of the pair.
         double totalMass = primary.getMass() + secondary.getMass();
-        int    radius = primary.getRadius() + secondary.getRadius();
+        int    radius = 250000 + Die.die(1000000, 5);
 
         long period = Physics.getOrbitalPeriod(totalMass * Physics.SOL_MASS, radius * 1000);
-
         primary.setPeriod(period);
         secondary.setPeriod(period);
+
+        primary.setDistance(Physics.round(radius * secondary.getMass() / totalMass));
+        secondary.setDistance(Physics.round(radius * primary.getMass() / totalMass));
 
         starGenerator.persist(primary);
         starGenerator.persist(secondary);
 
+        String      planetName = StarSystemFactory.getBeltName(primary, 1);
+        long        distance = Physics.round((radius * 3 + Die.die(10000000)));
 
-        String      planetName = StarSystemFactory.getPlanetName(primary, 1);
-        int         distance = 20 + Die.d20(3);
-        PlanetType  type = null;
+        planetFactory.createPlanet(system, primary, planetName, PlanetType.DustDisc, distance);
     }
 }

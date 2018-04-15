@@ -20,7 +20,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
  * They generally have very high metallic content.
  */
 public class Vulcanian extends SmallBody {
-    public Vulcanian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Vulcanian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

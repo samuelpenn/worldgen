@@ -37,6 +37,7 @@
         <mapping class="uk.org.glendale.worldgen.astro.planets.PlanetMap" />
         <mapping class="uk.org.glendale.worldgen.astro.commodities.Commodity" />
         <mapping class="uk.org.glendale.worldgen.astro.commodities.Resource" />
+        <mapping class="uk.org.glendale.worldgen.civ.Facility" />
     </session-factory>
 
 </hibernate-configuration>

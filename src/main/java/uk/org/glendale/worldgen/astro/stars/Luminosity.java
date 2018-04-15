@@ -7,7 +7,7 @@
 package uk.org.glendale.worldgen.astro.stars;
 
 import uk.org.glendale.utils.rpg.Die;
-import uk.org.glendale.worldgen.astro.systems.Physics;
+import uk.org.glendale.worldgen.astro.Physics;
 
 /**
  * The luminosity, which is the size of the star. This provides a finer grained

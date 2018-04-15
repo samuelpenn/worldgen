@@ -28,7 +28,7 @@ import static uk.org.glendale.worldgen.astro.planets.generators.Dwarf.DwarfFeatu
 public class EuArean extends Dwarf {
     private static final Logger logger = LoggerFactory.getLogger(EuArean.class);
 
-    public EuArean(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public EuArean(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 
