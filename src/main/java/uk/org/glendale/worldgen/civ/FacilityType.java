@@ -12,5 +12,6 @@ public enum FacilityType {
     MINING,
     SCIENCE,
     MILITARY,
-    STARPORT
+    STARPORT,
+    GENERIC
 }

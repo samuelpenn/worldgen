@@ -21,6 +21,9 @@ public class Facility {
     @Column
     private String name;
 
+    @Column
+    private String title;
+
     @Column (name="type")
     @Enumerated(EnumType.STRING)
     private FacilityType type;
@@ -49,6 +52,12 @@ public class Facility {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getTitle() { return title; }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public FacilityType getType() {

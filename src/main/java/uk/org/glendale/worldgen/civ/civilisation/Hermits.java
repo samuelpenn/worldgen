@@ -17,6 +17,7 @@ import uk.org.glendale.worldgen.civ.CivilisationFeature;
 import uk.org.glendale.worldgen.civ.CivilisationGenerator;
 import uk.org.glendale.worldgen.civ.Facility;
 import uk.org.glendale.worldgen.civ.facility.residential.RockHermits;
+import uk.org.glendale.worldgen.civ.facility.starport.RamshackleDocks;
 
 /**
  * Rock Hermits live on asteroids or similar space based debris. They are generally disorganised and low tech,
@@ -96,7 +97,9 @@ public class Hermits extends CivilisationGenerator {
 
         logger.debug("Setting residential");
         worldGen.getPlanetFactory().setFacility(residential);
-        logger.debug("Have set residential");
+
+        Facility port = new RamshackleDocks(planet).getFacility();
+        worldGen.getPlanetFactory().setFacility(port);
     }
 
     public void createRockHermits(CivilisationFeature... features) {

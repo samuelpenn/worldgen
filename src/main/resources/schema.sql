@@ -193,6 +193,7 @@ CREATE TABLE facilities (
   id INT AUTO_INCREMENT,
   planet_id INT NOT NULL,
   name VARCHAR(24) NOT NULL,
+  title VARCHAR(64) NOT NULL,
   type VARCHAR(24) NOT NULL,
   rating int NOT NULL,
   tech int NOT NULL,
