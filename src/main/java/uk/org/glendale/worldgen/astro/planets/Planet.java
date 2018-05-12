@@ -210,6 +210,8 @@ public class Planet {
      * planet is a moon, this is the distance from the parent parent. If it's a planet, then it's
      * distance from the star.
      *
+     * If a moon is part of a Belt, then the distance may be negative.
+     *
      * @return  Distance of planet from primary.
      */
     public long getDistance() {
@@ -217,7 +219,11 @@ public class Planet {
     }
 
     public void setDistance(long km) {
-        this.distance = Math.max(km, 0);
+        if (moonOf > 0) {
+            this.distance = km;
+        } else {
+            this.distance = Math.max(km, 0);
+        }
     }
 
     public PlanetType getType() {

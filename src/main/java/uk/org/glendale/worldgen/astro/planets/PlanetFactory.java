@@ -20,6 +20,7 @@ import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.civ.Facility;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
 import uk.org.glendale.worldgen.exceptions.WorldGenException;
+import uk.org.glendale.worldgen.text.TextGenerator;
 
 import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
@@ -260,6 +261,7 @@ public class PlanetFactory {
                 logger.info(String.format("Planet [%s] has a population of [%d]", name, planet.getPopulation()));
                 //session.persist(planet);
                 //session.flush();
+                session.persist(planet);
             }
 
             if (type.getGroup() != PlanetGroup.Belt) {

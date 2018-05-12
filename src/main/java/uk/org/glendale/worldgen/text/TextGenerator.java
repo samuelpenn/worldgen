@@ -14,6 +14,7 @@ import uk.org.glendale.worldgen.astro.planets.PlanetFeature;
 import uk.org.glendale.worldgen.astro.planets.PlanetGenerator;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
+import uk.org.glendale.worldgen.civ.Facility;
 
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
@@ -40,6 +41,7 @@ public class TextGenerator {
     private static final Logger logger = LoggerFactory.getLogger(TextGenerator.class);
     private StringBuffer buffer = new StringBuffer();
     private Planet planet = null;
+    private Facility facility = null;
 
     private Properties phrases = null;
 
@@ -83,7 +85,7 @@ public class TextGenerator {
     }
 
     private static final String RESOURCE_BASE = "text.planets.";
-
+    private static final String FACILITY_BASE = "text.facilities.";
 
     private void readResource(String bundleName) {
         try {
@@ -122,6 +124,22 @@ public class TextGenerator {
                     "Planet builder has not been correctly initiated");
         }
         readResources();
+    }
+
+    public TextGenerator(Planet planet, Facility facility) {
+        this.planet = planet;
+        this.facility = facility;
+
+        if (this.planet == null || this.facility == null) {
+            throw new IllegalStateException(
+                    "Planet builder has not been correctly initiated");
+        }
+        phrases = new Properties();
+
+        String type = facility.getType().name().toLowerCase();
+        String name = facility.getName();
+
+        readResource(FACILITY_BASE + type + "." + name);
     }
 
     /**
@@ -405,4 +423,16 @@ public class TextGenerator {
 		 */
         return buffer.toString().replaceAll(" +", " ").trim();
     }
+
+    public String getFacilityDescription() {
+        String rootKey = facility.getName();
+
+        buffer = new StringBuffer();
+
+        addText(buffer, rootKey, 100);
+        addText(buffer, rootKey + ".government", 100);
+
+        return buffer.toString().replaceAll(" +", " ").trim();
+    }
+
 }

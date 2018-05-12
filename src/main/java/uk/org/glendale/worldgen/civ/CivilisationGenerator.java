@@ -8,8 +8,10 @@ package uk.org.glendale.worldgen.civ;
 import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
+import uk.org.glendale.worldgen.text.TextGenerator;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,4 +47,13 @@ public abstract class CivilisationGenerator {
     }
 
     public abstract void generate(CivilisationFeature... features);
+
+    protected void generateDescription(List<Facility> facilities) {
+        String text = planet.getDescription();
+        for (Facility f : facilities) {
+            TextGenerator t = new TextGenerator(planet, f);
+            text = text.trim() + " " + t.getFacilityDescription();
+        }
+        planet.setDescription(text);
+    }
 }

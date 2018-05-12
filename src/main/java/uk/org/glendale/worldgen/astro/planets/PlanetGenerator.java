@@ -167,7 +167,15 @@ public abstract class PlanetGenerator {
         }
     }
 
-    private void addResource(Planet planet, CommodityName name, int density) {
+    /**
+     * Adds a resource to the planet. A resource is a density of a commodity. The frequency
+     * of the commodity affects the final density of the resource.
+     *
+     * @param planet    Planet to add resource to.
+     * @param name      Name of the commodity this resource is for.
+     * @param density   Base density for this resource.
+     */
+    private final void addResource(Planet planet, CommodityName name, int density) {
         try {
             Commodity commodity = commodityFactory.getCommodity(name.getName());
             planet.addResource(commodity, density);
@@ -177,19 +185,19 @@ public abstract class PlanetGenerator {
         }
     }
 
-    public void addPrimaryResource(Planet planet, CommodityName commodity) {
+    public final void addPrimaryResource(Planet planet, CommodityName commodity) {
         addResource(planet, commodity, 800 + Die.d100(4));
     }
 
-    public void addSecondaryResource(Planet planet, CommodityName commodity) {
+    public final void addSecondaryResource(Planet planet, CommodityName commodity) {
         addResource(planet, commodity, 400 + Die.d100(2));
     }
 
-    public void addTertiaryResource(Planet planet, CommodityName commodity) {
+    public final void addTertiaryResource(Planet planet, CommodityName commodity) {
         addResource(planet, commodity, 200 + Die.d100());
     }
 
-    public void addTraceResource(Planet planet, CommodityName commodity) {
+    public final void addTraceResource(Planet planet, CommodityName commodity) {
         addResource(planet, commodity, 100 + Die.d20(2));
     }
 

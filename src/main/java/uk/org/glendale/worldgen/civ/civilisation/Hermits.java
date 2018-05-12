@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
@@ -16,8 +17,12 @@ import uk.org.glendale.worldgen.astro.systems.generators.BrownDwarf;
 import uk.org.glendale.worldgen.civ.CivilisationFeature;
 import uk.org.glendale.worldgen.civ.CivilisationGenerator;
 import uk.org.glendale.worldgen.civ.Facility;
+import uk.org.glendale.worldgen.civ.facility.residential.DustFarmers;
 import uk.org.glendale.worldgen.civ.facility.residential.RockHermits;
 import uk.org.glendale.worldgen.civ.facility.starport.RamshackleDocks;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Rock Hermits live on asteroids or similar space based debris. They are generally disorganised and low tech,
@@ -31,27 +36,30 @@ public class Hermits extends CivilisationGenerator {
     }
 
     public void generate(CivilisationFeature... features) {
+        List<Facility> facilities = new ArrayList<Facility>();
+
         setFeatures(features);
 
         switch (planet.getType()) {
             case DustDisc:
             case PlanetesimalDisc:
-                createDustHermits();
+                createDustFarmers(facilities);
                 break;
             case AsteroidBelt:
             case VulcanianBelt:
-                createRockHermits();
+                createRockHermits(facilities);
                 break;
             case IceBelt:
             case IceRing:
-                createIceHermits();
+                createIceHermits(facilities);
                 break;
             default:
-                createRockHermits();
+                createRockHermits(facilities);
         }
+        generateDescription(facilities);
     }
 
-    public void createIceHermits(CivilisationFeature... features) {
+    public void createIceHermits(final List<Facility> facilities, CivilisationFeature... features) {
         setFeatures(features);
         planet.setTechLevel(4 + Die.d2());
 
@@ -70,9 +78,11 @@ public class Hermits extends CivilisationGenerator {
         } else if (hasFeature(CivilisationFeature.RICH)) {
             residential.setRating(residential.getRating() + 25);
         }
+        facilities.add(residential);
+
     }
 
-    public void createDustHermits(CivilisationFeature... features) {
+    public void createDustFarmers(final List<Facility> facilities, CivilisationFeature... features) {
         logger.info("Creating dust hermits");
         setFeatures(features);
         planet.setTechLevel(4 + Die.d2());
@@ -80,29 +90,32 @@ public class Hermits extends CivilisationGenerator {
         if (hasFeature(CivilisationFeature.SMALL_POPULATION)) {
             planet.setPopulation(Die.d6(5));
         } else if (hasFeature(CivilisationFeature.LARGE_POPULATION)) {
-            planet.setPopulation(Die.d12(10) * 5);
+            planet.setPopulation(Die.d12(10) * 3 + Die.rollZero(3));
         } else if (hasFeature(CivilisationFeature.HUGE_POPULATION)) {
-            planet.setPopulation(Die.d20(20) * 10);
+            planet.setPopulation(Die.d20(20) * 6 + Die.rollZero(6));
             planet.setTechLevel(6);
         } else {
             planet.setPopulation(Die.d6(10));
         }
+        planet.setPopulation(Physics.round(planet.getPopulation()));
 
-        Facility residential = new RockHermits(planet).getFacility();
+        Facility residential = new DustFarmers(planet).getFacility();
         if (hasFeature(CivilisationFeature.POOR)) {
             residential.setRating(residential.getRating() - 25);
         } else if (hasFeature(CivilisationFeature.RICH)) {
-            residential.setRating(residential.getRating() + 25);
+            residential.setRating(residential.getRating() + 15);
         }
 
         logger.debug("Setting residential");
         worldGen.getPlanetFactory().setFacility(residential);
+        facilities.add(residential);
 
         Facility port = new RamshackleDocks(planet).getFacility();
         worldGen.getPlanetFactory().setFacility(port);
+        facilities.add(port);
     }
 
-    public void createRockHermits(CivilisationFeature... features) {
+    public void createRockHermits(final List<Facility> facilities, CivilisationFeature... features) {
         setFeatures(features);
 
         planet.setTechLevel(4 + Die.d2());
@@ -122,6 +135,7 @@ public class Hermits extends CivilisationGenerator {
         } else if (hasFeature(CivilisationFeature.RICH)) {
             residential.setRating(residential.getRating() + 25);
         }
+        facilities.add(residential);
 
     }
 }
