@@ -83,9 +83,6 @@ public class Ferrinian extends Dwarf {
 
         addFeatures(planet);
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         // Define resources for this world.
         addPrimaryResource(planet, SilicateOre);
         addTertiaryResource(planet, SilicateCrystals);

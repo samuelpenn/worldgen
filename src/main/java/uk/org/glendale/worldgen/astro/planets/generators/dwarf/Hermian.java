@@ -106,9 +106,6 @@ public class Hermian extends Dwarf {
             }
         }
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         // Define resources for this world.
         addPrimaryResource(planet, SilicateOre);
         addSecondaryResource(planet, SilicateCrystals);

@@ -57,9 +57,6 @@ public class VulcanianBelt extends Belt {
         addTertiaryResource(planet, PreciousMetals);
         addTertiaryResource(planet, Radioactives);
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         return planet;
     }
 }

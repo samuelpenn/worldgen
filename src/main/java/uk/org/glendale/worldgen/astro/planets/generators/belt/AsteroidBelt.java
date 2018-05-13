@@ -38,9 +38,6 @@ public class AsteroidBelt extends Belt {
         radius = checkDistance(radius);
         planet.setRadius(radius);
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         addPrimaryResource(planet, SilicateOre);
         addPrimaryResource(planet, CarbonicOre);
         addSecondaryResource(planet, FerricOre);

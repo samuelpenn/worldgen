@@ -252,6 +252,7 @@ public class PlanetFactory {
             } catch (UnsupportedException e) {
                 planet = generator.getPlanet(name, type);
             }
+            generator.generateDescription(planet);
 
             session.persist(planet);
             session.flush();
@@ -259,8 +260,6 @@ public class PlanetFactory {
             // Try to colonise the planet.
             if (generator.colonise(planet) > 0) {
                 logger.info(String.format("Planet [%s] has a population of [%d]", name, planet.getPopulation()));
-                //session.persist(planet);
-                //session.flush();
                 session.persist(planet);
             }
 

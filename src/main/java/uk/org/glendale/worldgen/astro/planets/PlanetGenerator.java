@@ -26,6 +26,7 @@ import uk.org.glendale.worldgen.astro.systems.StarSystemGenerator;
 import uk.org.glendale.worldgen.civ.CivilisationFeature;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
 import uk.org.glendale.worldgen.exceptions.WorldGenException;
+import uk.org.glendale.worldgen.text.TextGenerator;
 import uk.org.glendale.worldgen.web.Server;
 
 import java.io.File;
@@ -62,8 +63,8 @@ public abstract class PlanetGenerator {
     public abstract Planet getPlanet(String name);
 
     protected void generateDescription(Planet planet) {
-        String text = "Harmless.";
-        planet.setDescription(text);
+        TextGenerator text = new TextGenerator(planet);
+        planet.setDescription("<p>" + text.getFullDescription() + "</p>");
     }
 
     protected Planet definePlanet(Planet planet) {
@@ -87,7 +88,7 @@ public abstract class PlanetGenerator {
         planet.setLife(Life.None);
         planet.setDayLength(86400 * (36 + Die.d12(4)));
 
-        generateDescription(planet);
+        planet.setDescription("<p>Unexplored.</p>");
 
         return planet;
     }

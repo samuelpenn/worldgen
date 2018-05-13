@@ -183,6 +183,7 @@ public class StarSystemImage {
                 break;
             case SINGLE:
             case CONJOINED_BINARY:
+            case CLOSE_BINARY:
                 for (Planet p: planets) {
                     long d = p.getDistance();
                     if (p.getType().getGroup().equals(PlanetGroup.Belt)) {
@@ -193,7 +194,6 @@ public class StarSystemImage {
                     }
                 }
                 break;
-            case CLOSE_BINARY:
             case MEDIUM_BINARY:
             case FAR_BINARY:
                 // Smaller star orbits a larger star. Secondary star will be further away than

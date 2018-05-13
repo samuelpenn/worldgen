@@ -40,9 +40,6 @@ public class DustDisc extends Belt {
         radius = (int) Physics.round(checkDistance(radius), 4);
         planet.setRadius(radius);
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         // Resources
         addTertiaryResource(planet, Hydrogen);
         if (planet.getTemperature() < 300 && Die.d2() == 1) {

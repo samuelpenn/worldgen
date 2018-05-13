@@ -56,12 +56,10 @@ public class Selenian extends Dwarf {
             planet.setRadius((int)(planet.getRadius() * 1.5));
         }
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         // Define resources for this world.
         addSecondaryResource(planet, SilicateOre);
         addTertiaryResource(planet, SilicateCrystals);
 
         return planet;
-    }}
+    }
+}

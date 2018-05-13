@@ -68,14 +68,10 @@ public class EuArean extends Dwarf {
 
         addFeatures(planet);
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         // Define resources for this world.
         addPrimaryResource(planet, SilicateOre);
         addSecondaryResource(planet, SilicateCrystals);
         addTertiaryResource(planet, FerricOre);
-
         addTraceResource(planet, Water);
 
         return planet;

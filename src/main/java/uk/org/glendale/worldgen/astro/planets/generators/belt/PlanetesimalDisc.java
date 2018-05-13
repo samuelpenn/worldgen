@@ -35,9 +35,6 @@ public class PlanetesimalDisc extends Belt {
         radius = checkDistance(radius);
         planet.setRadius(radius);
 
-        TextGenerator text = new TextGenerator(planet);
-        planet.setDescription(text.getFullDescription());
-
         addSecondaryResource(planet, SilicateOre);
         addSecondaryResource(planet, CarbonicOre);
         if (planet.getTemperature() < 400) {
