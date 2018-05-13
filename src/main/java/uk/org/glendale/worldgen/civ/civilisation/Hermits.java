@@ -87,17 +87,19 @@ public class Hermits extends CivilisationGenerator {
         setFeatures(features);
         planet.setTechLevel(4 + Die.d2());
 
+        long population = Die.d10(10);
         if (hasFeature(CivilisationFeature.SMALL_POPULATION)) {
-            planet.setPopulation(Die.d6(5));
+            population *= 10;
         } else if (hasFeature(CivilisationFeature.LARGE_POPULATION)) {
-            planet.setPopulation(Die.d12(10) * 3 + Die.rollZero(3));
+            population *= 100;
         } else if (hasFeature(CivilisationFeature.HUGE_POPULATION)) {
-            planet.setPopulation(Die.d20(20) * 6 + Die.rollZero(6));
+            population *= 300;
             planet.setTechLevel(6);
         } else {
-            planet.setPopulation(Die.d6(10));
+            population *= 30;
         }
-        planet.setPopulation(Physics.round(planet.getPopulation()));
+        population += Die.d100(); // Make the number look more natural.
+        planet.setPopulation(Physics.round(population));
 
         Facility residential = new DustFarmers(planet).getFacility();
         if (hasFeature(CivilisationFeature.POOR)) {

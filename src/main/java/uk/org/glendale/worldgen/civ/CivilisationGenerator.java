@@ -16,7 +16,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Generates a new civilisation.
+ * Generates a new civilisation on a planet. A civilisation isn't recorded, but specifies
+ * a list of facilities that are recorded against the planet.
  */
 public abstract class CivilisationGenerator {
     protected WorldGen worldGen;
@@ -32,6 +33,13 @@ public abstract class CivilisationGenerator {
         this.features = new HashSet<CivilisationFeature>();
     }
 
+    /**
+     * Abstract generation class that must be extended.
+     *
+     * @param features  Optional list of features to apply to this civilisation.
+     */
+    public abstract void generate(CivilisationFeature... features);
+
     public void setFeatures(CivilisationFeature[] features) {
         for (CivilisationFeature f : features) {
             this.features.add(f);
@@ -46,8 +54,13 @@ public abstract class CivilisationGenerator {
         return this.features.contains(feature);
     }
 
-    public abstract void generate(CivilisationFeature... features);
-
+    /**
+     * Append a description of the civilisation to the end of the planet's physical description.
+     * Each facility gets a chance to add a description, which has its own heading. If a facility
+     * does not have descriptions defined, then no heading is added.
+     *
+     * @param facilities    List of facilities to describe.
+     */
     protected void generateDescription(List<Facility> facilities) {
         String text = planet.getDescription();
         for (Facility f : facilities) {

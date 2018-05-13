@@ -16,6 +16,7 @@ import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.civ.CivilisationFeature;
 import uk.org.glendale.worldgen.civ.CivilisationGenerator;
 import uk.org.glendale.worldgen.civ.civilisation.Hermits;
+import uk.org.glendale.worldgen.civ.civilisation.Research;
 import uk.org.glendale.worldgen.text.TextGenerator;
 
 import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
@@ -60,9 +61,20 @@ public class DustDisc extends Belt {
     }
 
     public long colonise(Planet planet, CivilisationFeature... features) {
-        CivilisationGenerator coloniser = new Hermits(worldGen, system, planet);
+        CivilisationGenerator coloniser = null;
 
-        coloniser.generate(features);
+        switch (Die.d6(2)) {
+            case 7: case 8: case 9:
+                coloniser = new Hermits(worldGen, system, planet);
+                break;
+            case 10: case 11: case 12:
+                coloniser = new Research(worldGen, system, planet);
+                break;
+        }
+
+        if (coloniser != null) {
+            coloniser.generate(features);
+        }
 
         return planet.getPopulation();
     }

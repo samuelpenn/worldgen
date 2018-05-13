@@ -11,6 +11,10 @@ import uk.org.glendale.worldgen.astro.planets.codes.StarPort;
 import uk.org.glendale.worldgen.civ.Facility;
 import uk.org.glendale.worldgen.civ.facility.AbstractFacility;
 
+/**
+ * Class to generate and manage Dust Farmers. Residential facility sometimes
+ * found in dust rings around young stars. Tend to be poor and low tech.
+ */
 public class DustFarmers extends AbstractFacility {
     public DustFarmers(Planet planet) {
         super(planet);
