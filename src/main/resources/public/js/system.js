@@ -205,8 +205,15 @@ function showPlanet(starId, planet) {
     if (planet.dayLength > 0) {
         $planetData.append(`<dt>Length of Day</dt><dd>${getPeriod(planet.dayLength)}</dd>`);
     }
-    $planetData.append(`<dt>Atmosphere</dt><dd>${planet.pressure === "None"?"":planet.pressure} ${planet.atmosphere}</dd>`);
+    $planetData.append(`<dt>Atmosphere</dt><dd>${planet.pressure === 0?"":planet.pressure} ${planet.atmosphere}</dd>`);
     $planetData.append(`<dt>Temperature</dt><dd>${planet.temperature} K (${planet.temperature - 273} °C)</dd>`);
+
+    if (planet.population > 0) {
+        $planetData.append(`<dt>Population</dt><dd>${planet.population}</dd>`);
+        $planetData.append(`<dt>Government</dt><dd>${planet.government} (${planet.law})</dd>`);
+        $planetData.append(`<dt>Star Port</dt><dd>${planet.port}</dd>`);
+        $planetData.append(`<dt>Tech Level</dt><dd>${planet.techLevel}</dd>`);
+    }
 
     $planetInfo.append(`<p style="clear:left">${planet.description}</p>`);
 

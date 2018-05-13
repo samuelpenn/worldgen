@@ -285,7 +285,7 @@ public class Planet {
     }
 
     public void setTemperature(int k) {
-        this.temperature = Math.max(k, 0);
+        this.temperature = Math.max(k, 3);
     }
 
     public Atmosphere getAtmosphere() {

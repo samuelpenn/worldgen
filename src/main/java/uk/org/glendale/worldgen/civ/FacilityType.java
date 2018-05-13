@@ -6,12 +6,22 @@
 package uk.org.glendale.worldgen.civ;
 
 public enum FacilityType {
-    RESIDENTIAL,
-    INDUSTRY,
-    AGRICULTURE,
-    MINING,
-    SCIENCE,
-    MILITARY,
-    STARPORT,
-    GENERIC
+    RESIDENTIAL("Residential"),
+    INDUSTRY("Industry"),
+    AGRICULTURE("Agriculture"),
+    MINING("Mining"),
+    SCIENCE("Science"),
+    MILITARY("Military"),
+    STARPORT("StarPort"),
+    GENERIC("");
+
+    private final String title;
+
+    FacilityType(final String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return title;
+    }
 }

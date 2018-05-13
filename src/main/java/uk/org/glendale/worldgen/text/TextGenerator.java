@@ -12,9 +12,12 @@ import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFeature;
 import uk.org.glendale.worldgen.astro.planets.PlanetGenerator;
+import uk.org.glendale.worldgen.astro.planets.codes.Government;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
+import uk.org.glendale.worldgen.astro.planets.codes.StarPort;
 import uk.org.glendale.worldgen.civ.Facility;
+import uk.org.glendale.worldgen.civ.FacilityType;
 
 import java.lang.reflect.Method;
 import java.text.DecimalFormat;
@@ -430,9 +433,21 @@ public class TextGenerator {
         buffer = new StringBuffer();
 
         addText(buffer, rootKey, 100);
-        addText(buffer, rootKey + ".government", 100);
 
         return buffer.toString().replaceAll(" +", " ").trim();
     }
 
+    public static void main(String[] args) {
+        Planet p = new Planet();
+        Facility f = new Facility();
+
+        p.setGovernment(Government.Anarchy);
+        p.setStarPort(StarPort.Do);
+        f.setName("RamshackleDocks");
+        f.setType(FacilityType.STARPORT);
+
+        TextGenerator tg = new TextGenerator(p, f);
+
+        System.out.println(tg.getFacilityDescription());
+    }
 }

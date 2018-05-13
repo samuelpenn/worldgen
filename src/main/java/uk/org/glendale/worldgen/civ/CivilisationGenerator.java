@@ -54,7 +54,11 @@ public abstract class CivilisationGenerator {
             TextGenerator t = new TextGenerator(planet, f);
             String          description = t.getFacilityDescription();
             if (description.length() > 0) {
-                text += "<h5>" + f.getTitle() + "</h5>";
+                String type = f.getType().getTitle();
+                if (type.length() > 0) {
+                    type = " (" + type + ")";
+                }
+                text += "<h5>" + f.getTitle() + type + "</h5>";
                 text += "<p>" + description + "</p>";
             }
         }
