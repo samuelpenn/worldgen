@@ -33,13 +33,13 @@
 
 <body>
 <div class="container-fluid">
-  <h1>$system.name</h1>
+  <h1>$sector.name &gt; $subsector &gt; $system.name ($x$y) <span>${systemZone} / ${systemType}</span></h1>
 
   <div id="system" class="container-fluid">
 
     <ul id="star-menu" class="nav nav-tabs">
       <li class="nav-item active" id="system-map-menu">
-        <a class="nav-link" data-toggle="tab" id="system-map-tab" href="#system-map">System Map</a>
+        <a class="nav-link" data-toggle="tab" id="system-map-tab" href="#system-map">Overview</a>
       </li>
 
       #foreach ($star in $system.stars)
@@ -52,6 +52,12 @@
     <div class="tab-content" id="myTabContent">
       <div class="tab-pane fade show active" id="system-map">
         <img src="/api/system/${system.id}/map?width=1024" width="1024" height="1024"/>
+        <!--
+        <dl class="data-block">
+          <dt>Type</dt><dd>${system.type}</dd>
+          <dt>Zone</dt><dd>${system.zone}</dd>
+        </dl>
+        -->
       </div>
 
       #foreach ($star in $system.stars)

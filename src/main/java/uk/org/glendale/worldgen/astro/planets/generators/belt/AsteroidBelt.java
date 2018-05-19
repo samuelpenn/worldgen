@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.PlanetGenerator;
@@ -59,6 +60,7 @@ public class AsteroidBelt extends Belt {
         Planet planet = definePlanet(name, PlanetType.AsteroidBelt);
         int radius = (int) (Die.d6(4 * 5) * MKM);
         int density = 1000 + Die.dieV(250);
+        planet.setTemperature(Physics.getOrbitTemperature(star, distance));
 
         addFeatures(planet);
 
@@ -119,7 +121,7 @@ public class AsteroidBelt extends Belt {
         logger.info(String.format("Creating %d moons for [%s]", numberOfMoons, primary.getName()));
         if (numberOfMoons > 0) {
             long variance = primary.getRadius() / numberOfMoons;
-            long distance = primary.getRadius();
+            long distance = 0 - primary.getRadius();
             switch (numberOfMoons) {
                 case 1:
                     distance = Die.dieV(primary.getRadius());

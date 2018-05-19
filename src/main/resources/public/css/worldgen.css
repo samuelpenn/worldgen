@@ -1,6 +1,20 @@
 h1 {
-	background-color: #000077;
+	background-color: #4267b2;
 	color: white;
+    padding: 4pt;
+    margin: 0;
+}
+
+h1 span {
+    float: right;
+    font-size: medium;
+    display: inline-block;
+}
+
+#system-map img {
+    border: 1px solid #4267b2;
+    margin: 2pt;
+    float: left;
 }
 
 table#galaxy_map {

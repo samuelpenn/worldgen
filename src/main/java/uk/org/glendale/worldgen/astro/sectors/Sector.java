@@ -147,4 +147,15 @@ public class Sector {
     private void setY(final int y) {
         this.y = y;
     }
+
+    public String getSubSectorName(int x, int y) {
+        String names = "ABCDEFGHIJKLMNOP";
+
+        int sx = (x - 1) / (WIDTH / 4);
+        int sy = (y - 1) / (HEIGHT / 4);
+
+        int pos = (sy) * 4 + sx;
+
+        return names.substring(pos, pos + 1);
+    }
 }

@@ -13,6 +13,8 @@ import spark.Request;
 import spark.Response;
 import spark.template.velocity.VelocityTemplateEngine;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.sectors.NoSuchSectorException;
+import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.systems.NoSuchStarSystemException;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.exceptions.ApiException;
@@ -36,6 +38,17 @@ public class SystemUI extends Controller {
 
     }
 
+    private String toTitleCase(String text) {
+        text = text.toLowerCase().replaceAll("_", " ").trim();
+
+        String title = "";
+        for ( String word : text.split(" ")) {
+            title += word.substring(0, 1).toUpperCase() + word.substring(1) + " ";
+        }
+
+        return title.trim();
+    }
+
     private Object showStarSystem(Request request, Response response) {
         try (WorldGen worldGen = getWorldGen()) {
 
@@ -46,6 +59,15 @@ public class SystemUI extends Controller {
             Map<String,Object> model = new HashMap<>();
             model.put("id", id);
             model.put("system", system);
+            model.put("x", String.format("%02d", system.getX()));
+            model.put("y", String.format("%02d", system.getY()));
+
+            model.put("systemType", toTitleCase("" + system.getType()));
+            model.put("systemZone", toTitleCase("" + system.getZone()));
+
+            Sector sector = worldGen.getSectorFactory().getSector(system.getSectorId());
+            model.put("sector", sector);
+            model.put("subsector", sector.getSubSectorName(system.getX(), system.getY()));
 
             return new VelocityTemplateEngine().render(
                     new ModelAndView(model, "templates/system.vm")
@@ -59,6 +81,10 @@ public class SystemUI extends Controller {
             logger.error("No such star system", e);
             response.status(404);
             return "System not found (" + e.getMessage() + ")";
+        } catch (NoSuchSectorException e) {
+            logger.error("No such sector", e);
+            response.status(500);
+            return "Sector not found (" + e.getMessage() + ")";
         }
 
     }

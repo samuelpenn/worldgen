@@ -7,6 +7,7 @@ package uk.org.glendale.worldgen.astro.planets.generators.smallbody;
 
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.planets.generators.SmallBody;
@@ -42,6 +43,7 @@ public class Carbonaceous extends SmallBody {
 
         Planet planet =  definePlanet(name, type);
         planet.setRadius(100 + Die.d100(4));
+        planet.setTemperature(Physics.getOrbitTemperature(star, distance));
 
         // Set default day length to be 2-3 hours.
         planet.setDayLength(3600 + Die.die(3600, 2));
