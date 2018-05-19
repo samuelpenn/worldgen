@@ -270,6 +270,13 @@ public class PlanetFactory {
                     setPlanetMap(planet.getId(), mapType, maps.get(mapType));
                 }
             }
+            List<Planet> moons = generator.getMoons(planet);
+            if (moons.size() > 0) {
+                logger.info(String.format("Planet [%s] has %d moons", name, moons.size()));
+                for (Planet moon : moons) {
+                    session.persist(moon);
+                }
+            }
 
             return planet;
         } catch (NoSuchMethodException e) {

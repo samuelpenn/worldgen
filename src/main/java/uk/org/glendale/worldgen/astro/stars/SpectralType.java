@@ -374,6 +374,29 @@ public enum SpectralType {
         }
     }
 
+    /**
+     * Gets the spectral type that is shifted the given number of steps hotter or colder
+     * than the current one. A positive shift makes it that many steps hotter, a negative
+     * shift makes it colder. Can only be used on main-sequence stars, in the range Y
+     * to O. For stellar remnants it always returns the same spectral type.
+     *
+     * @param delta     Amount to change this spectral type by.
+     * @return          New modified spectral type.
+     */
+    public SpectralType getSpectralType(int delta) {
+        if (ordinal() > O0.ordinal()) {
+            return this;
+        }
+        int st = this.ordinal() + delta;
+        if (st < Y9.ordinal()) {
+            st = Y9.ordinal();
+        } else if (st > O0.ordinal()) {
+            st = O9.ordinal();
+        }
+
+        return SpectralType.values()[st];
+    }
+
     public static void main(String[] args) {
 
         for (SpectralType t : new SpectralType[] { D9, D8, D7, D6, D5, D4, D3, D2, D1, D0 }) {

@@ -68,6 +68,9 @@ public class Planet {
     @Column
     private int pressure;
 
+    @Column
+    private int density;
+
     @Column @Enumerated (EnumType.STRING)
     private MagneticField field;
 
@@ -247,6 +250,20 @@ public class Planet {
 
     public int getBeltWidth() {
         return radius * 2;
+    }
+
+    /**
+     * Gets the density of this planet. A density of 1000 is equal to that of water.
+     * For belts, the density is handled differently.
+     *
+     * @return  Density in kg per cubic metre.
+     */
+    public int getDensity() {
+        return density;
+    }
+
+    public void setDensity(int density) {
+        this.density = Math.max(0, density);
     }
 
     /**

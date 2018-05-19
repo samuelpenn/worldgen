@@ -796,10 +796,14 @@ public class Icosahedron {
 
 				Tile t = map[tileY][tileX];
 
-				image.triangleFill(px, py, tileWidthPx, h, t.getRGB());
-				image.triangle(px, py, tileWidthPx, h, t.getRGB());
-
-				t.addDetail(image, px, py, tileWidthPx, h);
+				if (t != null) {
+                    image.triangleFill(px, py, tileWidthPx, h, t.getRGB());
+                    image.triangle(px, py, tileWidthPx, h, t.getRGB());
+                    t.addDetail(image, px, py, tileWidthPx, h);
+                } else {
+                    image.triangleFill(px, py, tileWidthPx, h, "#010101");
+                    image.triangleFill(px, py, tileWidthPx, h, "#010101");
+                }
 			}
 		}
 		return image;

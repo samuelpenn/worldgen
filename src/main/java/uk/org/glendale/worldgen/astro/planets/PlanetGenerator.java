@@ -88,6 +88,12 @@ public abstract class PlanetGenerator {
         planet.setLife(Life.None);
         planet.setDayLength(86400 * (36 + Die.d12(4)));
 
+        if (planet.getType() != null) {
+            planet.setDensity((int) (1000 * planet.getType().getDensity()));
+        } else {
+            planet.setDensity(1000);
+        }
+
         planet.setDescription("<p>Unexplored.</p>");
 
         return planet;

@@ -9,6 +9,7 @@ package uk.org.glendale.worldgen.astro.planets.generators;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.planets.Planet;
+import uk.org.glendale.worldgen.astro.planets.PlanetFeature;
 import uk.org.glendale.worldgen.astro.planets.PlanetGenerator;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.stars.Star;
@@ -23,6 +24,12 @@ import static uk.org.glendale.worldgen.astro.Physics.MKM;
  * similar natural objects which consist of a large collection of very small bodies.
  */
 public class Belt extends PlanetGenerator {
+
+    public enum BeltFeature implements PlanetFeature {
+        ThinRing,
+        WideSparseRing,
+        Planetoids
+    }
 
     public Belt(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);

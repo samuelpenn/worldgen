@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
@@ -20,7 +21,9 @@ import uk.org.glendale.worldgen.astro.systems.StarSystemType;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 
 /**
- * Generate a barren star system. These are devoid of native life and habitable planets.
+ * Generate a barren star system. These are devoid of native life and habitable planets. Most are
+ * G/K/M stars with a few barren worlds orbiting them. Most worlds will lack an atmosphere, and
+ * have no surface water.
  */
 public class Barren extends StarSystemGenerator {
     private static final Logger logger = LoggerFactory.getLogger(Barren.class);
@@ -55,13 +58,72 @@ public class Barren extends StarSystemGenerator {
             case 4:
                 createProtoDwarf(system);
                 break;
-            case 5: case 6:
+            case 5:
                 createSmallDwarfPair(system);
+                break;
+            case 6:
+                createAsteroidBelt(system);
                 break;
         }
 
         updateStarSystem(system);
         return system;
+    }
+
+    /**
+     * Creates a single main-sequence star with a single asteroid belt around it. The star will mostly
+     * likely be a K-type star, with a chance of cool G or warm M. Depending on the temperature of the
+     * belt, it may be a Vulcanian or Ice belt rather than a typical asteroid belt.
+     *
+     * @param system        Star System to create belt in.
+     */
+    public void createAsteroidBelt(StarSystem system) throws DuplicateObjectException {
+        StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
+        // On average a cool main-sequence star will be generated.
+        Star primary = starGenerator.generatePrimary(Luminosity.V,
+                SpectralType.K5.getSpectralType(Die.dieV(10)));
+        system.addStar(primary);
+        system.setType(StarSystemType.SINGLE);
+
+        // Place the belt around 1AU from the star.
+        long distance = Physics.AU + Die.dieV(50_000_000);
+        String name = factory.getBeltName(primary, 1);
+
+        logger.info(String.format("Creating barren system [%s] with belt at [%d]km (%d)",
+                primary.toString(), distance, primary.getHotDistance()));
+
+        if (distance < primary.getHotDistance()) {
+            addVulcanianBelt(system, name, distance);
+        } else if (distance < primary.getSnowLineDistance()) {
+            addAsteroidBelt(system, name, distance);
+        } else {
+            int coldness = (int) (distance / primary.getSnowLineDistance());
+            switch (Die.d6(coldness)) {
+                case 1: case 2: case 3: case 4: case 5:
+                    addAsteroidBelt(system, name, distance);
+                    break;
+                default:
+                    addIceBelt(system, name, distance);
+            }
+        }
+    }
+
+    private void addVulcanianBelt(StarSystem system, String name, long distance) {
+        worldgen.getPlanetFactory().createPlanet(system, system.getStars().get(0),
+                name, PlanetType.VulcanianBelt, distance);
+        logger.info(String.format("Created Vulcanian Belt [%s]", name));
+    }
+
+    private void addAsteroidBelt(StarSystem system, String name, long distance) {
+        worldgen.getPlanetFactory().createPlanet(system, system.getStars().get(0),
+                name, PlanetType.AsteroidBelt, distance);
+        logger.info(String.format("Created Asteroid Belt [%s]", name));
+    }
+
+    private void addIceBelt(StarSystem system, String name, long distance) {
+        worldgen.getPlanetFactory().createPlanet(system, system.getStars().get(0),
+                name, PlanetType.IceBelt, distance);
+        logger.info(String.format("Created Ice Belt [%s]", name));
     }
 
     /**

@@ -31,7 +31,7 @@ public class Ticker implements Job {
             long realTimeLast = universe.getLastDate().getTime();
             Constant speed = worldGen.getConstant(Constant.Name.SPEED);
 
-            long timePassed = ((realTimeNow - realTimeLast) * speed.getValue()) / 1000;
+            long timePassed = ((realTimeNow - realTimeLast)) / 1000;
 
             boolean skipDowntime = worldGen.getConfig().getSkipDowntime();
             int     frequency = worldGen.getConfig().getSimFrequency();
@@ -42,9 +42,10 @@ public class Ticker implements Job {
                 logger.info(String.format("Server appears to have been down for [%d] seconds, capping updates", timePassed));
                 timePassed = frequency * 10;
             }
-            logger.debug(String.format("Updating universe by [%d] seconds", timePassed));
+            long simTimePassed = timePassed * speed.getValue();
+            logger.debug(String.format("Updating universe by [%d] seconds", simTimePassed));
 
-            worldGen.setCurrentTime(universe.getSimTime() + timePassed);
+            worldGen.setCurrentTime(universe.getSimTime() + simTimePassed);
             logger.debug(String.format("Time is now [%s]", universe.getCurrentDateTime()));
         } else {
             worldGen.setCurrentTime(worldGen.getCurrentTime());

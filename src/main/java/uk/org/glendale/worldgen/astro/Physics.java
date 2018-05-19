@@ -28,10 +28,10 @@ public class Physics {
     public static final long STANDARD_DAY = 86400L;
 
     // Distance of one Astronomical Unit, in kilometres.
-    public static final long  AU = 150000000;
+    public static final long  AU = 150_000_000;
 
     // Distance unit of millions of kilometres.
-    public static final long MKM = 1000000;
+    public static final long MKM = 1_000_000;
 
     public static final double G = 6.67408e-11;
 

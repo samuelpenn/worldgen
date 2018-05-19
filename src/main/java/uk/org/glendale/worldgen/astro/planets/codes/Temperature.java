@@ -28,28 +28,32 @@ package uk.org.glendale.worldgen.astro.planets.codes;
  *
  */
 public enum Temperature {
+    DeepSpace(0.0, 3, 20),          // Cosmic Background radiation temperature.
     UltraCold(0.0, 5, 25),
     ExtremelyCold_5(0.0, 10, 20),
     ExtremelyCold_4(0.0, 20, 20),
     ExtremelyCold_3(0.0, 50, 20),
+    OxygenMelts(0.0, 55, 20),      // Melting point of oxygen.
+    OxygenBoils(0.0, 90, 20),      // Boiling point of oxygen.
     ExtremelyCold_2(0.0, 100, 20),
     ExtremelyCold_1(0.0, 150, 20),
     ExtremelyCold(0.0, 200, 20),
     VeryCold(0.0, 230, 15),
     Cold(0.1, 260, 7),
+    TriplePoint(0.0, 273, 5),       // Freezing point of water.
     Cool(0.5, 280, 3),
     Standard(1.0, 290, 0),
     Warm(0.75, 300, 2),
     Hot(0.1, 320, 7),
     VeryHot(0.0, 350, 50),
-    WaterBoils(0.0, 400, 100),
-    PaperBurns(0.0, 500, 150),
-    LeadMelts(0.0, 750, 200),
-    IronMelts(0.0, 1000, 250),
-    SilicatesMelt(0.0, 1500, 250),
-    IronBoils(0.0, 2500, 250),
-    SilicatesBoil(0.0, 5000, 250),
-    StellarSurface(0.0, 6500, 250);
+    WaterBoils(0.0, 373, 100),      // Boiling point of water.
+    PaperBurns(0.0, 505, 150),      // Temperature at which paper burns.
+    LeadMelts(0.0, 750, 200),       // Temperature at which lead melts.
+    IronMelts(0.0, 1000, 250),      // Average melting point of iron.
+    SilicatesMelt(0.0, 1500, 250),  // Many silicate rocks melt.
+    IronBoils(0.0, 2500, 250),      // Iron boils.
+    SilicatesBoil(0.0, 5000, 250),  // Rock boils.
+    StellarSurface(0.0, 6500, 250); // Temperature at the surface of a G2 star.
 
     final double	suitability;
     final int		kelvin;

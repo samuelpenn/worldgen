@@ -22,8 +22,10 @@ import uk.org.glendale.worldgen.astro.sectors.SubSectorImage;
 import uk.org.glendale.worldgen.astro.stars.Star;
 
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static uk.org.glendale.worldgen.astro.systems.StarSystemImage.ScaleType.AU;
 import static uk.org.glendale.worldgen.astro.systems.StarSystemImage.ScaleType.MKM;
@@ -185,12 +187,14 @@ public class StarSystemImage {
             case CONJOINED_BINARY:
             case CLOSE_BINARY:
                 for (Planet p: planets) {
-                    long d = p.getDistance();
-                    if (p.getType().getGroup().equals(PlanetGroup.Belt)) {
-                        d += p.getRadius();
-                    }
-                    if (d > maxDistance) {
-                        maxDistance = d;
+                    if (!p.isMoon()) {
+                        long d = p.getDistance();
+                        if (p.getType().getGroup().equals(PlanetGroup.Belt)) {
+                            d += p.getRadius();
+                        }
+                        if (d > maxDistance) {
+                            maxDistance = d;
+                        }
                     }
                 }
                 break;
@@ -202,7 +206,7 @@ public class StarSystemImage {
                 // stars.
                 List<Star> stars = system.getStars();
                 for (Planet p: planets) {
-                    if (p.getParentId() == stars.get(1).getId()) {
+                    if (p.getParentId() == stars.get(1).getId() && !p.isMoon()) {
                         long d = p.getDistance();
                         if (p.getType().getGroup().equals(PlanetGroup.Belt)) {
                             d += p.getRadius();
@@ -316,8 +320,6 @@ public class StarSystemImage {
 
             label = scaleWidth + " Mkm";
         }
-        System.out.println(scale);
-        System.out.println(scaleWidth);
 
         int left = width / 2;
         int right = width / 2 + (int) getScaledPixels(scaleWidth * Physics.MKM);
@@ -329,7 +331,7 @@ public class StarSystemImage {
         image.text(pos, width - 20, label, 0, 12, "#000000");
     }
 
-    private void drawBelt(Star star, int cx, int cy, Planet planet) {
+    private void drawBelt(Star star, int cx, int cy, Planet planet, List<Planet> moons) {
         switch (planet.getType()) {
             case AsteroidBelt:
             case MetallicBelt:
@@ -347,6 +349,62 @@ public class StarSystemImage {
                 // Invalid or unsupported type.
                 break;
         }
+
+        if (moons.size() > 0) {
+            for (Planet moon : moons) {
+                long distance = planet.getDistance() + moon.getDistance();
+                distance = (long) getScaledPixels(distance);
+                drawPlanetoid(star, cx, cy, planet, moon);
+            }
+        }
+    }
+
+    /**
+     * Draw a planetoid within a belt. A planetoid is treated as a moon, but belongs to a belt,
+     * so rather than orbiting around, it orbits with the asteroid belt. It is basically a large
+     * asteroid, but treated as an individual planet.
+     *
+     * @param star          Star to centre it around.
+     * @param cx            X coordinate of centre of orbit (pixels).
+     * @param cy            Y coordinate of centre of orbit (pixels).
+     * @param belt          Belt this planetoid is part of.
+     * @param planetoid     Planetoid to draw.
+     */
+    private void drawPlanetoid(Star star, int cx, int cy, Planet belt, Planet planetoid) {
+        logger.info("drawPlanet");
+
+        long km = belt.getDistance() + planetoid.getDistance();
+        double angle = getAngleOffset(star, km);
+
+        int pxDistance = (int) getScaledPixels(km);
+        int     x = cx + (int) (Math.cos(Math.toRadians(angle)) * pxDistance);
+        int     y = cy + (int) (Math.sin(Math.toRadians(angle)) * pxDistance);
+
+        int radius = 4;
+        image.circle(x, y, radius, belt.getType().getColour());
+
+        if (drawLabels && pxDistance > 40) {
+            drawPlanetLabel(x, y, angle, planetoid);
+        }
+    }
+
+    /**
+     * Gets the number of planetesimals to draw for a belt. Based on the area of the belt,
+     * and the defined density for that belt. This is the number drawn, not the actual
+     * number of asteroids present.
+     *
+     * @param belt      Belt to calculate numbers for.
+     * @return          Number of objects to draw.
+     */
+    private int getNumberOfPlanetesimals(Planet belt) {
+        // The area is equal to the area within the outer rim of the belt, minus the area
+        // within the inner rim of the belt. We ignore constants.
+        double area = Math.pow((belt.getDistance() + belt.getRadius()) / 1000, 2);
+        area -= Math.pow((belt.getDistance() - belt.getRadius()) / 1000, 2);
+
+        int number = (int) ((area * belt.getDensity()) / 20_000_000_000L);
+
+        return number;
     }
 
     /**
@@ -363,8 +421,7 @@ public class StarSystemImage {
         long    distance = planet.getDistance();
         Random  random = new Random(star.getId() * distance);
 
-        int     maxNumber = (int) ((distance * 10) / Physics.MKM);
-        int     number = 150 + random.nextInt(maxNumber) + random.nextInt(maxNumber);
+        int number = getNumberOfPlanetesimals(planet);
         int     sizeModifier = 0;
         if (distance < 10 * Physics.MKM) {
             sizeModifier = 99;
@@ -378,14 +435,12 @@ public class StarSystemImage {
         for (; number > 0; number --) {
             double  d = planet.getDistance() + random.nextFloat() * planet.getRadius() - random.nextFloat() * planet.getRadius();
             double  angle = random.nextDouble() * 360.0 + getAngleOffset(star, d);
-//            int     x = cx + getScaledPixels((int) (Math.cos(Math.toRadians(angle)) * d));
-  //          int     y = cy + getScaledPixels((int) (Math.sin(Math.toRadians(angle)) * d));
             int     x = cx + (int) (Math.cos(Math.toRadians(angle)) * getScaledPixels(d));
             int     y = cy + (int) (Math.sin(Math.toRadians(angle)) * getScaledPixels(d));
 
             // Determine size class of this asteroid, based on random distribution.
             int     size = random.nextInt(1000) + sizeModifier;
-            if (size == 0) {
+            if (size < 1) {
                 // Giant asteroid, > 100km radius.
                 image.rectangleFill(x-1, y-1, 3, 3, "#000000");
             } else if (size < 10) {
@@ -455,10 +510,41 @@ public class StarSystemImage {
         }
     }
 
+    /**
+     * Draws labels for a planet. For a planet, this is the name, type and distance from the
+     * primary star. For planetoids within an asteroid belt, we just show the name. Since the
+     * only time we display a Moon is when it's a planetoid, we can use this to determine
+     * the planet's status.
+     *
+     * @param x         X pixels planet was drawn at.
+     * @param y         Y pixels planet was drawn at.
+     * @param angle     Angle around the star planet was drawn (in degrees).
+     * @param planet    Planet to show information on.
+     */
     private void drawPlanetLabel(int x, int y, double angle, Planet planet) {
-        String text = planet.getName().replaceAll(".* ", "");
-        text += " / " + planet.getType();
-        String dtext = planet.getDistance() + "Mkm";
+
+        String text, dtext;
+
+        if (planet.isMoon()) {
+            // This is a planetoid inside an asteroid belt. We only display the name of
+            // planetoid in this case.
+            text = planet.getName().replaceAll(".* ", "");
+            dtext = "";
+        } else {
+            text = planet.getName().replaceAll(".* ", "");
+            text += " / " + planet.getType();
+
+            long distance = planet.getDistance();
+
+            if (distance >= 10_000_000) {
+                DecimalFormat format = new DecimalFormat("#,###Mkm");
+                dtext = format.format(distance / 1_000_000);
+            } else {
+                DecimalFormat format = new DecimalFormat("#,###km");
+                dtext = format.format(distance);
+            }
+        }
+
         int fontSize = 12;
         int textWidth = image.getTextWidth(text, 0, fontSize);
         int padding = 10;
@@ -495,12 +581,13 @@ public class StarSystemImage {
         */
 
         // Draw the star itself.
-        image.circle(cx, cy, (int)(star.getRadius() / scale),
-                star.getSpectralType().getRGBColour());
-        image.circleOutline(cx, cy, (int)(star.getRadius() / scale), "#000000");
+        int starRadius = (int) (star.getRadius() / scale);
+        starRadius = Math.max(5, starRadius);
+        image.circle(cx, cy, starRadius, star.getSpectralType().getRGBColour());
+        image.circleOutline(cx, cy, starRadius, "#000000");
 
         for (Planet planet : planets) {
-            if (planet.getParentId() != star.getId()) {
+            if (planet.getParentId() != star.getId() || planet.isMoon()) {
                 continue;
             }
 
@@ -509,7 +596,7 @@ public class StarSystemImage {
 
             switch (planet.getType().getGroup()) {
                 case Belt:
-                    drawBelt(star, cx, cy, planet);
+                    drawBelt(star, cx, cy, planet, planets.stream().filter(p -> p.getMoonOf() == planet.getId()).collect(Collectors.toList()));
                     break;
                 default:
                     drawPlanet(star, cx, cy, planet, distance);

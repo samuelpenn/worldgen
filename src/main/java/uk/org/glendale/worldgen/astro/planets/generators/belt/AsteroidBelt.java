@@ -6,14 +6,21 @@
  */
 package uk.org.glendale.worldgen.astro.planets.generators.belt;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetGenerator;
+import uk.org.glendale.worldgen.astro.planets.codes.Atmosphere;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
+import uk.org.glendale.worldgen.astro.planets.codes.Pressure;
 import uk.org.glendale.worldgen.astro.planets.generators.Belt;
+import uk.org.glendale.worldgen.astro.planets.generators.Dwarf;
 import uk.org.glendale.worldgen.astro.stars.Star;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
+import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
+import uk.org.glendale.worldgen.astro.systems.generators.Simple;
 import uk.org.glendale.worldgen.text.TextGenerator;
 
 import java.util.ArrayList;
@@ -21,22 +28,56 @@ import java.util.List;
 
 import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
 import static uk.org.glendale.worldgen.astro.Physics.MKM;
+import static uk.org.glendale.worldgen.astro.planets.generators.Belt.BeltFeature.*;
 
 /**
  * Generates an asteroid belt. Mostly rocky, with some volatiles.
  */
 public class AsteroidBelt extends Belt {
+    private static final Logger logger = LoggerFactory.getLogger(AsteroidBelt.class);
 
     public AsteroidBelt(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 
+    private void addFeatures(Planet planet) {
+        switch (Die.d6(3)) {
+            case 3: case 4:
+                planet.addFeature(ThinRing);
+                break;
+            case 5: case 6:
+                planet.addFeature(WideSparseRing);
+                break;
+            case 7: case 8:
+                planet.addFeature(Planetoids);
+                break;
+        }
+    }
+
     public Planet getPlanet(String name) {
         Planet planet = definePlanet(name, PlanetType.AsteroidBelt);
         int radius = (int) (Die.d6(4 * 5) * MKM);
+        int density = 1000 + Die.dieV(250);
+
+        addFeatures(planet);
 
         radius = checkDistance(radius);
+
+        if (planet.hasFeature(ThinRing)) {
+            radius = 20_000 + Die.die(100_000, 3);
+            density *= 10;
+        } else if (planet.hasFeature(WideSparseRing)) {
+            int extra = radius * 5;
+            distance += extra;
+            density /= 10;
+            planet.setDistance(distance);
+        } else if (planet.hasFeature(Planetoids)) {
+            radius /= 2;
+            density /= 3;
+        }
+
         planet.setRadius(radius);
+        planet.setDensity(density);
 
         addPrimaryResource(planet, SilicateOre);
         addPrimaryResource(planet, CarbonicOre);
@@ -48,8 +89,15 @@ public class AsteroidBelt extends Belt {
         return planet;
     }
 
-    private Planet getMoon() {
-        return null;
+    private Planet getMoon(Planet primary, int number, long distance) {
+        String name = StarSystemFactory.getMoonName(primary.getName(), number);
+        Planet moon = definePlanet(name, PlanetType.Carbonaceous);
+
+        moon.setMoonOf(primary.getId());
+        moon.setDistance(distance + Die.dieV((int)(distance / 4)));
+        moon.setRadius(50 + Die.d20(5) * 5);
+
+        return moon;
     }
 
     /**
@@ -58,12 +106,16 @@ public class AsteroidBelt extends Belt {
      * primary.
      *
      * @param primary   Belt the moons belong to.
-     * @return          Array of planets, may be empty.
+     * @return          Array of planets (moons), may be empty.
      */
     public List<Planet> getMoons(Planet primary) {
         List<Planet> moons = new ArrayList<Planet>();
 
         int numberOfMoons = Die.d4() - 1;
+        if (primary.hasFeature(Planetoids)) {
+            numberOfMoons += Die.d4(3);
+        }
+        logger.info(String.format("Creating %d moons for [%s]", numberOfMoons, primary.getName()));
         if (numberOfMoons > 0) {
             long variance = primary.getRadius() / numberOfMoons;
             long distance = primary.getRadius();
@@ -75,6 +127,14 @@ public class AsteroidBelt extends Belt {
                 case 2:
                     distance = 0 - Die.die(primary.getRadius());
                     break;
+                default:
+                    // As above.
+            }
+
+            for (int m=0; m < numberOfMoons; m++) {
+                logger.info("Adding moon " + m);
+                moons.add(getMoon(primary, m + 1, distance));
+                distance += variance;
             }
         }
 

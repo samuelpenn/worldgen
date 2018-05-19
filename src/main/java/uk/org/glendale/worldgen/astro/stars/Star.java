@@ -13,6 +13,8 @@ import uk.org.glendale.worldgen.astro.systems.StarSystem;
 
 import javax.persistence.*;
 
+import static uk.org.glendale.worldgen.astro.Physics.AU;
+
 /**
  * Represents a Star in a solar system. A star system will consist of zero or more stars, plus any
  * planets which orbit them. In practice, the limit of Stars in a star system is probably about three,
@@ -281,31 +283,48 @@ public class Star {
         if (luminosity == Luminosity.B || luminosity == Luminosity.N || luminosity == Luminosity.VII) {
             distance = 250000000;
         } else {
-            distance = (int)(25000000 * getSolarConstant());
+            distance = (int)(15 * AU * getSolarConstant());
         }
 
         return distance;
     }
 
-    public long getInnerWarmDistance() {
-        return (long)(100000000 * getSolarConstant());
+    /**
+     * Gets the distance around a star that is considered the point at which things get too
+     * hot for most worlds. Worlds closer than this are scorched by the star and will lack
+     * any volatiles. Worlds further out than this but up to the InnerWarm distance will be
+     * too hot for life, but may contain some volatiles.
+     *
+     * @return  Distance in kilometres.
+     */
+    public long getHotDistance() {
+        return (long) (50_000_000 * getSolarConstant());
     }
 
+    /**
+     * Gets the minimum distance considered to be within the habitable zone of a star. Worlds
+     * closer than this generally are considered too hot to be habitable.
+     *
+     * @return  Distance in kilometres.
+     */
+    public long getInnerWarmDistance() {
+        return (long) (100_000_000 * getSolarConstant());
+    }
+
+    /**
+     * Gets the maximum distance considered to be within the habitable zone of a star. Worlds
+     * further out than this are considered too cold to be habitable.
+     *
+     * @return  Distance in kilometres.
+     */
     public long getOuterWarmDistance() {
-        return (long)(250000000 * getSolarConstant());
+        return (long)(250_000_000 * getSolarConstant());
     }
 
     public long getSnowLineDistance() {
-        return (long)(400000000 * getSolarConstant());
+        return (long)(400_000_000 * getSolarConstant());
     }
 
-    public long getHotDistance() {
-        long distance = 100000000;
-        distance *= Math.sqrt(luminosity.getSize());
-        distance *= (1.0 * type.getSurfaceTemperature()) / SpectralType.G2.getSurfaceTemperature();
-
-        return distance;
-    }
 
     // Length of a standard year, in seconds.
     private static final long STANDARD_YEAR = 31557600L;
@@ -317,7 +336,7 @@ public class Star {
      * @return          Orbital period in seconds.
      */
     public long getPeriod(long distance) {
-        long period = (long) (STANDARD_YEAR * Math.pow((1.0 * distance) / Physics.AU, 3.0/2.0));
+        long period = (long) (STANDARD_YEAR * Math.pow((1.0 * distance) / AU, 3.0/2.0));
 
         return (long) (period / Math.sqrt(getMass()));
     }
@@ -382,6 +401,9 @@ public class Star {
     }
 
 
+    public String toString() {
+        return name + " " + type + luminosity;
+    }
 
     public static void main(String[] args) {
 

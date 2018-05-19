@@ -44,7 +44,7 @@ public class Simple extends StarSystemGenerator {
     /**
      * Generates a simple predictable star system that is very similar to that of Sol.
      */
-    private StarSystem createSimple(StarSystem system) throws DuplicateObjectException {
+    public StarSystem createSimple(StarSystem system) throws DuplicateObjectException {
         system.setType(StarSystemType.SINGLE);
 
         PlanetFactory planetFactory = worldgen.getPlanetFactory();

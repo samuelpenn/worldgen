@@ -198,4 +198,8 @@ public class StarSystemFactory {
     public static String getBeltName(Star star, int orbit) {
         return star.getName() + " Belt " + getLetter(orbit);
     }
+
+    public static String getMoonName(String baseName, int moon) {
+        return baseName + getLetter(moon).toLowerCase();
+    }
 }
