@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.planets.Planet;
+import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.PlanetGenerator;
 import uk.org.glendale.worldgen.astro.planets.codes.Atmosphere;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
@@ -108,7 +109,7 @@ public class AsteroidBelt extends Belt {
      * @param primary   Belt the moons belong to.
      * @return          Array of planets (moons), may be empty.
      */
-    public List<Planet> getMoons(Planet primary) {
+    public List<Planet> getMoons(Planet primary, PlanetFactory factory) {
         List<Planet> moons = new ArrayList<Planet>();
 
         int numberOfMoons = Die.d4() - 1;
@@ -122,18 +123,25 @@ public class AsteroidBelt extends Belt {
             switch (numberOfMoons) {
                 case 1:
                     distance = Die.dieV(primary.getRadius());
-                    variance = 0;
+                    variance = primary.getRadius() / 100;
                     break;
                 case 2:
                     distance = 0 - Die.die(primary.getRadius());
+                    variance = primary.getRadius() / 2;
                     break;
                 default:
                     // As above.
             }
 
             for (int m=0; m < numberOfMoons; m++) {
-                logger.info("Adding moon " + m);
-                moons.add(getMoon(primary, m + 1, distance));
+                String name = StarSystemFactory.getMoonName(primary.getName(), m + 1);
+
+                logger.info("Adding moon " + name);
+
+                Planet moon = factory.createMoon(system, star, name, PlanetType.Carbonaceous,
+                        distance + Die.dieV((int) (variance / 5)), primary);
+
+                moons.add(moon);
                 distance += variance;
             }
         }

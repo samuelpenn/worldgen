@@ -27,7 +27,14 @@ public class SmallBodyMapper extends PlanetMapper {
         super(planet, DEFAULT_FACE_SIZE);
     }
 
+    /**
+     * A SmallBody has a deform map rather than a height map. The height map is normally used
+     * just for bump mapping. A deform map actually deforms the object, so is far more radical.
+     * This better suits asteroids which are often not entirely round.
+     */
     public void generate() {
         generateHeightMap(12, DEFAULT_FACE_SIZE);
+        hasHeightMap = false;
+        hasDeformMap = true;
     }
 }

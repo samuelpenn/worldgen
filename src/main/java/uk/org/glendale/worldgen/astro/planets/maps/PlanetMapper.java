@@ -15,6 +15,7 @@ public class PlanetMapper extends Icosahedron {
 
     protected boolean hasMainMap = true;
     protected boolean hasHeightMap = false;
+    protected boolean hasDeformMap = false;
     protected boolean hasCloudMap = false;
     protected boolean hasOrbitMap = false;
 
@@ -39,6 +40,8 @@ public class PlanetMapper extends Icosahedron {
     }
 
     public boolean hasOrbitMap() { return hasOrbitMap; }
+
+    public boolean hasDeformMap() { return hasDeformMap; }
 
     /**
      * Gets the latitude of the current tileY in degrees, between 0 and 90.

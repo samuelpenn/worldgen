@@ -115,10 +115,12 @@ function showGlobe(id, planet) {
     var geometry   = new THREE.SphereGeometry(2.5, 32, 32);
     var mainTexture = textureLoader.load(`/api/planet/${id}/map?stretch=true&width=1024`);
     var heightTexture = textureLoader.load(`/api/planet/${id}/map?stretch=true&name=height&width=1024`);
+    var deformTexture = textureLoader.load(`/api/planet/${id}/map?stretch=true&name=deform&width=1024`);
 //    var texture = textureLoader.load(`/images/map2.png`);
     //var material  = new THREE.MeshBasicMaterial({ map: mainTexture, displacementMap: heightTexture });
 //    var material  = new THREE.MeshDepthMaterial({ map: mainTexture, displacementMap: heightTexture });
-    var material  = new THREE.MeshPhongMaterial({ map: mainTexture, bumpMap: heightTexture, bumpScale: 0.5, shininess: 0, specular: 0xaaaaaa });
+    var material  = new THREE.MeshPhongMaterial({ map: mainTexture, bumpMap: heightTexture, bumpScale: 0.5,
+        displacementMap: deformTexture, shininess: 0, specular: 0xaaaaaa });
 
     viewPort.addEventListener('mousemove', function(event) {
         mouse.x = (event.clientX / viewPort.width) - 0.5;

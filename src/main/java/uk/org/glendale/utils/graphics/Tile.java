@@ -58,6 +58,15 @@ public class Tile {
 		this.rgb = "#" + getHex(greyScale) + getHex(greyScale) + getHex(greyScale);
 	}
 
+	/**
+	 * Gets a new tile instance which is shaded darker or lighter according to the value passed.
+	 * If shade is less than 100%, the new tile will be darker. If it is greater than 100%, it
+     * will be lighter. Shading is not guaranteed to preserve colour, especially for values
+     * not near 100%.
+     *
+	 * @param shade     Shade as a percentage.
+	 * @return          New tile instance, shaded as appropriate.
+	 */
 	public Tile getShaded(int shade) {
         int r1 = Integer.parseInt(rgb.substring(1, 3), 16);
         int g1 = Integer.parseInt(rgb.substring(3, 5), 16);

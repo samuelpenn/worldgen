@@ -36,6 +36,8 @@ public class PlanetMap {
     public final static String NIGHT = "night";
     // Cloud map.
     public final static String CLOUD = "cloud";
+    // Deform map.
+    public final static String DEFORM = "deform";
 
     // Belts and similar planets don't have a main map.
     public final static String BELT = "belt";

@@ -41,7 +41,7 @@ public class Carbonaceous extends SmallBody {
         }
 
         Planet planet =  definePlanet(name, type);
-        planet.setRadius(20 + Die.d20(3));
+        planet.setRadius(100 + Die.d100(4));
 
         // Set default day length to be 2-3 hours.
         planet.setDayLength(3600 + Die.die(3600, 2));

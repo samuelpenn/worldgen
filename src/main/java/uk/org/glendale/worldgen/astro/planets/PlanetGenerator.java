@@ -162,6 +162,9 @@ public abstract class PlanetGenerator {
             if (mapper.hasHeightMap()) {
                 maps.put(PlanetMap.HEIGHT, mapper.drawHeightMap(Server.getConfiguration().getPlanetMapResolution()));
             }
+            if (mapper.hasDeformMap()) {
+                maps.put(PlanetMap.DEFORM, mapper.drawHeightMap(Server.getConfiguration().getPlanetMapResolution()));
+            }
             if (mapper.hasOrbitMap()) {
 
             }
@@ -208,7 +211,7 @@ public abstract class PlanetGenerator {
         addResource(planet, commodity, 100 + Die.d20(2));
     }
 
-    public List<Planet> getMoons(Planet primary) {
+    public List<Planet> getMoons(Planet primary, PlanetFactory factory) {
         return new ArrayList<Planet>();
     }
 

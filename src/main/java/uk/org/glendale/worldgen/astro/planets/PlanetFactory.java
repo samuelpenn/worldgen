@@ -270,7 +270,7 @@ public class PlanetFactory {
                     setPlanetMap(planet.getId(), mapType, maps.get(mapType));
                 }
             }
-            List<Planet> moons = generator.getMoons(planet);
+            List<Planet> moons = generator.getMoons(planet, this);
             if (moons.size() > 0) {
                 logger.info(String.format("Planet [%s] has %d moons", name, moons.size()));
                 for (Planet moon : moons) {
@@ -283,16 +283,58 @@ public class PlanetFactory {
             logger.error(String.format("No such method for [%s]", type.name()), e);
         } catch (IllegalAccessException e) {
             logger.error(String.format("Illegal access for [%s]", type.name()), e);
-            e.printStackTrace();
         } catch (InstantiationException e) {
             logger.error(String.format("Cannot instantiate for [%s]", type.name()), e);
-            e.printStackTrace();
         } catch (InvocationTargetException e) {
             logger.error(String.format("Cannot invoke target for [%s]", type.name()), e);
-            e.printStackTrace();
         } catch (IOException e) {
             logger.error(String.format("Error generating/storing image map [%s]", type.name()), e);
-            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public Planet createMoon(StarSystem system, Star star, String name, PlanetType type, long distance, Planet parent) {
+        Class genClass = getGeneratorClass(name, type);
+        PlanetGenerator generator;
+
+        logger.info(String.format("Creating moon [%s] of type [%s]", name, type.name()));
+
+        try {
+            Constructor c = genClass.getConstructor(WorldGen.class, StarSystem.class, Star.class, Planet.class, Long.TYPE);
+            generator = (PlanetGenerator) c.newInstance(worldgen, system, star, null, distance);
+
+            Planet moon;
+            try {
+                moon = generator.getPlanet(name);
+            } catch (UnsupportedException e) {
+                moon = generator.getPlanet(name, type);
+            }
+            moon.setMoonOf(parent.getId());
+            generator.generateDescription(moon);
+
+            session.persist(moon);
+            session.flush();
+
+            if (type.getGroup() != PlanetGroup.Belt) {
+                Map<String,SimpleImage> maps = generator.getPlanetMaps(moon);
+
+                for (String mapType : maps.keySet()) {
+                    setPlanetMap(moon.getId(), mapType, maps.get(mapType));
+                }
+            }
+
+            return moon;
+        } catch (NoSuchMethodException e) {
+            logger.error(String.format("No such method for [%s]", type.name()), e);
+        } catch (IllegalAccessException e) {
+            logger.error(String.format("Illegal access for [%s]", type.name()), e);
+        } catch (InstantiationException e) {
+            logger.error(String.format("Cannot instantiate for [%s]", type.name()), e);
+        } catch (InvocationTargetException e) {
+            logger.error(String.format("Cannot invoke target for [%s]", type.name()), e);
+        } catch (IOException e) {
+            logger.error(String.format("Error generating/storing image map [%s]", type.name()), e);
         }
 
         return null;
