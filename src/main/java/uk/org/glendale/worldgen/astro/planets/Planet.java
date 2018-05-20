@@ -222,11 +222,7 @@ public class Planet {
     }
 
     public void setDistance(long km) {
-        if (moonOf > 0) {
-            this.distance = km;
-        } else {
-            this.distance = Math.max(km, 0);
-        }
+        this.distance = km;
     }
 
     public PlanetType getType() {

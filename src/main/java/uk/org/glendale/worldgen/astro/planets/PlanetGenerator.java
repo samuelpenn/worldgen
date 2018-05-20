@@ -45,8 +45,11 @@ public abstract class PlanetGenerator {
     protected final Star star;
     protected final Planet previousPlanet;
     protected long  distance;
+    protected long  parentDistance;
     protected final CommodityFactory commodityFactory;
     protected final WorldGen worldGen;
+
+    private List<PlanetFeature> features = new ArrayList<PlanetFeature>();
 
     public PlanetGenerator(WorldGen worldGen, StarSystem system, Star primary, Planet previous, long distance) {
         this.worldGen = worldGen;
@@ -58,9 +61,37 @@ public abstract class PlanetGenerator {
         this.commodityFactory = worldGen.getCommodityFactory();
     }
 
+    /**
+     * For moons, we need to know the distance the parent is from the star so we can correctly
+     * determine orbital temperature. If this is not a moon, then it should be zero.
+     *
+     * @param km    Distance of parent from the star in kilometres.
+     */
+    public void setParentDistance(long km) {
+        this.parentDistance = km;
+    }
+
     public abstract Planet getPlanet(String name, PlanetType type);
 
     public abstract Planet getPlanet(String name);
+
+    /**
+     * Specify a feature that should be applied to the planet when it is created. Normally a generator
+     * will determine its own features, but it is possible to override this at a higher level.
+     *
+     * @param feature       Feature to apply.
+     */
+    public void addFeature(PlanetFeature feature) {
+        features.add(feature);
+    }
+
+    public void clearFeatures() {
+        features = new ArrayList<PlanetFeature>();
+    }
+
+    public List<PlanetFeature> getFeatures() {
+        return features;
+    }
 
     protected void generateDescription(Planet planet) {
         TextGenerator text = new TextGenerator(planet);
@@ -92,6 +123,13 @@ public abstract class PlanetGenerator {
             planet.setDensity((int) (1000 * planet.getType().getDensity()));
         } else {
             planet.setDensity(1000);
+        }
+
+        // If any features have been pre-specified, then apply them now.
+        if (features != null && features.size() != 0) {
+            for (PlanetFeature f : features) {
+                planet.addFeature(f);
+            }
         }
 
         planet.setDescription("<p>Unexplored.</p>");

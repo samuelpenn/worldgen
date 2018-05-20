@@ -350,10 +350,9 @@ public class StarSystemImage {
                 break;
         }
 
+        System.out.println("There are " + moons.size() + " moons");
         if (moons.size() > 0) {
             for (Planet moon : moons) {
-                long distance = planet.getDistance() + moon.getDistance();
-                distance = (long) getScaledPixels(distance);
                 drawPlanetoid(star, cx, cy, planet, moon);
             }
         }
@@ -371,7 +370,9 @@ public class StarSystemImage {
      * @param planetoid     Planetoid to draw.
      */
     private void drawPlanetoid(Star star, int cx, int cy, Planet belt, Planet planetoid) {
-        logger.info("drawPlanet");
+        logger.info("drawPlanetoid");
+
+        System.out.println("Draw planetoid " + planetoid.getName() + " " + planetoid.getDistance());
 
         long km = belt.getDistance() + planetoid.getDistance();
         double angle = getAngleOffset(star, km);

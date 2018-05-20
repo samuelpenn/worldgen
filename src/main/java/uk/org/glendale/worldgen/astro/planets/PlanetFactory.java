@@ -294,16 +294,22 @@ public class PlanetFactory {
         return null;
     }
 
-    public Planet createMoon(StarSystem system, Star star, String name, PlanetType type, long distance, Planet parent) {
+    public Planet createMoon(StarSystem system, Star star, String name, PlanetType type,
+                             long distance, Planet parent, PlanetFeature... features) {
         Class genClass = getGeneratorClass(name, type);
         PlanetGenerator generator;
 
-        logger.info(String.format("Creating moon [%s] of type [%s]", name, type.name()));
+        logger.info(String.format("Creating moon [%s] of type [%s] at [%d]km", name, type.name(), distance));
 
         try {
             Constructor c = genClass.getConstructor(WorldGen.class, StarSystem.class, Star.class, Planet.class, Long.TYPE);
             generator = (PlanetGenerator) c.newInstance(worldgen, system, star, null, distance);
 
+            if (features != null && features.length > 0) {
+                for (PlanetFeature f : features) {
+                    generator.addFeature(f);
+                }
+            }
             Planet moon;
             try {
                 moon = generator.getPlanet(name);

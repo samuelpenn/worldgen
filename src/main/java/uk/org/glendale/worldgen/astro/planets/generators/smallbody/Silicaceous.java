@@ -29,7 +29,7 @@ public class Silicaceous extends SmallBody {
 
     public Planet getPlanet(String name, PlanetType type) {
         Planet planet =  definePlanet(name, type);
-        planet.setRadius(100 + Die.d100(4));
+        planet.setRadius(getRadius(planet));
 
         // Set default day length to be 2-3 hours.
         planet.setDayLength(3600 + Die.die(3600, 2));

@@ -13,12 +13,14 @@ import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
+import uk.org.glendale.worldgen.astro.planets.PlanetFeature;
 import uk.org.glendale.worldgen.astro.planets.PlanetGenerator;
 import uk.org.glendale.worldgen.astro.planets.codes.Atmosphere;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.planets.codes.Pressure;
 import uk.org.glendale.worldgen.astro.planets.generators.Belt;
 import uk.org.glendale.worldgen.astro.planets.generators.Dwarf;
+import uk.org.glendale.worldgen.astro.planets.generators.SmallBody;
 import uk.org.glendale.worldgen.astro.stars.Star;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
@@ -92,17 +94,6 @@ public class AsteroidBelt extends Belt {
         return planet;
     }
 
-    private Planet getMoon(Planet primary, int number, long distance) {
-        String name = StarSystemFactory.getMoonName(primary.getName(), number);
-        Planet moon = definePlanet(name, PlanetType.Carbonaceous);
-
-        moon.setMoonOf(primary.getId());
-        moon.setDistance(distance + Die.dieV((int)(distance / 4)));
-        moon.setRadius(50 + Die.d20(5) * 5);
-
-        return moon;
-    }
-
     /**
      * Gets a list of moons for this belt. In a belt, a 'moon' is a significantly larger
      * asteroid that is part of the main belt, rather than something that orbits the
@@ -140,8 +131,27 @@ public class AsteroidBelt extends Belt {
 
                 logger.info("Adding moon " + name);
 
+                // We only want to call out an asteroid as a 'moon' if it is particularly large,
+                // so ensure that the planetoid generated is of sufficient size to be interesting.
+                List<PlanetFeature> features = new ArrayList<PlanetFeature>();
+                switch (Die.d6(2) - (primary.hasFeature(Planetoids)?2:0)) {
+                    case 0: case 1:
+                        // Not really an asteroid at this size.
+                        features.add(SmallBody.SmallBodyFeature.GIGANTIC);
+                        break;
+                    case 2: case 3: case 4: case 5:
+                        // About Ceres sized.
+                        features.add(SmallBody.SmallBodyFeature.HUGE);
+                        break;
+                    default:
+                        // About Vesta sized.
+                        features.add(SmallBody.SmallBodyFeature.LARGE);
+                        break;
+                }
+
                 Planet moon = factory.createMoon(system, star, name, PlanetType.Carbonaceous,
-                        distance + Die.dieV((int) (variance / 5)), primary);
+                        distance + Die.dieV((int) (variance / 5)), primary,
+                         features.toArray(new PlanetFeature[0]));
 
                 moons.add(moon);
                 distance += variance;

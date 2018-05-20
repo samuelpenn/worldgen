@@ -110,7 +110,7 @@ public class Physics {
         // Start with the basic surface temperature.
         double t = (1.0 * star.getSpectralType().getSurfaceTemperature()) / SpectralType.G2.getSurfaceTemperature();
         // Radius of the star.
-        double r = 1.0 * star.getRadius() / SOL_RADIUS;
+        double r = (1.0 * star.getRadius()) / SOL_RADIUS;
 
         // Get power output relative to Sol.
         return Math.pow(r, 2.0) * Math.pow(t, 4);

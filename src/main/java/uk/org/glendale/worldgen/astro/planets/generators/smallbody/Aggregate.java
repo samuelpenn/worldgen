@@ -44,7 +44,8 @@ public class Aggregate extends SmallBody {
             throw new IllegalArgumentException(String.format("Class Aggregate does not support type [%s]", type));
         }
         Planet planet =  definePlanet(name, type);
-        planet.setRadius(10 + Die.d6(3));
+        // Aggregate asteroids tend to be smaller.
+        planet.setRadius(getRadius(planet) / 2);
 
         // Set default day length to be 2-3 hours.
         planet.setDayLength(18000 + Die.die(3600, 5));

@@ -30,15 +30,15 @@ public class Vulcanian extends SmallBody {
 
     public Planet getPlanet(String name, PlanetType type) {
         Planet planet =  definePlanet(name, type);
-        planet.setRadius(Die.d10(3));
+        planet.setRadius(getRadius(planet) / 2);
 
         // Set default day length to be 2-3 hours.
         planet.setDayLength(3600 + Die.die(3600, 2));
 
-        addSecondaryResource(planet, FerricOre);
-        addSecondaryResource(planet, HeavyMetals);
-        addSecondaryResource(planet, RareMetals);
-        addSecondaryResource(planet, PreciousMetals);
+        addPrimaryResource(planet, FerricOre);
+        addPrimaryResource(planet, HeavyMetals);
+        addPrimaryResource(planet, RareMetals);
+        addPrimaryResource(planet, PreciousMetals);
 
         return planet;
     }

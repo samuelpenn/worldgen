@@ -66,6 +66,7 @@ public class StarGenerator {
         star.setLuminosity(luminosity);
         star.setSpectralType(type);
         star.setStandardMass();
+        star.setStandardRadius();
 
         return star;
     }
