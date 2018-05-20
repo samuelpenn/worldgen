@@ -7,6 +7,7 @@ package uk.org.glendale.worldgen.astro.planets.generators.smallbody;
 
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.planets.generators.SmallBody;
@@ -28,15 +29,31 @@ public class Silicaceous extends SmallBody {
     }
 
     public Planet getPlanet(String name, PlanetType type) {
+        if (type != PlanetType.Silicaceous) {
+            throw new IllegalArgumentException(String.format("Class Silicaceous does not support type [%s]", type));
+        }
+
         Planet planet =  definePlanet(name, type);
         planet.setRadius(getRadius(planet));
+        planet.setTemperature(Physics.getOrbitTemperature(star, distance + parentDistance));
 
         // Set default day length to be 2-3 hours.
         planet.setDayLength(3600 + Die.die(3600, 2));
 
-        addSecondaryResource(planet, SilicateOre);
-        addTertiaryResource(planet, SilicateCrystals);
-        addTraceResource(planet, FerricOre);
+        addPrimaryResource(planet, SilicateOre);
+        addSecondaryResource(planet, SilicateCrystals);
+        addSecondaryResource(planet, FerricOre);
+        addSecondaryResource(planet, RareMetals);
+
+        if (planet.getTemperature() > 500) {
+            addTertiaryResource(planet, FerricOre);
+        }
+
+        if (planet.getTemperature() < 300) {
+            addTertiaryResource(planet, Water);
+        } else if (planet.getTemperature() < 350) {
+            addTraceResource(planet, Water);
+        }
 
         return planet;
     }

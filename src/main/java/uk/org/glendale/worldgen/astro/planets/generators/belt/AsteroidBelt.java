@@ -149,7 +149,17 @@ public class AsteroidBelt extends Belt {
                         break;
                 }
 
-                Planet moon = factory.createMoon(system, star, name, PlanetType.Carbonaceous,
+                PlanetType type = PlanetType.Carbonaceous;
+                switch (Die.d6()) {
+                    case 1: case 2: case 3:
+                        type = PlanetType.Carbonaceous;
+                        break;
+                    case 4: case 5: case 6:
+                        type = PlanetType.Silicaceous;
+                        break;
+                }
+
+                Planet moon = factory.createMoon(system, star, name, type,
                         distance + Die.dieV((int) (variance / 5)), primary,
                          features.toArray(new PlanetFeature[0]));
 

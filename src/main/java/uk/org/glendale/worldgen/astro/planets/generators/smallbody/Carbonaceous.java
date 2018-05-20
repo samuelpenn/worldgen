@@ -48,9 +48,9 @@ public class Carbonaceous extends SmallBody {
         // Set default day length to be 2-3 hours.
         planet.setDayLength(3600 + Die.die(3600, 2));
 
-        addSecondaryResource(planet, SilicateOre);
         addSecondaryResource(planet, CarbonicOre);
         addSecondaryResource(planet, CarbonicCrystals);
+        addTertiaryResource(planet, SilicateOre);
 
         if (planet.getTemperature() > 500) {
             addTertiaryResource(planet, FerricOre);
