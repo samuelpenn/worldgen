@@ -8,6 +8,8 @@ package uk.org.glendale.worldgen.astro.planets.maps.smallbody;
 import uk.org.glendale.utils.graphics.Tile;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.maps.SmallBodyMapper;
+import uk.org.glendale.worldgen.astro.planets.tiles.Cratered;
+import uk.org.glendale.worldgen.astro.planets.tiles.Rough;
 
 public class SilicaceousMapper extends SmallBodyMapper {
     public SilicaceousMapper(final Planet planet, final int size) {
@@ -27,7 +29,7 @@ public class SilicaceousMapper extends SmallBodyMapper {
         for (int y=0; y < getNumRows(); y++) {
             for (int x = 0; x < getWidthAtY(y); x++) {
                 int grey = baseGrey + getHeight(x, y) / 2;
-                setTile(x, y, SILICATES.getShaded(grey));
+                setTile(x, y, new Rough(SILICATES.getShaded(grey)));
             }
         }
 
@@ -37,37 +39,8 @@ public class SilicaceousMapper extends SmallBodyMapper {
             heightDividor = 1 + planet.getRadius() / 80;
         }
 
-        double modifier[] = null;
-
-        /*
-        modifier = new double[] { 1.8, 1.7, 1.6, 1.5, 1.4, 1.3, 1.2, 1.1, 1.0, 0.9, 0.8, 0.7,
-                                  0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6,
-                                  0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8 };
-
-        modifier = new double[] { 1.8, 1.6, 1.4, 1.2, 1.0, 0.8, 0.6, 0.4, 0.2, 0.1, 0.1, 0.1,
-                                  0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
-                                  0.1, 0.1, 0.1, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8 };
-
-        modifier = new double[] { 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2,
-                                  1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.8, 1.7, 1.6, 1.5, 1.4, 1.3,
-                                  1.2, 1.2, 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1 };
-
-        modifier = new double[] { 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 1.8, 1.6, 1.4, 1.3, 1.2, 1.1,
-                                  1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.2,
-                                  0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 };
-        */
         // After finishing with the height map, set it to more consistent values
         // so that the bump mapper can use it cleanly.
-        for (int y=0; y < getNumRows(); y++) {
-            for (int x=0; x < getWidthAtY(y); x++) {
-                int h = getHeight(x - 1, y) + getHeight(x, y) + getHeight(x + 1, y);
-                setHeight(x, y, h / heightDividor);
-            }
-            if (modifier != null) {
-                for (int x = 0; x < getWidthAtY(y); x++) {
-                    setHeight(x, y, (int) (getHeight(x, y) * modifier[y]));
-                }
-            }
-        }
+        smoothHeights(planet, heightDividor);
     }
 }

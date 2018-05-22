@@ -398,6 +398,14 @@ public class SimpleImage implements ImageObserver {
 		g.drawLine(x0, y0, x1, y1);
 	}
 
+	public void dot(int x, int y, String colour) {
+		Graphics2D g = (Graphics2D) image.getGraphics();
+
+		g.setStroke(new BasicStroke(1));
+		g.setColor(getColour(colour));
+		g.drawLine(x, y, x, y);
+	}
+
     /**
      * Draw a rectangle outline of the given colour.
      *

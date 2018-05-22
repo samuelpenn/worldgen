@@ -33,8 +33,9 @@ public class SmallBody extends PlanetGenerator {
         LARGE,      // 100km+ (~Vesta)
         HUGE,       // 300km+ (~Ceres)
         GIGANTIC,   // 1000km+
-        OBLONG,
-        EGG
+        POTATO_SHAPED,
+        FLAT_SHAPED,
+        EGG_SHAPED
     }
 
     public SmallBody(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
