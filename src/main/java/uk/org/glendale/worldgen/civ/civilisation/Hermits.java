@@ -31,35 +31,37 @@ import java.util.List;
 public class Hermits extends CivilisationGenerator {
     private static final Logger logger = LoggerFactory.getLogger(Hermits.class);
 
-    public Hermits(WorldGen worldGen, StarSystem system, Planet planet) {
-        super(worldGen, system, planet);
+    public Hermits(WorldGen worldGen, StarSystem system) {
+        super(worldGen, system);
     }
 
     public void generate(CivilisationFeature... features) {
-        List<Facility> facilities = new ArrayList<Facility>();
-
         setFeatures(features);
 
-        switch (planet.getType()) {
-            case DustDisc:
-            case PlanetesimalDisc:
-                createDustFarmers(facilities);
-                break;
-            case AsteroidBelt:
-            case VulcanianBelt:
-                createRockHermits(facilities);
-                break;
-            case IceBelt:
-            case IceRing:
-                createIceHermits(facilities);
-                break;
-            default:
-                createRockHermits(facilities);
+        for (Planet planet : system.getPlanets()) {
+            List<Facility> facilities = new ArrayList<Facility>();
+
+            switch (planet.getType()) {
+                case DustDisc:
+                case PlanetesimalDisc:
+                    createDustFarmers(planet, facilities);
+                    break;
+                case AsteroidBelt:
+                case VulcanianBelt:
+                    createRockHermits(planet, facilities);
+                    break;
+                case IceBelt:
+                case IceRing:
+                    createIceHermits(planet, facilities);
+                    break;
+                default:
+                    createRockHermits(planet, facilities);
+            }
+            generateDescription(planet, facilities);
         }
-        generateDescription(facilities);
     }
 
-    public void createIceHermits(final List<Facility> facilities, CivilisationFeature... features) {
+    public void createIceHermits(final Planet planet, final List<Facility> facilities, CivilisationFeature... features) {
         setFeatures(features);
         planet.setTechLevel(4 + Die.d2());
 
@@ -82,7 +84,7 @@ public class Hermits extends CivilisationGenerator {
 
     }
 
-    public void createDustFarmers(final List<Facility> facilities, CivilisationFeature... features) {
+    public void createDustFarmers(final Planet planet, final List<Facility> facilities, CivilisationFeature... features) {
         logger.info("Creating dust hermits");
         setFeatures(features);
         planet.setTechLevel(4 + Die.d2());
@@ -117,7 +119,7 @@ public class Hermits extends CivilisationGenerator {
         facilities.add(port);
     }
 
-    public void createRockHermits(final List<Facility> facilities, CivilisationFeature... features) {
+    public void createRockHermits(final Planet planet, final List<Facility> facilities, CivilisationFeature... features) {
         setFeatures(features);
 
         planet.setTechLevel(4 + Die.d2());

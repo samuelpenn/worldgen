@@ -236,12 +236,7 @@ public class Star {
      * @return  Constant to multiply temperature range bands by.
      */
     private double getSolarConstant() {
-        double solSurface = SpectralType.G2.getSurfaceTemperature();
-        double constant = (1.0 * type.getSurfaceTemperature() / solSurface);
-
-        constant *= Math.pow(luminosity.getRadius(), 2);
-
-        return Math.pow(constant, 0.5);
+        return Physics.getSolarConstant(this);
     }
 
     /**
@@ -281,9 +276,9 @@ public class Star {
         long distance;
 
         if (luminosity == Luminosity.B || luminosity == Luminosity.N || luminosity == Luminosity.VII) {
-            distance = 250000000;
+            distance = 250_000_000;
         } else {
-            distance = (int)(15 * AU * getSolarConstant());
+            distance = (int)(15_000_000 * getSolarConstant());
         }
 
         return distance;

@@ -124,4 +124,8 @@ public class Simple extends StarSystemGenerator {
         return system;
 
     }
+
+    public void colonise(StarSystem system) {
+
+    }
 }

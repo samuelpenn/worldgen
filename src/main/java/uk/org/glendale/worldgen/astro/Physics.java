@@ -119,7 +119,7 @@ public class Physics {
     public static int getOrbitTemperature(double solarConstant, long distance) {
         double l = solarConstant / Math.pow(1.0 * distance / AU, 2.0);
 
-        return (int) (280 * Math.pow(l, 0.25));
+        return (int) (250 * Math.pow(l, 0.25));
     }
 
     public static int getOrbitTemperature(Star star, long distance) {

@@ -36,6 +36,10 @@ public class BlueGiant extends StarSystemGenerator {
         return system;
     }
 
+    public void colonise(StarSystem system) {
+
+    }
+
     /**
      * Create a typical hot super giant. Such a system is low in metals and has no planets of any type.
      *

@@ -34,6 +34,10 @@ class NamedGenerator extends StarSystemGenerator {
         return null;
     }
 
+    public void colonise(StarSystem system) {
+        return;
+    }
+
     protected StarSystem generate(Sector sector, String name, int x, int y, String generator, String type) throws UnsupportedException, DuplicateObjectException {
         StarSystem system = createEmptySystem(sector, name, x, y);
 
@@ -57,6 +61,7 @@ class NamedGenerator extends StarSystemGenerator {
         try {
             Method method = c.getMethod(methodName, StarSystem.class);
             method.invoke(g, system);
+            g.colonise(system);
         } catch (NoSuchMethodException e) {
             logger.error(String.format("Unable to find method type [%s.%s]", generator, methodName));
             throw new UnsupportedException(String.format("Star system generator [%s] does not have method [%s]",

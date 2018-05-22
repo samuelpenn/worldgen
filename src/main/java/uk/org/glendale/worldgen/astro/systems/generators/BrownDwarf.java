@@ -65,6 +65,10 @@ public class BrownDwarf extends StarSystemGenerator {
         return system;
     }
 
+    public void colonise(StarSystem system) {
+
+    }
+
     /**
      * Create a single small brown dwarf star with no planets or rings.
      *

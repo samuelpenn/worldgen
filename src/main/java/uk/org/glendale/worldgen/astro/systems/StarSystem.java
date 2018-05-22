@@ -40,7 +40,7 @@ public class StarSystem {
     private Zone zone;
 
     @Column(name="planets")
-    private int planets;
+    private int planetCount;
 
     @Column(name="port")
     @Enumerated(EnumType.STRING)
@@ -58,6 +58,9 @@ public class StarSystem {
     @OneToMany(mappedBy = "system", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Star> stars = new ArrayList<>();
 
+    // List of planets in this system. This is temporary and not stored.
+    @Transient
+    private List<Planet> planets = new ArrayList<>();
 
     public static final int PRIMARY_COG = -1;
     public static final int SECONDARY_COG = -2;
@@ -87,7 +90,7 @@ public class StarSystem {
         this.type = type;
         this.zone = zone;
 
-        this.planets = 0;
+        this.planetCount = 0;
         this.port = StarPort.X;
         this.codes = "";
     }
@@ -147,7 +150,7 @@ public class StarSystem {
     }
 
     public int getPlanetCount() {
-        return planets;
+        return planetCount;
     }
 
     public String getTradeCodes() {
@@ -158,8 +161,8 @@ public class StarSystem {
         this.codes = codes;
     }
 
-    public void setSystemData(List<Planet> planets) {
-        this.planets = planets.size();
+    void setSystemData(List<Planet> planets) {
+        this.planetCount = planets.size();
 
         int count = 0;
         long population = 0;
@@ -174,7 +177,7 @@ public class StarSystem {
             }
         }
 
-        this.planets = count;
+        this.planetCount = count;
         this.population = population;
         this.tech = tech;
         this.port = port;
@@ -198,5 +201,25 @@ public class StarSystem {
             throw new IllegalStateException("A system can't have more than 3 stars.");
         }
         this.stars.add(star);
+    }
+
+    public void setPlanets(List<Planet> planets) {
+        if (planets != null) {
+            this.planets = planets;
+        } else {
+            planets = new ArrayList<Planet>();
+        }
+    }
+
+    public void addPlanets(List<Planet> planets) {
+        this.planets.addAll(planets);
+    }
+
+    public void addPlanet(Planet planet) {
+        this.planets.add(planet);
+    }
+
+    public List<Planet> getPlanets() {
+        return this.planets;
     }
 }

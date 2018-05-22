@@ -50,6 +50,9 @@ public abstract class StarSystemGenerator {
      */
     public abstract StarSystem generate(Sector sector, String name, int x, int y) throws DuplicateObjectException;
 
+
+    public abstract void colonise(StarSystem system);
+
     protected void updateStarSystem(StarSystem system) {
         List<Planet> planets = worldgen.getPlanetFactory().getPlanets(system);
         system.setSystemData(planets);
@@ -89,143 +92,5 @@ public abstract class StarSystemGenerator {
         logger.info(String.format("createEmptySystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
 
         return factory.createStarSystem(sector, name.trim(), x, y, StarSystemType.EMPTY);
-    }
-
-    /**
-     * Create a star system with a hot Jovian world in close orbit around its star.
-     *
-     * @param sector    Sector in which to create this star system.
-     * @param name      Name to give the star system.
-     * @param x         X position in the sector, 1..32.
-     * @param y         Y position in the sector, 1..40.
-     * @return          Created star system.
-     * @throws DuplicateObjectException If this star system already exists.
-     */
-    public StarSystem createEpiStellarSystem(Sector sector, String name, int x, int y) throws DuplicateObjectException {
-        if (sector == null || sector.getId() == 0) {
-            throw new IllegalArgumentException("StarSystem must be part of an existing Sector");
-        }
-
-        if (name == null || name.trim().length() == 0) {
-            throw new IllegalArgumentException("StarSystem name cannot be empty");
-        }
-
-        if (x < 1 || x > Sector.WIDTH || y < 1 || y > Sector.HEIGHT) {
-            throw new IllegalArgumentException(
-                    String.format("StarSystem [%s] at [%d,%d] is outside of normal sector boundary",
-                            name, x, y));
-        }
-        logger.info(String.format("createEpiStellarSystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
-
-        StarSystem system = factory.createStarSystem(sector, name.trim(), x, y, StarSystemType.SINGLE);
-        StarGenerator starGenerator = new StarGenerator(worldgen, system);
-        Star primary = starGenerator.generateDwarfPrimary();
-        system.addStar(primary);
-
-        PlanetFactory planetFactory = worldgen.getPlanetFactory();
-        Planet          planet;
-        String          planetName;
-        int             orbit = 1;
-        int             distance = Die.d20(2);
-
-        try {
-            if (Die.d2() == 1) {
-                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
-                distance += planet.getRadius();
-            }
-
-            planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-            distance += Die.d100(2);
-            planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Junic, distance);
-
-            if (Die.d3() == 1) {
-                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-                distance += Die.d6(4);
-                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
-                distance += planet.getRadius();
-            }
-
-            if (Die.d2() == 1) {
-                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-                distance += Die.d6(5);
-                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, distance);
-                distance += planet.getRadius();
-            }
-        } catch (UnsupportedException e) {
-            logger.error("Unable to add unsupported EpiStellar worlds", e);
-        }
-
-        return system;
-    }
-
-    /**
-     * Creates a young star system with a protoplanetary disc.
-     *
-     * @param sector    Sector in which to create this star system.
-     * @param name      Name to give the star system.
-     * @param x         X position in the sector, 1..32.
-     * @param y         Y position in the sector, 1..40.
-     * @return          Created star system.
-     * @throws DuplicateObjectException If this star system already exists.
-     */
-    public StarSystem createProtoStellarSystem(Sector sector, String name, int x, int y) throws DuplicateObjectException {
-        if (sector == null || sector.getId() == 0) {
-            throw new IllegalArgumentException("StarSystem must be part of an existing Sector");
-        }
-
-        if (name == null || name.trim().length() == 0) {
-            throw new IllegalArgumentException("StarSystem name cannot be empty");
-        }
-
-        if (x < 1 || x > Sector.WIDTH || y < 1 || y > Sector.HEIGHT) {
-            throw new IllegalArgumentException(
-                    String.format("StarSystem [%s] at [%d,%d] is outside of normal sector boundary",
-                            name, x, y));
-        }
-
-        logger.info(String.format("createProtoStellarSystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
-
-        StarSystem system = factory.createStarSystem(sector, name.trim(), x, y, StarSystemType.SINGLE);
-        StarGenerator starGenerator = new StarGenerator(worldgen, system);
-        Star primary = starGenerator.generatePrimary();
-        system.addStar(primary);
-
-        PlanetFactory planetFactory = worldgen.getPlanetFactory();
-        Planet          planet;
-        String          planetName;
-        int             orbit = 1;
-        long            distance = primary.getMinimumDistance();
-
-        try {
-            if (Die.d2() == 1) {
-                // Potentially a belt of hot rocks forming close to the star.
-                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.VulcanianBelt, distance);
-                distance += planet.getRadius();
-            }
-
-            planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-            distance += Die.d100(2);
-            planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Junic, distance);
-
-            if (Die.d2() == 1) {
-                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-                distance += Die.d6(4);
-                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
-                distance += planet.getRadius();
-            }
-
-            if (Die.d2() == 1) {
-                planetName = StarSystemFactory.getPlanetName(primary, orbit++);
-                distance += Die.d8(4);
-                planet = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, distance);
-                distance += planet.getRadius();
-            }
-        } catch (UnsupportedException e) {
-            logger.error("Unable to add unsupported Proto Worlds", e);
-        }
-
-        return system;
     }
 }

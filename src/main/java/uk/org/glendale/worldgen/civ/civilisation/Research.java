@@ -27,27 +27,29 @@ import java.util.List;
 public class Research extends CivilisationGenerator {
     private static final Logger logger = LoggerFactory.getLogger(Research.class);
 
-    public Research(WorldGen worldGen, StarSystem system, Planet planet) {
-        super(worldGen, system, planet);
+    public Research(WorldGen worldGen, StarSystem system) {
+        super(worldGen, system);
     }
 
     public void generate(CivilisationFeature... features) {
-        List<Facility> facilities = new ArrayList<Facility>();
-
         setFeatures(features);
 
-        switch (planet.getType()) {
-            case DustDisc:
-            case PlanetesimalDisc:
-            case AsteroidBelt:
-            case IceBelt:
-            case IceRing:
-                createMonitorStation(facilities);
-                break;
-            case VulcanianBelt:
-                break;
+        for (Planet planet : system.getPlanets()) {
+            List<Facility> facilities = new ArrayList<Facility>();
+
+            switch (planet.getType()) {
+                case DustDisc:
+                case PlanetesimalDisc:
+                case AsteroidBelt:
+                case IceBelt:
+                case IceRing:
+                    createMonitorStation(planet, facilities);
+                    break;
+                case VulcanianBelt:
+                    break;
+            }
+            generateDescription(planet, facilities);
         }
-        generateDescription(facilities);
     }
 
     /**
@@ -56,7 +58,7 @@ public class Research extends CivilisationGenerator {
      * @param facilities    List of facilities to be updated.
      * @param features      Optional list of features.
      */
-    private void createMonitorStation(final List<Facility> facilities, CivilisationFeature... features) {
+    private void createMonitorStation(final Planet planet, final List<Facility> facilities, CivilisationFeature... features) {
         logger.info("Creating Monitor Station");
         setFeatures(features);
         planet.setTechLevel(7 + Die.d2());

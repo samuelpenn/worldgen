@@ -59,23 +59,4 @@ public class DustDisc extends Belt {
 
         return planet;
     }
-
-    public long colonise(Planet planet, CivilisationFeature... features) {
-        CivilisationGenerator coloniser = null;
-
-        switch (Die.d6(2)) {
-            case 7: case 8: case 9:
-                coloniser = new Hermits(worldGen, system, planet);
-                break;
-            case 10: case 11: case 12:
-                coloniser = new Research(worldGen, system, planet);
-                break;
-        }
-
-        if (coloniser != null) {
-            coloniser.generate(features);
-        }
-
-        return planet.getPopulation();
-    }
 }

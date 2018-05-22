@@ -22,13 +22,11 @@ import java.util.Set;
 public abstract class CivilisationGenerator {
     protected WorldGen worldGen;
     protected StarSystem system;
-    protected Planet planet;
     protected Set<CivilisationFeature> features;
 
-    public CivilisationGenerator(WorldGen worldGen, StarSystem system, Planet planet) {
+    public CivilisationGenerator(WorldGen worldGen, StarSystem system) {
         this.worldGen = worldGen;
         this.system = system;
-        this.planet = planet;
 
         this.features = new HashSet<CivilisationFeature>();
     }
@@ -61,7 +59,7 @@ public abstract class CivilisationGenerator {
      *
      * @param facilities    List of facilities to describe.
      */
-    protected void generateDescription(List<Facility> facilities) {
+    protected void generateDescription(Planet planet, List<Facility> facilities) {
         String text = planet.getDescription();
         for (Facility f : facilities) {
             TextGenerator t = new TextGenerator(planet, f);

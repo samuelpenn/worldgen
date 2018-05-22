@@ -225,20 +225,22 @@ public class PlanetFactory {
         throw new UnsupportedException(String.format("Planet [%s] has unsupported type [%s]", name, type.name()));
     }
 
-    public Planet createPlanet(StarSystem system, Star star, String name, PlanetType type, long distance) throws UnsupportedException {
+    public List<Planet> createPlanet(StarSystem system, Star star, String name, PlanetType type, long distance) throws UnsupportedException {
         return createPlanet(system, star, name, type, distance, null);
     }
 
     /**
      * Creates a new planet in the given star system. Calls one of the specific generators for the given
-     * type of planet.
+     * type of planet. May return more than one planet if the planet has moons. The primary planet will
+     * be the first in the list, followed by the moons from inner to outer.
      *
-     * @param system
-     * @return
+     * @param system    System to create planet in.
+     * @return          List containing the planet and any moons.
      */
-    public Planet createPlanet(StarSystem system, Star star, String name, PlanetType type, long distance, Planet previous) throws UnsupportedException {
+    public List<Planet> createPlanet(StarSystem system, Star star, String name, PlanetType type, long distance, Planet previous) throws UnsupportedException {
         Class genClass = getGeneratorClass(name, type);
         PlanetGenerator generator;
+        List<Planet>    planets = new ArrayList<Planet>();
 
         logger.info(String.format("Creating planet [%s] of type [%s]", name, type.name()));
 
@@ -256,12 +258,7 @@ public class PlanetFactory {
 
             session.persist(planet);
             session.flush();
-
-            // Try to colonise the planet.
-            if (generator.colonise(planet) > 0) {
-                logger.info(String.format("Planet [%s] has a population of [%d]", name, planet.getPopulation()));
-                session.persist(planet);
-            }
+            planets.add(planet);
 
             if (type.getGroup() != PlanetGroup.Belt) {
                 Map<String,SimpleImage> maps = generator.getPlanetMaps(planet);
@@ -276,9 +273,10 @@ public class PlanetFactory {
                 for (Planet moon : moons) {
                     session.persist(moon);
                 }
+                planets.addAll(moons);
             }
 
-            return planet;
+            return planets;
         } catch (NoSuchMethodException e) {
             logger.error(String.format("No such method for [%s]", type.name()), e);
         } catch (IllegalAccessException e) {
