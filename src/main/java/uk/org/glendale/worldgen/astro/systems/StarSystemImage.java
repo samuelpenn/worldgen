@@ -500,7 +500,7 @@ public class StarSystemImage {
         int     y = cy + (int) (Math.sin(Math.toRadians(angle)) * distance);
 
         image.circleOutline(cx, cy, distance, "#777777");
-        int radius = (int)(Math.sqrt(planet.getRadius()) * objectScale * 0.001);
+        int radius = (int)(Math.sqrt(planet.getRadius()) * objectScale * 0.0002);
         if (radius < 4) {
             radius = 4;
         }

@@ -13,6 +13,7 @@ import uk.org.glendale.utils.graphics.SimpleImage;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.Main;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.commodities.Commodity;
 import uk.org.glendale.worldgen.astro.commodities.CommodityFactory;
 import uk.org.glendale.worldgen.astro.commodities.CommodityName;
@@ -98,6 +99,23 @@ public abstract class PlanetGenerator {
         planet.setDescription("<p>" + text.getFullDescription() + "</p>");
     }
 
+
+    /**
+     * Slowly rotating planets will have a higher daytime surface temperature.
+     *
+     * @param planet    Planet to modify the temperature of.
+     */
+    protected void modifyTemperatureByRotation(Planet planet) {
+        double modifier = 1.0;
+
+        if (planet.getDayLength() > Physics.STANDARD_DAY) {
+            modifier = Math.sqrt((1.0 * planet.getDayLength()) / Physics.STANDARD_DAY) / 10.0;
+            modifier += 1;
+        }
+
+        planet.setDayLength( (int) (modifier * planet.getDayLength()));
+    }
+
     protected Planet definePlanet(Planet planet) {
         planet.setSystemId(system.getId());
         if (star != null) {
@@ -109,7 +127,7 @@ public abstract class PlanetGenerator {
         if (planet.getRadius() == 0) {
             planet.setRadius(500 + Die.d100() * 10);
         }
-        planet.setTemperature(star.getOrbitTemperature(distance));
+        planet.setTemperature(Physics.getOrbitTemperature(star, distance));
         planet.setAtmosphere(Atmosphere.Vacuum);
         planet.setPressure(0);
         planet.setMagneticField(MagneticField.None);
@@ -118,6 +136,8 @@ public abstract class PlanetGenerator {
         planet.setGovernment(Government.None);
         planet.setLife(Life.None);
         planet.setDayLength(86400 * (36 + Die.d12(4)));
+
+        modifyTemperatureByRotation(planet);
 
         if (planet.getType() != null) {
             planet.setDensity((int) (1000 * planet.getType().getDensity()));

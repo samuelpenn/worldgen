@@ -156,21 +156,45 @@ public class Barren extends StarSystemGenerator {
     public void createSmallDwarf(StarSystem system) throws DuplicateStarException {
         system.setType(StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
+        PlanetFactory factory = worldgen.getPlanetFactory();
 
-        Star primary = starGenerator.generatePrimary(Luminosity.V, SpectralType.G2);
-                //SpectralType.K8.getSpectralType(Die.dieV(6)));
+        Star primary = starGenerator.generatePrimary(Luminosity.V,
+                SpectralType.K6.getSpectralType(Die.dieV(6)));
         system.addStar(primary);
         system.setType(StarSystemType.SINGLE);
 
         logger.info(String.format("Generating [Barren] [SmallDwarf] system [%s]", primary));
 
-        int  numPlanets = Die.d4() + 10;
-        long distance = primary.getMinimumDistance();
+        int  numPlanets = Die.d3() + 2;
+        long distance = primary.getMinimumDistance() * 2;
         logger.info(String.format("Constant [%f] Distance [%,d]", Physics.getSolarConstant(primary), distance));
         for (int p = 0; p < numPlanets; p++) {
             int orbitTemperature = Physics.getOrbitTemperature(primary, distance);
             logger.info(String.format("Orbit Temperature is %dK at distance %,dkm", orbitTemperature, distance));
-            distance += Die.die(25_000_000, 2);
+
+            String name = StarSystemFactory.getPlanetName(primary, p+1);
+            List<Planet> planets = null;
+            if (orbitTemperature > 350) {
+                // Mercury
+                planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
+            } else if (orbitTemperature > 275) {
+                // Venus
+                planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
+            } else if (orbitTemperature > 225) {
+                // Earth
+                planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
+            } else if (orbitTemperature > 200) {
+                // Mars
+                planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
+            } else {
+                // Colder
+                planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
+            }
+
+            system.addPlanets(planets);
+
+            distance *= (9.0 + Die.d3(3)) / 10;
+            distance += 2_000_000;
         }
 /*
         switch (Die.d6()) {
