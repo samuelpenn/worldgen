@@ -11,10 +11,7 @@ import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.graphics.SimpleImage;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
-import uk.org.glendale.worldgen.astro.systems.DuplicateStarSystemException;
-import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
-import uk.org.glendale.worldgen.astro.systems.StarSystemSelector;
-import uk.org.glendale.worldgen.astro.systems.StarSystemType;
+import uk.org.glendale.worldgen.astro.systems.*;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 
 import javax.persistence.EntityManager;
@@ -100,7 +97,6 @@ public class SectorGenerator {
     }
 
     public void createSectorByDensity(Sector sector) {
-        SimpleImage image = worldgen.getGalaxyMap();
         StarSystemFactory systemFactory = worldgen.getStarSystemFactory();
 
         int count = 0;
@@ -114,8 +110,12 @@ public class SectorGenerator {
                         if (!systemFactory.hasStarSystem(sector, x, y)) {
                             String name = worldgen.getStarSystemNameGenerator().generateName();
 
-                            StarSystemSelector selector = new StarSystemSelector(worldgen);
-                            selector.createRandomSystem(sector, name, x, y);
+                            try {
+                                systemFactory.getStarSystem(sector, name);
+                            } catch (NoSuchStarSystemException e) {
+                                StarSystemSelector selector = new StarSystemSelector(worldgen);
+                                selector.createRandomSystem(sector, name, x, y);
+                            }
                         }
                     } catch (DuplicateObjectException e) {
                         logger.warn("Duplicate star system creation");

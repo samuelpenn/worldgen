@@ -19,4 +19,9 @@ public class NoSuchStarSystemException extends NoSuchObjectException {
                 sector.getName(), x, y));
     }
 
+    public NoSuchStarSystemException(Sector sector, String name) {
+        super(String.format("Cannot find star system [%s]/[%s]",
+                sector.getName(), name));
+    }
+
 }

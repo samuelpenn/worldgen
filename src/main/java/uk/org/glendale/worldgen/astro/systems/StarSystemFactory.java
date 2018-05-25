@@ -20,8 +20,9 @@ import java.util.List;
 public class StarSystemFactory {
     private final EntityManager session;
 
-    private static String BY_SECTOR_QUERY = "FROM StarSystem WHERE sectorId = :sector  ORDER BY id";
+    private static String BY_SECTOR_QUERY = "FROM StarSystem WHERE sectorId = :sector  ORDER BY x, y";
     private static String BY_XY_QUERY = "FROM StarSystem WHERE sectorId = :sector AND x = :x AND y = :y";
+    private static String BY_NAME_QUERY = "FROM StarSystem WHERE sectorId = :sector AND name = :name";
 
 
     public StarSystemFactory(EntityManager session) {
@@ -100,6 +101,27 @@ public class StarSystemFactory {
             return (StarSystem) query.getSingleResult();
         } catch (NoResultException e) {
             throw new NoSuchStarSystemException(sector, x, y);
+        }
+    }
+
+    /**
+     * Gets the named star system in a sector. Each system in a given sector will have
+     * a unique name. System names aren't guaranteed to be unique across all sectors.
+     *
+     * @param sector    Sector to look in.
+     * @param name      Name of the system.
+     * @return          Star system if one is found.
+     * @throws NoSuchStarSystemException    Thrown if the system does not exist.
+     */
+    public StarSystem getStarSystem(Sector sector, String name) throws NoSuchStarSystemException {
+        Query query = session.createQuery(BY_NAME_QUERY);
+        query.setParameter("sector", sector.getId());
+        query.setParameter("name", name);
+
+        try {
+            return (StarSystem) query.getSingleResult();
+        } catch (NoResultException e) {
+            throw new NoSuchStarSystemException(sector, name);
         }
     }
 
