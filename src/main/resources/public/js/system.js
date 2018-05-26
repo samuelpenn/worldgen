@@ -203,6 +203,7 @@ function showPlanet(starId, planet) {
 
     $planetData.append(`<dt>Type</dt><dd>${planet.type}</dd>`);
     $planetData.append(`<dt>Distance</dt><dd>${getDistance(planet.distance)}</dd>`);
+    $planetData.append(`<dt>Year</dt><dd>${getPeriod(planet.period)}</dd>`);
     $planetData.append(`<dt>Radius</dt><dd>${getDistance(planet.radius)}</dd>`);
     if (planet.dayLength > 0) {
         $planetData.append(`<dt>Length of Day</dt><dd>${getPeriod(planet.dayLength)}</dd>`);

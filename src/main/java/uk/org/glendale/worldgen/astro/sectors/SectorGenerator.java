@@ -87,15 +87,19 @@ public class SectorGenerator {
 
         int density = (int)((colour / 250.0) * 100);
 
-        if (density < 1) {
-            density = 1;
-        } else if (density > 95) {
-            density = 95;
-        }
+        density = Math.max(density, worldgen.getConfig().getDensityMinimum());
+        density = Math.min(density, worldgen.getConfig().getDensityMaximum());
 
         return density;
     }
 
+    /**
+     * Fills an existing sector with new star systems, according to the galactic density map.
+     * Assumes that the sector is empty, but will work if it already has systems in it. The
+     * chance of any given hex having a system is based on the density map.
+     *
+     * @param sector    Sector to create systems in.
+     */
     public void createSectorByDensity(Sector sector) {
         StarSystemFactory systemFactory = worldgen.getStarSystemFactory();
 
@@ -108,13 +112,18 @@ public class SectorGenerator {
                     // Create a new star system.
                     try {
                         if (!systemFactory.hasStarSystem(sector, x, y)) {
-                            String name = worldgen.getStarSystemNameGenerator().generateName();
+                            while (true) {
+                                String name = worldgen.getStarSystemNameGenerator().generateName();
 
-                            try {
-                                systemFactory.getStarSystem(sector, name);
-                            } catch (NoSuchStarSystemException e) {
-                                StarSystemSelector selector = new StarSystemSelector(worldgen);
-                                selector.createRandomSystem(sector, name, x, y);
+                                try {
+                                    // See if a system with this name already exists in the system.
+                                    systemFactory.getStarSystem(sector, name);
+                                } catch (NoSuchStarSystemException e) {
+                                    // We have a unique system name.
+                                    StarSystemSelector selector = new StarSystemSelector(worldgen);
+                                    selector.createRandomSystem(sector, name, x, y);
+                                    break;
+                                }
                             }
                         }
                     } catch (DuplicateObjectException e) {
@@ -125,7 +134,5 @@ public class SectorGenerator {
             }
         }
         logger.info(String.format("Created [%d] systems.", count));
-
-
     }
 }

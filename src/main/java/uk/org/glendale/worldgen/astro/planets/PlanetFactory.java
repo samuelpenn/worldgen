@@ -12,6 +12,7 @@ import uk.org.glendale.utils.graphics.Icosahedron;
 import uk.org.glendale.utils.graphics.SimpleImage;
 import uk.org.glendale.worldgen.ImageBlob;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetClass;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;

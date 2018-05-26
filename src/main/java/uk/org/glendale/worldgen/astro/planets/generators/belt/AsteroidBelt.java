@@ -127,7 +127,7 @@ public class AsteroidBelt extends Belt {
             }
 
             for (int m=0; m < numberOfMoons; m++) {
-                String name = StarSystemFactory.getMoonName(primary.getName(), m + 1);
+                String name = StarSystemFactory.getPlanetoidName(primary.getName(), m + 1);
 
                 logger.info("Adding moon " + name);
 

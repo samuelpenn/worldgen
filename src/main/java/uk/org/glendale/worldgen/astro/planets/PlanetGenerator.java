@@ -135,6 +135,7 @@ public abstract class PlanetGenerator {
         planet.setPopulation(0);
         planet.setGovernment(Government.None);
         planet.setLife(Life.None);
+        planet.setPeriod(star.getPeriod(planet.getDistance()));
         planet.setDayLength(86400 * (36 + Die.d12(4)));
 
         modifyTemperatureByRotation(planet);

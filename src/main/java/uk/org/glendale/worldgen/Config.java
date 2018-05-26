@@ -188,12 +188,34 @@ public class Config {
         this.mapDensityMin = density;
     }
 
+    /**
+     * Gets the minimum allowable density of a density map. This defaults to 1 if
+     * not set. This is the percentage chance of a star system being present in any
+     * given hex in a sector.
+     *
+     * @return  Minimum map density, from 0 to 100.
+     */
+    public int getDensityMinimum() {
+        return mapDensityMin;
+    }
+
     private void setDensityMaximum(int density) {
         if (density < 0 || density > 100) {
             throw new InvalidConfigurationException("map.density.max", ""+density);
         }
         logger.info(String.format("densityMax [%d]", density));
         this.mapDensityMax = density;
+    }
+
+    /**
+     * Gets the maximum allowable density of a density map. This defaults to 90 if
+     * not set. This is the percentage chance of a star system being present in any
+     * given hex in a sector.
+     *
+     * @return  Maximum map density, from 0 to 100.
+     */
+    public int getDensityMaximum() {
+        return mapDensityMax;
     }
 
     private void setUseRealStarColours(boolean useRealStarColours) {

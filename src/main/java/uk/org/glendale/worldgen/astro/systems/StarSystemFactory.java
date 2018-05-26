@@ -212,16 +212,55 @@ public class StarSystemFactory {
         throw new IllegalArgumentException("Y coordinate must be within 1..40");
     }
 
-
+    /**
+     * Gets the name of a planet given its orbital position. Generally a planet is named
+     * after the star, with a roman numeral suffix (I, II, III) from innermost to outermost.
+     * The third planet around the Sol star would be Sol III.
+     *
+     * @param star      Star planet is in orbit around.
+     * @param orbit     Orbit number, from 1 (innermost) upwards.
+     * @return          The name of the planet.
+     */
     public static String getPlanetName(Star star, int orbit) {
         return star.getName() + " " + getRoman(orbit);
     }
 
+    /**
+     * Gets the name of a belt given its orbital position. Generally a belt is named after
+     * the star, with the innermost belt having a suffix of "Belt A", and going upwards.
+     * The first belt around the Sol star would be Sol Belt A.
+     *
+     *
+     * @param star      Star belt is in orbit around.
+     * @param orbit     Orbit number, from 1 (innermost) upwards.
+     * @return          The name of the belt.
+     */
     public static String getBeltName(Star star, int orbit) {
         return star.getName() + " Belt " + getLetter(orbit);
     }
 
+    /**
+     * Gets the name of a moon around a planet. Moons count from 'a' innermost to outermost.
+     * So the first moon of the third planet of the Sol system would be Sol IIIa.
+     *
+     * @param baseName  Name of the planet the moon is in orbit around.
+     * @param moon      Orbit number, from 1 (innermost) upwards.
+     * @return          The name of the moon.
+     */
     public static String getMoonName(String baseName, int moon) {
         return baseName + getLetter(moon).toLowerCase();
+    }
+
+    /**
+     * Gets the name of a planetoid in a belt. Planetoids that are large enough to be named
+     * are numbered using lower case roman numerals, starting at i. So the innermost named
+     * planetoid of a belt might be Sol Belt A-i
+     *
+     * @param baseName  Name of the belt the moon is in orbit around.
+     * @param orbit     Orbit number, from 1 (innermost) upwards.
+     * @return          The name of the planetoid.
+     */
+    public static String getPlanetoidName(String baseName, int orbit) {
+        return baseName + "-" + getRoman(orbit).toLowerCase();
     }
 }
