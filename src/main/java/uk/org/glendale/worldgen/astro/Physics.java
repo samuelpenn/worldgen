@@ -27,6 +27,9 @@ public class Physics {
 
     public static final long STANDARD_DAY = 86400L;
 
+    // Standard one atmosphere pressure, in Pascals.
+    public static final int STANDARD_PRESSURE = 100_000;
+
     // Distance of one Astronomical Unit, in kilometres.
     public static final long  AU = 150_000_000;
 

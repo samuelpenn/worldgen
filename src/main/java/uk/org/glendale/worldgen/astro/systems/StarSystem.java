@@ -207,16 +207,20 @@ public class StarSystem {
         if (planets != null) {
             this.planets = planets;
         } else {
-            planets = new ArrayList<Planet>();
+            this.planets = new ArrayList<Planet>();
         }
     }
 
     public void addPlanets(List<Planet> planets) {
-        this.planets.addAll(planets);
+        if (planets != null) {
+            this.planets.addAll(planets);
+        }
     }
 
     public void addPlanet(Planet planet) {
-        this.planets.add(planet);
+        if (planet != null) {
+            this.planets.add(planet);
+        }
     }
 
     public List<Planet> getPlanets() {

@@ -174,7 +174,9 @@ public class Barren extends StarSystemGenerator {
 
             String name = StarSystemFactory.getPlanetName(primary, p+1);
             List<Planet> planets = null;
-            if (orbitTemperature > 350) {
+            if (Die.d6() == 1) {
+                // No planet in this orbit.
+            } else if (orbitTemperature > 350) {
                 // Mercury
                 planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
             } else if (orbitTemperature > 275) {

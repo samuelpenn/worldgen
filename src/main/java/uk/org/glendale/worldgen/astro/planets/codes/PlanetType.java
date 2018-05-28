@@ -67,8 +67,9 @@ public enum PlanetType {
     Chthonian(PlanetClass.Chthonian, 4.0, 6, "#666666"),
 
     // Terrestrial Group
-    EoGaian(PlanetClass.Tectonic, 5.5, 6500, "gaian"),
-    MesoGaian(PlanetClass.Tectonic, 5.5, 6500, "gaian"),
+    EoGaian(PlanetClass.Tectonic, 5.5, 6500, "#668866"),
+    MesoGaian(PlanetClass.Tectonic, 5.5, 6500, "#669966"),
+    Cytherean(PlanetClass.Telluric, 5.5, 6200, "#665555"),    // Venus
 
     Undefined(null, 0.0, 0);
 
@@ -149,7 +150,6 @@ public enum PlanetType {
     AreanLacustric(Category.Terrestrial, 4.5, 3500), // Watery Arean
     Arean(Category.Terrestrial, 4.5, 3500),
     AreanXenic(Category.Terrestrial, 4.5, 3500),   // Hot Arean
-    Cytherean(Category.Terrestrial, 5.5, 6200),    // Venus
     PelaCytherean(Category.Terrestrial, 5.5, 6200), // Venus with ocean
     Phosphorian(Category.Terrestrial, 5.5, 6200),  // Cloudless Venus
     JaniLithic(Category.Terrestrial, 5.5, 5500),   // Dry, hot, atmosphere.
