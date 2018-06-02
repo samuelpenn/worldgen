@@ -327,8 +327,9 @@ public class TextGenerator {
      */
     private String getProperty(String name) {
         String value = "";
-        if (planet == null)
+        if (planet == null && system == null) {
             return value;
+        }
 
         // Possible to make die rolls.
         if (name.matches("[0-9]D[0-9]")) {
@@ -341,10 +342,15 @@ public class TextGenerator {
         }
 
         try {
-            Method method = planet.getClass().getMethod("get" + name);
-            Object result = method.invoke(planet);
-
-            value = "" + result;
+            if (planet != null) {
+                Method method = planet.getClass().getMethod("get" + name);
+                Object result = method.invoke(planet);
+                value = "" + result;
+            } else if (system != null) {
+                Method method = system.getClass().getMethod("get" + name);
+                Object result = method.invoke(system);
+                value = "" + result;
+            }
 
             try {
                 double i = Double.parseDouble(value);
