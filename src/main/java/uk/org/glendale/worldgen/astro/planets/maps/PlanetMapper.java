@@ -8,6 +8,8 @@ import uk.org.glendale.worldgen.astro.planets.Planet;
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlanetMapper extends Icosahedron {
     protected final Planet planet;
@@ -85,6 +87,10 @@ public class PlanetMapper extends Icosahedron {
 
     public SimpleImage drawHeightMap(int width) throws IOException {
         return drawHeight(width);
+    }
+
+    public List<SimpleImage> drawClouds(int width) throws IOException {
+        return new ArrayList<SimpleImage>();
     }
 
     private static final int CRATER_HEIGHT = 10;

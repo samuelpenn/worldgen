@@ -509,6 +509,14 @@ public class Icosahedron {
         }
     }
 
+    private void heightToTransparency() {
+        for (int tileY=0; tileY < getNumRows(); tileY++) {
+            for (int tileX = 0; tileX < getWidthAtY(tileY); tileX++) {
+                setTile(tileX, tileY, new Tile("T", "#FEFEFE",(int) (getHeight(tileX, tileY) * 2.5), false, 0));
+            }
+        }
+    }
+
     /**
      * Gets the sea level given a known percentage cover. More generally, this works out what height
      * covers a given percentage of the surface, by checking the height map.
@@ -756,6 +764,13 @@ public class Icosahedron {
         return draw(map, width);
     }
 
+    public SimpleImage drawTransparency(int width) throws IOException {
+        heightToTransparency();
+        return draw(map, width);
+    }
+
+    private static int BACKGROUND = 0xFFFFFF;
+
     /**
      * Creates an image from the map. The optimum tile size will be calculated for the
      * requested map width, but the actual width will be chosen to perfectly fit the map.
@@ -837,9 +852,9 @@ public class Icosahedron {
         for (int y=0; y < b.getHeight(); y++) {
             for (int x=0; x < shiftWidth; x++) {
                 int rgb = b.getRGB(rightBase + x, y);
-                if ((rgb & 0xFFFFFF) != 0xFFFFFF) {
+                if ((rgb & 0xFFFFFF) != BACKGROUND) {
                     b.setRGB(x, y, rgb);
-                    b.setRGB(rightBase + x, y, 0xFFFFFF);
+                    b.setRGB(rightBase + x, y, BACKGROUND);
                 }
             }
         }
@@ -851,7 +866,7 @@ public class Icosahedron {
 			int count = 0;
 			List<Integer>  nonWhite = new ArrayList<Integer>();
 			for (int x=0; x < b.getWidth(); x++) {
-				if ((b.getRGB(x, y) & 0xFFFFFF) != 0xFFFFFF) {
+				if ((b.getRGB(x, y) & 0xFFFFFF) != BACKGROUND) {
 					nonWhite.add(b.getRGB(x, y));
 					count++;
 				}

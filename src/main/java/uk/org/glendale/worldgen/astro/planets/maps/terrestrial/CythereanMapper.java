@@ -4,6 +4,7 @@
  */
 package uk.org.glendale.worldgen.astro.planets.maps.terrestrial;
 
+import uk.org.glendale.utils.graphics.Icosahedron;
 import uk.org.glendale.utils.graphics.SimpleImage;
 import uk.org.glendale.utils.graphics.Tile;
 import uk.org.glendale.utils.rpg.Die;
@@ -16,6 +17,7 @@ import uk.org.glendale.worldgen.astro.planets.maps.TerrestrialMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CythereanMapper extends TerrestrialMapper {
@@ -61,6 +63,31 @@ public class CythereanMapper extends TerrestrialMapper {
         generateFeatures(planet.getFeatures());
     }
 
+    public List<SimpleImage> drawClouds(int width) {
+        List<SimpleImage>  clouds = new ArrayList<>();
+
+        Icosahedron cloud = new Icosahedron(12);
+        cloud.fractal();
+        int size = cloud.getFaceSize();
+
+        int variation = 48;
+        while (size < 48) {
+            size *= 2;
+            Icosahedron  map = new Icosahedron(size);
+            map.fractal(cloud, variation);
+            variation /= 2;
+            cloud = map;
+        }
+
+        try {
+            clouds.add(Icosahedron.stretchImage(cloud.drawTransparency(width), width));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return clouds;
+    }
+
     public static void main(String[] args) throws IOException {
         Planet planet = new Planet();
         planet.setName("Foo I");
@@ -71,8 +98,9 @@ public class CythereanMapper extends TerrestrialMapper {
         System.out.println("Cytherean:");
         p.generate();
         SimpleImage img = p.draw(2048);
-        img.save(new File("/home/sam/tmp/cytherean.jpg"));
-        p.drawHeightMap(2048).save(new File("/home/sam/tmp/cytherean_h.jpg"));
+        img.save(new File("/home/sam/tmp/cytherean.png"));
+        Icosahedron.stretchImage(p.drawHeightMap(2048), 2048).save(new File("/home/sam/tmp/cytherean_h.png"));
+        p.drawClouds(2048).get(0).save(new File("/home/sam/tmp/cytherean_c.png"));
 
     }
 }

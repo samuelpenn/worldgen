@@ -27,6 +27,7 @@ public class Tile {
 	private String rgb;
 	private boolean isWater;
 	private int random;
+	private int opacity = 0xFF;
 
 	public Tile(final String name, final String rgb, final boolean isWater) {
 		this.name = name;
@@ -41,6 +42,23 @@ public class Tile {
         this.isWater = isWater;
         this.random = random;
     }
+
+    public Tile(final String name, final String rgb, final int opacity) {
+        this.name = name;
+        this.rgb = rgb;
+        this.opacity = opacity;
+        this.isWater = false;
+        this.random = 3;
+    }
+
+    public Tile(final String name, final String rgb, final int opacity, final boolean isWater, final int random) {
+        this.name = name;
+        this.rgb = rgb;
+        this.opacity = opacity;
+        this.isWater = isWater;
+        this.random = random;
+    }
+
 
 	/**
 	 * Create a Tile which is based on a grey scale value. Designed for use with height maps.
@@ -73,7 +91,7 @@ public class Tile {
         int b1 = Integer.parseInt(rgb.substring(5, 7), 16);
 
         String hex = "#" + getHex((r1 * shade) / 100) + getHex((g1 * shade) / 100) + getHex((b1 * shade) / 100);
-        return new Tile(name, hex, isWater, random);
+        return new Tile(name, hex, opacity, isWater, random);
     }
 
     /**
@@ -145,6 +163,10 @@ public class Tile {
 		return ((v < 16) ? "0" : "") + Integer.toHexString(v);
 	}
 
+	private String getRawHex(int v) {
+        return ((v < 16) ? "0" : "") + Integer.toHexString(v);
+    }
+
 	private int getRandomised(int base, int var) {
 	    if (var > 0) {
             base = base + Die.die(var) - Die.die(var);
@@ -162,7 +184,11 @@ public class Tile {
 		int g = getRandomised(Integer.parseInt(rgb.substring(3, 5), 16), modifier);
 		int b = getRandomised(Integer.parseInt(rgb.substring(5, 7), 16), modifier);
 
-		return "#" + getHex(r) + getHex(g) + getHex(b);
+		if (opacity == 0xFF) {
+            return "#" + getHex(r) + getHex(g) + getHex(b);
+        } else {
+            return "#" + getHex(r) + getHex(g) + getHex(b) + getRawHex(opacity);
+        }
 	}
 
     public final String getRGB() {

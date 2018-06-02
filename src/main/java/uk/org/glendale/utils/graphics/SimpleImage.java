@@ -46,7 +46,7 @@ public class SimpleImage implements ImageObserver {
 	 */
 	public SimpleImage(int width, int height) {
 		System.setProperty("java.awt.headless", "true");
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 	}
 
 	public SimpleImage(Image image) {
@@ -66,7 +66,7 @@ public class SimpleImage implements ImageObserver {
 
 	public static Image createImage(int width, int height, String colour) {
 		BufferedImage image = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_RGB);
+				BufferedImage.TYPE_INT_ARGB);
 		Graphics g = image.createGraphics();
 
 		if (colour.startsWith("#")) {
@@ -78,7 +78,7 @@ public class SimpleImage implements ImageObserver {
 		int blue = Integer.parseInt(colour.substring(4, 6), 16);
 		int alpha = 255;
 		if (colour.length() == 8) {
-			alpha = Integer.parseInt(colour.substring(6, 8));
+			alpha = Integer.parseInt(colour.substring(6, 8), 16);
 		}
 
 		g.setColor(new Color(red, green, blue, alpha));
@@ -96,7 +96,7 @@ public class SimpleImage implements ImageObserver {
 
 	public static Image createImage(int width, int height, String colour, int v) {
 		BufferedImage image = new BufferedImage(width, height,
-				BufferedImage.TYPE_INT_RGB);
+				BufferedImage.TYPE_INT_ARGB);
 		Graphics g = image.createGraphics();
 
 		if (colour.startsWith("#")) {
@@ -153,7 +153,7 @@ public class SimpleImage implements ImageObserver {
 	public SimpleImage resize(int width, int height) {
 	    Image i = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
 
-	    BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+	    BufferedImage bimage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 	    Graphics g = bimage.createGraphics();
 	    g.drawImage(i, 0, 0, null);
 	    g.dispose();
@@ -194,7 +194,7 @@ public class SimpleImage implements ImageObserver {
 	}
 
 	public BufferedImage getBufferedImage() {
-		int 		  type = BufferedImage.TYPE_INT_RGB;
+		int 		  type = BufferedImage.TYPE_INT_ARGB;
 		BufferedImage bimage = new BufferedImage(image.getWidth(null),
 											 	 image.getHeight(null), type);
 
