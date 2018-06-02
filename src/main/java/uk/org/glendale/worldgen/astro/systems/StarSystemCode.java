@@ -9,10 +9,12 @@ package uk.org.glendale.worldgen.astro.systems;
  */
 public enum StarSystemCode {
     Ba("Barren", 30),               // Has no life bearing worlds.
+    Cp("Subsector Capital", 60),    // System is capital of sub-sector.
+    Cs("Sector Capital", 100),      // System is capital of sector.
     Ga("Garden Worlds", 60),        // There are habitable worlds here.
-    Fl("Flares", 100),              // Star is prone to dangerous flares.
     Hi("High Population", 30),      // Total population is greater than 1 billion.
     Lo("Low Population", 10),       // Total population is less than 1 million.
+    Sf("Solar Flares", 100),        // Star is prone to dangerous flares.
     Un("Uncivilised", 30);          // No intelligent life.
 
     private final String title;

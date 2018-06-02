@@ -98,7 +98,7 @@ public class Barren extends StarSystemGenerator {
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
         // On average a cool main-sequence star will be generated.
         Star primary = starGenerator.generatePrimary(Luminosity.V,
-                SpectralType.K5.getSpectralType(Die.dieV(10)));
+                SpectralType.K7.getSpectralType(Die.dieV(8)));
         system.addStar(primary);
         system.setType(StarSystemType.SINGLE);
 
@@ -128,8 +128,10 @@ public class Barren extends StarSystemGenerator {
             }
         }
 
-        if (Die.d10() == 1) {
-            system.addTradeCode(StarSystemCode.Fl);
+        system.addTradeCode(StarSystemCode.Ba);
+        if (Die.d6() == 1) {
+            system.addTradeCode(StarSystemCode.Sf);
+            system.setZone(Zone.AMBER);
         }
 
         system.setPlanets(allPlanets);
@@ -203,6 +205,11 @@ public class Barren extends StarSystemGenerator {
 
             distance *= (9.0 + Die.d3(3)) / 10;
             distance += 5_000_000;
+        }
+
+        system.addTradeCode(StarSystemCode.Ba);
+        if (Die.d10() == 1) {
+            system.addTradeCode(StarSystemCode.Sf);
         }
 
         setDescription(system, null);

@@ -459,7 +459,11 @@ public class TextGenerator {
         addText(buffer, "system." + rootKey, 100);
 
         for (StarSystemCode code : system.getTradeCodes()) {
-            addText(buffer, "system." + rootKey + "." + code.name(), code.getNotability());
+            String key = "system." + rootKey + "." + code.name();
+            if (!phrases.containsKey(key)) {
+                key = "system." + code.name();
+            }
+            addText(buffer, key, code.getNotability());
         }
 
         return buffer.toString().replaceAll(" +", " ").trim();
