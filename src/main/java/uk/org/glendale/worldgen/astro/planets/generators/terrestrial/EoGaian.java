@@ -24,7 +24,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
 public class EoGaian extends Terrestrial {
     private static final Logger logger = LoggerFactory.getLogger(EoGaian.class);
 
-    public EoGaian(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public EoGaian(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 

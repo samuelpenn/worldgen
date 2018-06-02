@@ -186,8 +186,8 @@ public class SystemAPI extends Controller {
                     image = Icosahedron.stretchImage(image, width);
                 }
 
-                response.type("image/jpg");
-                return image.save().toByteArray();
+                response.type("image/png");
+                return image.save(!stretch).toByteArray();
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -14,6 +14,7 @@ import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.sectors.SectorFactory;
 import uk.org.glendale.worldgen.astro.sectors.SectorGenerator;
 import uk.org.glendale.worldgen.astro.systems.NoSuchStarSystemException;
+import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
 import uk.org.glendale.worldgen.astro.systems.StarSystemSelector;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
@@ -263,7 +264,9 @@ public class CommandLine extends Main {
                     name = wg.getStarSystemNameGenerator().generateName();
                 }
                 StarSystemSelector selector = new StarSystemSelector(wg);
-                selector.createByGeneratorType(sector, name, x, y, generator, type);
+                StarSystem system = selector.createByGeneratorType(sector, name, x, y, generator, type);
+
+                System.out.println(system);
             }
 
         } catch (NoSuchSectorException e) {

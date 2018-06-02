@@ -189,12 +189,21 @@ public class SimpleImage implements ImageObserver {
 		image = createImage(width, height, colour);
 	}
 
+	public SimpleImage(int width, int height, int colour) {
+		image = createImage(width, height, Integer.toHexString(colour));
+	}
+
 	public Image getImage() {
 		return image;
 	}
 
 	public BufferedImage getBufferedImage() {
-		int 		  type = BufferedImage.TYPE_INT_ARGB;
+		return getBufferedImage(true);
+	}
+
+	public BufferedImage getBufferedImage(boolean alpha) {
+		int 		  type = alpha?BufferedImage.TYPE_INT_ARGB:BufferedImage.TYPE_INT_RGB;
+
 		BufferedImage bimage = new BufferedImage(image.getWidth(null),
 											 	 image.getHeight(null), type);
 
@@ -585,61 +594,27 @@ public class SimpleImage implements ImageObserver {
 	}
 
 	public void save(File path) throws IOException {
-		BufferedImage bimage = getBufferedImage();
+		save(path, true);
+	}
 
-		// while (!ready) { }
+	public void save(File path, boolean alpha) throws IOException {
+		BufferedImage bimage = getBufferedImage(alpha);
+
 		OutputStream out = new BufferedOutputStream(new FileOutputStream(path));
-		//JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-		//encoder.encode(bimage);
 		ImageIO.write(bimage, format, out);
 	}
 
 	public ByteArrayOutputStream save() throws IOException {
-		BufferedImage				bimage = getBufferedImage();
+		return save(true);
+	}
+
+	public ByteArrayOutputStream save(boolean alpha) throws IOException {
+		BufferedImage				bimage = getBufferedImage(alpha);
 		ByteArrayOutputStream		out = new ByteArrayOutputStream();
 
-		//JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-		//encoder.encode(bimage);
 		ImageIO.write(bimage, format, out);
 
 		return out;
-	}
-
-	/*
-	 * Return the specified image. If the path starts with '#', then the image
-	 * is taken to be an RGB colour code, and a new plain image is created of
-	 * that colour. Otherwise, it is assumed to be a filename and is loaded from
-	 * the Jar file.
-	 *
-	 * @param path
-	 *            Path to file or RGB colour code.
-	 * @param width
-	 *            Width of image to return.
-	 * @param height
-	 *            Height of image to return.
-	 *
-	 * @return Image scaled to the specified size.
-	 *
-	 * public Image getImage(String path, int width, int height) throws
-	 * MalformedURLException { Image image = null;
-	 *
-	 * if (path.startsWith("#")) { image = createImage(width, height, path); }
-	 * else { URL url = new URL(resourcePath+"/"+path); image =
-	 * (BufferedImage)Toolkit.getDefaultToolkit().getImage(url); image =
-	 * (BufferedImage)image.getScaledInstance(width, height,
-	 * Image.SCALE_SMOOTH); }
-	 *
-	 * return image; }
-	 */
-
-	public static void main(String[] args) throws Exception {
-		SimpleImage image = new SimpleImage(20, 20, "#FF0000");
-
-		image.save(new File("/home/sam/foo.jpg"));
-
-		image = new SimpleImage(200, 200, "#00FF00");
-		image.paint(new URL("file:/home/sam/foo.jpg"), 20, 20, 20, 20);
-		image.save(new File("/home/sam/foo2.jpg"));
 	}
 
 	/*

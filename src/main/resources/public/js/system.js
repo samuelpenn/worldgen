@@ -99,7 +99,13 @@ function showStretchedMap(id) {
     $(`#map-${id}`).append(`<img src="/api/planet/${id}/map?stretch=true" width="100%"/>`);
 }
 
-function showGlobe(id, planet) {
+/**
+ * Display a 3D spinning globe using this world map.
+ * @param id        ID of the planet to be shown.
+ * @param planet    Planet data.
+ * @param hasClouds Whether the planet has clouds.
+ */
+function showGlobe(id, planet, cloudLayers) {
     $(`#map-${id}`).html("");
 
     let scene = new THREE.Scene();
@@ -108,7 +114,7 @@ function showGlobe(id, planet) {
 
     renderer.setSize(800, 400);
 
-    var viewPort = document.getElementById(`map-${id}`);
+    let viewPort = document.getElementById(`map-${id}`);
     viewPort.appendChild(renderer.domElement);
     var textureLoader = new THREE.TextureLoader();
 
@@ -116,42 +122,80 @@ function showGlobe(id, planet) {
     var mainTexture = textureLoader.load(`/api/planet/${id}/map?stretch=true&width=1024`);
     var heightTexture = textureLoader.load(`/api/planet/${id}/map?stretch=true&name=height&width=1024`);
     var deformTexture = textureLoader.load(`/api/planet/${id}/map?stretch=true&name=deform&width=1024`);
-//    var texture = textureLoader.load(`/images/map2.png`);
-    //var material  = new THREE.MeshBasicMaterial({ map: mainTexture, displacementMap: heightTexture });
-//    var material  = new THREE.MeshDepthMaterial({ map: mainTexture, displacementMap: heightTexture });
-    var material  = new THREE.MeshPhongMaterial({ map: mainTexture, bumpMap: heightTexture, bumpScale: 0.5,
-        displacementMap: deformTexture, shininess: 0, specular: 0xaaaaaa });
-
-    viewPort.addEventListener('mousemove', function(event) {
-        mouse.x = (event.clientX / viewPort.width) - 0.5;
-        mouse.y = (event.clientY / viewPort.height) - 0.5;
-    }, false);
-
-
+    var material = new THREE.MeshPhongMaterial({ map: mainTexture, bumpMap: heightTexture, bumpScale: 0.5,
+        displacementMap: deformTexture, shininess: 0.0, specular: 0xaaaaaa });
 
     var world = new THREE.Mesh(geometry, material);
 
-    var light = new THREE.AmbientLight(0x888888);
+    let light = new THREE.AmbientLight(0x888888);
     scene.add(light);
 
-    var starLight = new THREE.PointLight(0xffffff, 1, 1000, 2);
-    starLight.position.set(0.5, 0, planet.distance);
+    let starLight = new THREE.PointLight(0xffffff, 1, 1000, 2);
+    starLight.position.set(0.5, 0, 100);
     //starLight.position.multiplyScalar(3);
     starLight.castShadow = false;
     scene.add(starLight);
 
     scene.add(world);
+    let clouds = [];
+
+    if (cloudLayers) {
+        let radius = 2.5;
+
+        for (let layer=0; layer <= cloudLayers; layer++) {
+            radius += 0.05;
+            let cloudGeometry = new THREE.SphereGeometry(radius, 32, 32);
+            let cloudTexture = textureLoader.load(`/api/planet/${id}/map?name=cloud-${layer}&width=1024`);
+
+            let cloudMaterial = new THREE.MeshPhongMaterial({ map: cloudTexture, transparent: true });
+            let cloudLayer = new THREE.Mesh(cloudGeometry, cloudMaterial);
+
+            clouds.push(cloudLayer);
+            scene.add(cloudLayer);
+        }
+
+    }
 
     camera.position.z = 5;
-    //renderer.render(scene, camera);
 
-    var animate = function () {
+    var cloudRotation = 0;
+    var pauseRotation = 0;
+    viewPort.addEventListener('mousemove', function(event) {
+        var mouse = { x: 0, y: 0};
+        mouse.x = (event.clientX - renderer.domElement.offsetLeft) / renderer.domElement.width - 0.5;
+        mouse.y = (event.clientY - renderer.domElement.offsetTop) / renderer.domElement.height - 0.5;
+
+        world.rotation.x = Math.PI * 2 * mouse.y;
+        world.rotation.y = Math.PI * 2 * mouse.x;
+
+        pauseRotation = 200;
+    }, false);
+
+    let animate = function () {
         requestAnimationFrame( animate );
 
-//        cube.rotation.x += 0.1;
-//        cube.rotation.y += 0.1;
-        world.rotation.x += 0.001;
-        world.rotation.y += 0.004;
+        if (pauseRotation) {
+            pauseRotation--;
+
+            if (clouds.length > 0) {
+                for (let l=0; l < clouds.length; l++) {
+                    clouds[l].material.opacity = (1 - (pauseRotation / 200));
+                }
+            }
+
+        } else {
+            world.rotation.y += 0.001;
+        }
+        if (clouds.length > 0) {
+            cloudRotation += 0.001;
+            if (cloudRotation > 2 * Math.PI) {
+                cloudRotation -= 2 * Math.PI;
+            }
+            for (let l=0; l < clouds.length; l++) {
+                clouds[l].rotation.x = world.rotation.x;
+                clouds[l].rotation.y = world.rotation.y + (cloudRotation * (l+1));
+            }
+        }
 
         renderer.render(scene, camera);
     };
@@ -168,10 +212,14 @@ function showPlanet(starId, planet) {
 
     $.getJSON(`/api/planet/${planet.id}/maps`, function(mapList) {
         let hasMain = false;
+        let cloudLayers = 0;
 
         for (let i=0; i < mapList.length; i++) {
             if (mapList[i] === "main") {
                 hasMain = true;
+            } else if (mapList[i].startsWith("cloud-")) {
+                // A planet can have multiple cloud layers.
+                cloudLayers++;
             }
         }
         if (hasMain) {
@@ -192,7 +240,7 @@ function showPlanet(starId, planet) {
                 } else if (type === "stretch") {
                     showStretchedMap(id);
                 } else if (type === "globe") {
-                    showGlobe(id, planet);
+                    showGlobe(id, planet, cloudLayers);
                 }
             });
             showMap(planet.id);

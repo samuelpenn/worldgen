@@ -61,11 +61,10 @@ public class CythereanMapper extends TerrestrialMapper {
         }
 
         generateFeatures(planet.getFeatures());
+        hasCloudMap = true;
     }
 
-    public List<SimpleImage> drawClouds(int width) {
-        List<SimpleImage>  clouds = new ArrayList<>();
-
+    private Icosahedron getCloudLayer() {
         Icosahedron cloud = new Icosahedron(12);
         cloud.fractal();
         int size = cloud.getFaceSize();
@@ -79,8 +78,58 @@ public class CythereanMapper extends TerrestrialMapper {
             cloud = map;
         }
 
+        return cloud;
+    }
+
+    /**
+     * Lower cloud layer is almost completely opaque.
+     */
+    private SimpleImage drawLowerCloudLayer(int width) throws IOException {
+        Icosahedron cloud = getCloudLayer();
+
+        for (int y=0; y < cloud.getNumRows(); y++) {
+            for (int x=0; x < cloud.getWidthAtY(y); x++) {
+                int h = cloud.getHeight(x, y);
+                cloud.setHeight(x, y, 75 + h / 2);
+            }
+        }
+
+        return Icosahedron.stretchImage(cloud.drawTransparency("#CFC1A4", width), width);
+    }
+
+    /**
+     * Upper cloud layer is more transparent, to allow the darker lower clouds to be seen.
+     */
+    private SimpleImage drawUpperCloudLayer(int width) throws IOException {
+        Icosahedron cloud = getCloudLayer();
+
+        for (int y=0; y < cloud.getNumRows(); y++) {
+            for (int x=0; x < cloud.getWidthAtY(y); x++) {
+                int h = cloud.getHeight(x, y);
+                cloud.setHeight(x, y, h / 2);
+            }
+        }
+
+        return Icosahedron.stretchImage(cloud.drawTransparency("#B0B8BA", width), width);
+    }
+
+    /**
+     * Generate and draw the cloud layers for this world. Cytherean worlds have thick clouds,
+     * so two layers of clouds are drawn. The lower layer provides complete coverage, and the
+     * upper layer provides less coverage. They have subtle colour differences to make them
+     * less boring.
+     *
+     * Cloud layers are automatically stretched before being stored.
+     *
+     * @param width     Width of the texture to draw.
+     * @return
+     */
+    public List<SimpleImage> drawClouds(int width) {
+        List<SimpleImage>  clouds = new ArrayList<>();
+
         try {
-            clouds.add(Icosahedron.stretchImage(cloud.drawTransparency(width), width));
+            clouds.add(drawLowerCloudLayer(width));
+            clouds.add(drawUpperCloudLayer(width));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -181,10 +181,10 @@ public class Barren extends StarSystemGenerator {
                 planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
             } else if (orbitTemperature > 275) {
                 // Venus
-                planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
+                planets = factory.createPlanet(system, primary, name, PlanetType.Cytherean, distance);
             } else if (orbitTemperature > 225) {
                 // Earth
-                planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
+                planets = factory.createPlanet(system, primary, name, PlanetType.Cytherean, distance);
             } else if (orbitTemperature > 200) {
                 // Mars
                 planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
@@ -196,7 +196,7 @@ public class Barren extends StarSystemGenerator {
             system.addPlanets(planets);
 
             distance *= (9.0 + Die.d3(3)) / 10;
-            distance += 2_000_000;
+            distance += 5_000_000;
         }
 /*
         switch (Die.d6()) {

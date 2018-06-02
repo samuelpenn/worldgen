@@ -27,7 +27,7 @@ import static uk.org.glendale.worldgen.astro.commodities.CommodityName.*;
 public class Cytherean extends Terrestrial {
     private static final Logger logger = LoggerFactory.getLogger(Cytherean.class);
 
-    public Cytherean(WorldGen worldgen, StarSystem system, Star star, Planet previous, int distance) {
+    public Cytherean(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {
         super(worldgen, system, star, previous, distance);
     }
 
@@ -35,7 +35,7 @@ public class Cytherean extends Terrestrial {
         Planet planet = definePlanet(name, PlanetType.Cytherean);
 
         // Volcanic activity.
-        planet.setTemperature((int) (planet.getTemperature() * 1.5));
+        planet.setTemperature((int) (planet.getTemperature() * 2));
         planet.setHydrographics(0);
         planet.setPressure(Physics.STANDARD_PRESSURE * ( 70 + Die.d20(2)));
         planet.setAtmosphere(Atmosphere.CarbonDioxide);

@@ -214,15 +214,22 @@ public abstract class PlanetGenerator {
             Constructor c = getMapClass(planet.getType()).getConstructor(Planet.class);
             PlanetMapper mapper = (PlanetMapper) c.newInstance(planet);
 
+            int width = Server.getConfiguration().getPlanetMapResolution();
             if (mapper.hasMainMap()) {
                 mapper.generate();
-                maps.put(PlanetMap.MAIN, mapper.draw(Server.getConfiguration().getPlanetMapResolution()));
+                maps.put(PlanetMap.MAIN, mapper.draw(width));
             }
             if (mapper.hasHeightMap()) {
-                maps.put(PlanetMap.HEIGHT, mapper.drawHeightMap(Server.getConfiguration().getPlanetMapResolution()));
+                maps.put(PlanetMap.HEIGHT, mapper.drawHeightMap(width));
             }
             if (mapper.hasDeformMap()) {
-                maps.put(PlanetMap.DEFORM, mapper.drawHeightMap(Server.getConfiguration().getPlanetMapResolution()));
+                maps.put(PlanetMap.DEFORM, mapper.drawHeightMap(width));
+            }
+            if(mapper.hasCloudMap()) {
+                List<SimpleImage> clouds = mapper.drawClouds(width);
+                for (int i=0; i < clouds.size(); i++) {
+                    maps.put(PlanetMap.CLOUD + "-" + i, mapper.drawClouds(width).get(i));
+                }
             }
             if (mapper.hasOrbitMap()) {
 

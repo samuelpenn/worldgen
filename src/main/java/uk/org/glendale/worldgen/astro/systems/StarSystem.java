@@ -1,6 +1,7 @@
 package uk.org.glendale.worldgen.astro.systems;
 
 import uk.org.glendale.worldgen.astro.planets.Planet;
+import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.StarPort;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.stars.Star;
@@ -225,5 +226,9 @@ public class StarSystem {
 
     public List<Planet> getPlanets() {
         return this.planets;
+    }
+
+    public String toString() {
+        return String.format("%s [%02d%02d]", name, x, y);
     }
 }

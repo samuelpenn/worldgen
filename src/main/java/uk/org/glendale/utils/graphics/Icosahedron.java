@@ -509,10 +509,10 @@ public class Icosahedron {
         }
     }
 
-    private void heightToTransparency() {
+    private void heightToTransparency(String colour) {
         for (int tileY=0; tileY < getNumRows(); tileY++) {
             for (int tileX = 0; tileX < getWidthAtY(tileY); tileX++) {
-                setTile(tileX, tileY, new Tile("T", "#FEFEFE",(int) (getHeight(tileX, tileY) * 2.5), false, 0));
+                setTile(tileX, tileY, new Tile("T", colour,(int) (getHeight(tileX, tileY) * 2.5), false, 2));
             }
         }
     }
@@ -764,12 +764,13 @@ public class Icosahedron {
         return draw(map, width);
     }
 
-    public SimpleImage drawTransparency(int width) throws IOException {
-        heightToTransparency();
+    public SimpleImage drawTransparency(String colour, int width) throws IOException {
+        heightToTransparency(colour);
         return draw(map, width);
     }
 
-    private static int BACKGROUND = 0xFFFFFF;
+    // Background colour to use for the maps. This is fully transparent white.
+    private static int BACKGROUND = 0xFFFFFF00;
 
     /**
      * Creates an image from the map. The optimum tile size will be calculated for the
@@ -794,7 +795,7 @@ public class Icosahedron {
 	    // We want the map to perfectly fit the image, so resize image based on tile size.
         int actualWidth = tileWidthPx * maxColumns + tileWidthPx;
 
-		SimpleImage image = new SimpleImage(actualWidth, (int) (rowWidths.length * tileWidthPx * ROOT3), "#FFFFFF");
+		SimpleImage image = new SimpleImage(actualWidth, (int) (rowWidths.length * tileWidthPx * ROOT3), BACKGROUND);
 
 		int baseX = 0;
 		int baseY = (int)(tileWidthPx * ROOT3);
@@ -824,6 +825,10 @@ public class Icosahedron {
 		return image;
 	}
 
+	private static int nonAlpha(int rgb) {
+	    return (rgb & 0xFFFFFF00) / 0xFF;
+    }
+
     /**
      * Create a flat, stretched, version of the map. This takes an icosahedral map and distorts it
      * so that it entirely fills a rectangle of the given pixel width. The algorithm assumes that
@@ -842,7 +847,6 @@ public class Icosahedron {
 	public static SimpleImage stretchImage(SimpleImage image, int size) throws IOException {
 		// Stretch
 		BufferedImage b = image.getBufferedImage();
-		System.out.println(b.getWidth() + " x " + b.getHeight());
 
 		// First, shift the right hand side of the map into the left hand side.
         // This is so that when the stretch is performed, the middle of the map
@@ -852,7 +856,7 @@ public class Icosahedron {
         for (int y=0; y < b.getHeight(); y++) {
             for (int x=0; x < shiftWidth; x++) {
                 int rgb = b.getRGB(rightBase + x, y);
-                if ((rgb & 0xFFFFFF) != BACKGROUND) {
+                if (nonAlpha(rgb) != nonAlpha(BACKGROUND)) {
                     b.setRGB(x, y, rgb);
                     b.setRGB(rightBase + x, y, BACKGROUND);
                 }
@@ -866,7 +870,7 @@ public class Icosahedron {
 			int count = 0;
 			List<Integer>  nonWhite = new ArrayList<Integer>();
 			for (int x=0; x < b.getWidth(); x++) {
-				if ((b.getRGB(x, y) & 0xFFFFFF) != BACKGROUND) {
+				if (nonAlpha(b.getRGB(x, y)) != nonAlpha(BACKGROUND) && nonAlpha(b.getRGB(x, y)) != 0) {
 					nonWhite.add(b.getRGB(x, y));
 					count++;
 				}
