@@ -83,6 +83,7 @@ CREATE TABLE systems (
   tech INT NOT NULL,
   population BIGINT NOT NULL,
   codes VARCHAR(32) NOT NULL,
+  description TEXT NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY(sector_id, x, y),
   UNIQUE KEY(sector_id, name)

@@ -200,6 +200,13 @@ public class SystemAPI extends Controller {
         return null;
     }
 
+    /**
+     * Gets a list of all the maps available for this planet.
+     *
+     * @param request       HTTP Request object.
+     * @param response      HTTP Response object.
+     * @return              List of available map names, as a string array.
+     */
     public List<String> getPlanetMaps(Request request, Response response) {
 
         try {

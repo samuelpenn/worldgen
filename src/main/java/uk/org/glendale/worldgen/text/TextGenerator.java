@@ -16,6 +16,8 @@ import uk.org.glendale.worldgen.astro.planets.codes.Government;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.planets.codes.StarPort;
+import uk.org.glendale.worldgen.astro.systems.StarSystem;
+import uk.org.glendale.worldgen.astro.systems.StarSystemCode;
 import uk.org.glendale.worldgen.civ.Facility;
 import uk.org.glendale.worldgen.civ.FacilityType;
 
@@ -45,6 +47,7 @@ public class TextGenerator {
     private StringBuffer buffer = new StringBuffer();
     private Planet planet = null;
     private Facility facility = null;
+    private StarSystem system = null;
 
     private Properties phrases = null;
 
@@ -89,6 +92,7 @@ public class TextGenerator {
 
     private static final String RESOURCE_BASE = "text.planets.";
     private static final String FACILITY_BASE = "text.facilities.";
+    private static final String SYSTEM_BASE = "text.systems.";
 
     private void readResource(String bundleName) {
         try {
@@ -120,7 +124,13 @@ public class TextGenerator {
         readResource(RESOURCE_BASE + group + "." + type);
     }
 
-    public TextGenerator(Planet planet) {
+    public TextGenerator(final StarSystem system, final String resource) {
+        this.system = system;
+        phrases = new Properties();
+        readResource(SYSTEM_BASE + resource);
+    }
+
+    public TextGenerator(final Planet planet) {
         this.planet = planet;
         if (this.planet == null) {
             throw new IllegalStateException(
@@ -129,7 +139,7 @@ public class TextGenerator {
         readResources();
     }
 
-    public TextGenerator(Planet planet, Facility facility) {
+    public TextGenerator(final Planet planet, final Facility facility) {
         this.planet = planet;
         this.facility = facility;
 
@@ -433,6 +443,18 @@ public class TextGenerator {
         buffer = new StringBuffer();
 
         addText(buffer, rootKey, 100);
+
+        return buffer.toString().replaceAll(" +", " ").trim();
+    }
+
+    public String getSystemDescription(String rootKey) {
+        buffer = new StringBuffer();
+
+        addText(buffer, "system." + rootKey, 100);
+
+        for (StarSystemCode code : system.getTradeCodes()) {
+            addText(buffer, "system." + rootKey + "." + code.name(), code.getNotability());
+        }
 
         return buffer.toString().replaceAll(" +", " ").trim();
     }

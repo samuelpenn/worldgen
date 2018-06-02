@@ -7,8 +7,7 @@ import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.stars.Star;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Defines a StarSystem. A star system contains zero or more stars and zero or more planets. Star systems without
@@ -55,6 +54,9 @@ public class StarSystem {
 
     @Column
     private String codes;
+
+    @Column
+    private String description = "";
 
     @OneToMany(mappedBy = "system", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Star> stars = new ArrayList<>();
@@ -154,12 +156,34 @@ public class StarSystem {
         return planetCount;
     }
 
-    public String getTradeCodes() {
-        return codes;
+    public Set<StarSystemCode> getTradeCodes() {
+        Set<StarSystemCode> tradeCodes = EnumSet.noneOf(StarSystemCode.class);
+
+        if (codes.length() > 0) {
+            for (String code : codes.split(" ")) {
+                tradeCodes.add(StarSystemCode.valueOf(code));
+            }
+        }
+
+        return tradeCodes;
     }
 
     public void setTradeCodes(String codes) {
         this.codes = codes;
+    }
+
+    public void addTradeCode(StarSystemCode code) {
+        if (!getTradeCodes().contains(code)) {
+            codes = (codes + " " + code.name()).trim();
+        }
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     void setSystemData(List<Planet> planets) {

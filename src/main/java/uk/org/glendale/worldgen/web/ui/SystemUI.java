@@ -13,6 +13,8 @@ import spark.Request;
 import spark.Response;
 import spark.template.velocity.VelocityTemplateEngine;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.planets.Planet;
+import uk.org.glendale.worldgen.astro.planets.codes.PlanetGroup;
 import uk.org.glendale.worldgen.astro.sectors.NoSuchSectorException;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.systems.NoSuchStarSystemException;
@@ -23,6 +25,7 @@ import uk.org.glendale.worldgen.web.IndexController;
 import uk.org.glendale.worldgen.web.Server;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static spark.Spark.get;
@@ -54,7 +57,19 @@ public class SystemUI extends Controller {
 
             int id = getIdParam(request, "id");
             StarSystem system = worldGen.getStarSystemFactory().getStarSystem(id);
+            List<Planet>    planets = worldGen.getPlanetFactory().getPlanets(system);
 
+            Map<String, Integer> count = new HashMap<>();
+            for (Planet planet : planets) {
+                if (!planet.isMoon()) {
+                    String group = planet.getType().getGroup().name();
+                    if (count.containsKey(group)) {
+                        count.replace(group, count.get(group) + 1);
+                    } else {
+                        count.put(group, 1);
+                    }
+                }
+            }
 
             Map<String,Object> model = new HashMap<>();
             model.put("id", id);
@@ -68,6 +83,7 @@ public class SystemUI extends Controller {
             Sector sector = worldGen.getSectorFactory().getSector(system.getSectorId());
             model.put("sector", sector);
             model.put("subsector", sector.getSubSectorName(system.getX(), system.getY()));
+            model.put("count", count);
 
             return new VelocityTemplateEngine().render(
                     new ModelAndView(model, "templates/system.vm")

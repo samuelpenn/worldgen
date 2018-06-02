@@ -1,5 +1,4 @@
 /*
-/**
  * Tile.java
  *
  * Copyright (C) 2011, 2017 Samuel Penn, sam@glendale.org.uk

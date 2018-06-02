@@ -17,6 +17,7 @@ import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.stars.*;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 import uk.org.glendale.worldgen.exceptions.UnsupportedException;
+import uk.org.glendale.worldgen.text.TextGenerator;
 
 import java.util.List;
 
@@ -92,5 +93,30 @@ public abstract class StarSystemGenerator {
         logger.info(String.format("createEmptySystem: [%s] [%02d%02d] [%s]", sector.getName(), x, y, name));
 
         return factory.createStarSystem(sector, name.trim(), x, y, StarSystemType.EMPTY);
+    }
+
+    /**
+     * Sets a description of this star system. Must be called from a createX() method of a StarSystemGenerator.
+     * This is because it dynamically figures out what property file to use by examining the call stack.
+     *
+     * @param system    Star system to describe.
+     * @param key       Root key to use to describe this system.
+     */
+    protected void setDescription(StarSystem system, String key) {
+        String generatorName = this.getClass().getSimpleName();
+
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+        String methodName = stack[2].getMethodName();
+
+        if (methodName != null && methodName.startsWith("create")) {
+            methodName = methodName.replaceAll("create", "");
+        } else {
+            system.setDescription("<p>Mostly harmless.</p>");
+            return;
+        }
+        String resource = generatorName + "." + methodName;
+
+        TextGenerator text = new TextGenerator(system, resource);
+        system.setDescription("<p>" + text.getSystemDescription((key!=null)?key:methodName) + "</p>");
     }
 }

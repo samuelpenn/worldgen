@@ -136,9 +136,12 @@ public abstract class PlanetGenerator {
         planet.setGovernment(Government.None);
         planet.setLife(Life.None);
         planet.setPeriod(star.getPeriod(planet.getDistance()));
-        planet.setDayLength(86400 * (36 + Die.d12(4)));
-
-        modifyTemperatureByRotation(planet);
+        if (planet.getType() != null && planet.getType().getGroup() != PlanetGroup.Belt) {
+            planet.setDayLength(86400 * (36 + Die.d12(4)));
+            modifyTemperatureByRotation(planet);
+        } else {
+            planet.setDayLength(0);
+        }
 
         if (planet.getType() != null) {
             planet.setDensity((int) (1000 * planet.getType().getDensity()));

@@ -17,25 +17,27 @@ package uk.org.glendale.worldgen.astro.planets.codes;
  */
 public enum StarPort {
 
-	A(10, 1_000_000, "Major"),
-	Ao(10, 1_000_000, "Major Orbital"),
-	B(9,  100_000, "Large"),
-	Bo(9, 100_000, "Large Orbital"),
-	C(8,  10_000, "Medium"),
-	Co(8, 10_000, "Medium Orbital"),
-	D(7,  1_000, "Small"),
-	Do(7, 1_000, "Small Orbital"),
-	E(5,  0, "Minimal"),
-	Eo(5, 0, "Minimal Orbital"),
-	X(0,  0, "None");
+	A(10, 1_000_000, "A", "Major"),
+	Ao(10, 1_000_000, "A", "Major Orbital"),
+	B(9,  100_000, "B", "Large"),
+	Bo(9, 100_000, "B", "Large Orbital"),
+	C(8,  10_000, "C", "Medium"),
+	Co(8, 10_000, "C", "Medium Orbital"),
+	D(7,  1_000, "D", "Small"),
+	Do(7, 1_000, "D", "Small Orbital"),
+	E(5,  0, "E", "Minimal"),
+	Eo(5, 0, "E", "Minimal Orbital"),
+	X(0,  0, "X", "None");
 
-	int			minTechLevel	= 0;
-	int			minPopulation	= 0;
-	String		description		= null;
+	final int		minTechLevel;
+	final int		minPopulation;
+	final String    code;
+	final String	description;
 
-	StarPort(int minTechLevel, int minPopulation, String description) {
+	StarPort(int minTechLevel, int minPopulation, String code, String description) {
 		this.minTechLevel = minTechLevel;
 		this.minPopulation = minPopulation;
+		this.code = code;
 		this.description = description;
 	}
 
@@ -130,5 +132,9 @@ public enum StarPort {
 	public String getDescription() {
 		return description;
 	}
+
+	public String getCode() {
+	    return code;
+    }
 
 }

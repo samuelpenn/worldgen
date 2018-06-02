@@ -97,7 +97,7 @@ public class Simple extends StarSystemGenerator {
         }
 
         planetName = factory.getPlanetName(primary, orbit++);
-        planetFactory.createPlanet(system, primary, planetName, PlanetType.Hermian, 110);
+        planetFactory.createPlanet(system, primary, planetName, PlanetType.Cytherean, 110);
 
         planetName = factory.getPlanetName(primary, orbit++);
         planetFactory.createPlanet(system, primary, planetName, PlanetType.EoGaian, 150);

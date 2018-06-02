@@ -15,13 +15,11 @@ import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.stars.*;
-import uk.org.glendale.worldgen.astro.systems.StarSystem;
-import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
-import uk.org.glendale.worldgen.astro.systems.StarSystemGenerator;
-import uk.org.glendale.worldgen.astro.systems.StarSystemType;
+import uk.org.glendale.worldgen.astro.systems.*;
 import uk.org.glendale.worldgen.civ.CivilisationGenerator;
 import uk.org.glendale.worldgen.civ.civilisation.FreeSettlers;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
+import uk.org.glendale.worldgen.text.TextGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -107,6 +105,7 @@ public class Barren extends StarSystemGenerator {
         // Place the belt around 1AU from the star.
         long distance = Physics.AU + Die.dieV(50_000_000);
         String name = StarSystemFactory.getBeltName(primary, 1);
+        String type = "AsteroidBelt";
 
         logger.info(String.format("Creating barren system [%s] with belt at [%d]km (%d)",
                 primary.toString(), distance, primary.getHotDistance()));
@@ -114,6 +113,7 @@ public class Barren extends StarSystemGenerator {
         List<Planet> allPlanets;
         if (distance < primary.getHotDistance()) {
             allPlanets = addVulcanianBelt(system, name, distance);
+            type = "VulcanianBelt";
         } else if (distance < primary.getSnowLineDistance()) {
             allPlanets = addAsteroidBelt(system, name, distance);
         } else {
@@ -124,10 +124,16 @@ public class Barren extends StarSystemGenerator {
                     break;
                 default:
                     allPlanets = addIceBelt(system, name, distance);
+                    type = "IceBelt";
             }
         }
 
+        if (Die.d10() == 1) {
+            system.addTradeCode(StarSystemCode.Fl);
+        }
+
         system.setPlanets(allPlanets);
+        setDescription(system, type);
     }
 
     private List<Planet> addVulcanianBelt(StarSystem system, String name, long distance) {
@@ -184,7 +190,7 @@ public class Barren extends StarSystemGenerator {
                 planets = factory.createPlanet(system, primary, name, PlanetType.Cytherean, distance);
             } else if (orbitTemperature > 225) {
                 // Earth
-                planets = factory.createPlanet(system, primary, name, PlanetType.Cytherean, distance);
+                planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
             } else if (orbitTemperature > 200) {
                 // Mars
                 planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
@@ -198,50 +204,8 @@ public class Barren extends StarSystemGenerator {
             distance *= (9.0 + Die.d3(3)) / 10;
             distance += 5_000_000;
         }
-/*
-        switch (Die.d6()) {
-            case 1:
-                planetName = StarSystemFactory.getPlanetName(star, orbit++);
-                planets = planetFactory.createPlanet(system, star, planetName, PlanetType.VulcanianBelt, distance);
-                logger.info(String.format("Created world [%s]", planetName));
-                distance += planets.get(0).getRadius() * 3;
-                allPlanets.addAll(planets);
 
-                planetName = StarSystemFactory.getPlanetName(star, orbit++);
-                planets = planetFactory.createPlanet(system, star, planetName, PlanetType.Saturnian, distance);
-                logger.info(String.format("Created world [%s]", planetName));
-                distance += (planets.get(0).getRadius() / 500) + Die.dieV(20);
-                allPlanets.addAll(planets);
-                break;
-            case 2: case 3:
-                planetName = StarSystemFactory.getPlanetName(star, orbit++);
-                planets = planetFactory.createPlanet(system, star, planetName, PlanetType.Hermian, distance);
-                logger.info(String.format("Created world [%s]", planetName));
-                distance += Die.d20(3);
-                allPlanets.addAll(planets);
-                break;
-            case 4: case 5:
-                planetName = StarSystemFactory.getPlanetName(star, orbit++);
-                planets = planetFactory.createPlanet(system, star, planetName, PlanetType.Ferrinian, distance);
-                logger.info(String.format("Created world [%s]", planetName));
-                distance += Die.d20(3);
-                allPlanets.addAll(planets);
-                break;
-            case 6:
-                distance += 50 + Die.d20(3);
-                break;
-        }
-
-        List<Planet> planets;
-        switch (Die.d6()) {
-            case 1: case 2: case 3: case 4: case 5:
-                addBarrenWorlds(system, primary);
-                break;
-            default:
-                addProtoWorlds(system, primary);
-                break;
-        }
-*/
+        setDescription(system, null);
     }
 
     /**
@@ -255,6 +219,8 @@ public class Barren extends StarSystemGenerator {
 
         primary = starGenerator.generateDwarfPrimary();
         addProtoWorlds(system, primary);
+
+        setDescription(system, null);
     }
 
     /**
@@ -278,6 +244,7 @@ public class Barren extends StarSystemGenerator {
         }
 
         system.setPlanets(planets);
+        setDescription(system, null);
     }
 
     /**
@@ -311,6 +278,8 @@ public class Barren extends StarSystemGenerator {
         secondary.setParentId(primary.getId());
 
         addBarrenWorlds(system, primary, secondary);
+
+        setDescription(system, null);
     }
 
     /**
@@ -327,6 +296,7 @@ public class Barren extends StarSystemGenerator {
 
         Star primary = starGenerator.generateRedGiantPrimary();
         addBarrenWorlds(system, primary);
+        setDescription(system, null);
     }
 
     /**

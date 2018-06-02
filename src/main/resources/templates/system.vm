@@ -24,6 +24,44 @@
     #set ( $divHeight = $mapHeight + $SECTOR_HEIGHT )
 
   <style>
+    span.counter {
+      display: inline-block;
+      border: 1px solid black;
+      font-size: xx-large;
+      font-weight: bold;
+      color: red;
+      width: 64px;
+      height: 64px;
+      border-radius: 4px;
+      background-color: white;
+      float: right;
+      margin-top: -20px;
+      margin-left: 8px;
+    }
+
+    span.counter span {
+      display: inline-block;
+      margin-left: 40px;
+      margin-top: 24px;
+    }
+
+    span.beltCounter {
+      background-image: url("/icons/systems/belt.png");
+    }
+    span.rockCounter {
+      background-image: url("/icons/systems/rock.png");
+    }
+    span.gasCounter {
+      background-image: url("/icons/systems/gas.png");
+    }
+
+    span.startype {
+      display: inline-block;
+      border: 1px solid black;
+      border-radius: 2px;
+      padding: 0px 5px 0px 5px;
+      margin-top: 2px;
+    }
   </style>
 </head>
 
@@ -33,7 +71,33 @@
 
 <body>
 <div class="container-fluid">
-  <h1>$sector.name &gt; $subsector &gt; $system.name ($x$y) <span>${systemZone} / ${systemType}</span></h1>
+  <h1>$sector.name &gt; $subsector &gt; $system.name [$x$y] <span>${systemZone} / ${systemType}</span></h1>
+
+  <div>
+    #set ($beltCount = $count['Belt'] )
+    #set ($rockCount = $count['Dwarf'] + $count['Terrestrial'] )
+    #set ($gasCount = $count['Jovian'] )
+
+    <span class="counter" style="background-image: url('/icons/systems/port_${system.starPort.code}.png');"></span>
+
+    #if ($gasCount)
+      <span class="counter gasCounter"><span>$gasCount</span></span>
+    #end
+    #if ($rockCount)
+      <span class="counter rockCounter"><span>$rockCount</span></span>
+    #end
+    #if ($beltCount)
+      <span class="counter beltCounter"><span>$beltCount</span></span>
+    #end
+
+    <p>
+      #foreach ($star in $system.stars)
+        <span class="startype"><b><big style="color: ${star.spectralType.getRGBColour()};">&#x25cf;</big> $star.name</b> $star.spectralType $star.luminosity</span>
+      #end
+    </p>
+
+    $system.description
+  </div>
 
   <div id="system" class="container-fluid">
 
