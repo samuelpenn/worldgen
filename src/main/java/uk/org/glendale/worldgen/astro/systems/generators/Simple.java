@@ -10,17 +10,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
+import uk.org.glendale.worldgen.astro.Physics;
+import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
-import uk.org.glendale.worldgen.astro.stars.Luminosity;
-import uk.org.glendale.worldgen.astro.stars.SpectralType;
-import uk.org.glendale.worldgen.astro.stars.Star;
-import uk.org.glendale.worldgen.astro.stars.StarGenerator;
+import uk.org.glendale.worldgen.astro.stars.*;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
+import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
 import uk.org.glendale.worldgen.astro.systems.StarSystemGenerator;
 import uk.org.glendale.worldgen.astro.systems.StarSystemType;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Creates a simple star system, similar to that of Sol. This is primarily for use in testing boring
@@ -39,6 +42,77 @@ public class Simple extends StarSystemGenerator {
         updateStarSystem(createSimple(system));
 
         return system;
+    }
+
+    public void createSol(StarSystem system) throws DuplicateStarException {
+        system.setType(StarSystemType.SINGLE);
+        StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
+        List<Planet> planets = new ArrayList<Planet>();
+
+        // Generate a Sol-like star.
+        Star primary;
+        switch (Die.d6(1)) {
+            case 1:
+                // Hotter.
+                primary = starGenerator.generatePrimary(Luminosity.V, SpectralType.G1);
+                break;
+            case 6:
+                // Cooler.
+                primary = starGenerator.generatePrimary(Luminosity.V, SpectralType.G3);
+                break;
+            default:
+                primary = starGenerator.generatePrimary(Luminosity.V, SpectralType.G2);
+                break;
+        }
+
+        PlanetFactory planetFactory = worldgen.getPlanetFactory();
+        String  planetName;
+        int     orbit = 1;
+
+
+        // Mercury.
+        long distance = 50 * Physics.MKM + Die.dieV(5_000_000);
+        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Hermian, distance);
+        system.addPlanets(planets);
+
+        // Venus.
+        distance = 110 * Physics.MKM + Die.dieV(5_000_000);
+        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Cytherean, distance);
+        system.addPlanets(planets);
+
+        // Earth.
+        distance = 150 * Physics.MKM + Die.dieV(5_000_000);
+        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.EoGaian, distance);
+        system.addPlanets(planets);
+
+        // Mars.
+        distance = 230 * Physics.MKM + Die.dieV(5_000_000);
+        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.EuArean, distance);
+        system.addPlanets(planets);
+
+        // Asteroids.
+        distance = 400 * Physics.MKM + Die.dieV(10_000_000);
+        planetName = StarSystemFactory.getBeltName(primary, 1);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
+        system.addPlanets(planets);
+
+        // Jupiter.
+        distance = 750 * Physics.MKM + Die.dieV(30_000_000);
+        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Jovic, distance);
+        system.addPlanets(planets);
+
+        // Saturn.
+        distance = 1500 * Physics.MKM + Die.dieV(100_000_000);
+        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, distance);
+        system.addPlanets(planets);
+
+        setDescription(system, null);
     }
 
     /**

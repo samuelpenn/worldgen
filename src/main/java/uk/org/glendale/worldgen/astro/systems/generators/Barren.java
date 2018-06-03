@@ -180,24 +180,28 @@ public class Barren extends StarSystemGenerator {
             int orbitTemperature = Physics.getOrbitTemperature(primary, distance);
             logger.info(String.format("Orbit Temperature is %dK at distance %,dkm", orbitTemperature, distance));
 
-            String name = StarSystemFactory.getPlanetName(primary, p+1);
             List<Planet> planets = null;
             if (Die.d6() == 1) {
                 // No planet in this orbit.
             } else if (orbitTemperature > 350) {
                 // Mercury
+                String name = StarSystemFactory.getPlanetName(primary, p+1);
                 planets = factory.createPlanet(system, primary, name, PlanetType.Hermian, distance);
             } else if (orbitTemperature > 275) {
                 // Venus
+                String name = StarSystemFactory.getPlanetName(primary, p+1);
                 planets = factory.createPlanet(system, primary, name, PlanetType.Cytherean, distance);
             } else if (orbitTemperature > 225) {
                 // Earth
+                String name = StarSystemFactory.getPlanetName(primary, p+1);
                 planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
             } else if (orbitTemperature > 200) {
                 // Mars
+                String name = StarSystemFactory.getPlanetName(primary, p+1);
                 planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
             } else {
                 // Colder
+                String name = StarSystemFactory.getPlanetName(primary, p+1);
                 planets = factory.createPlanet(system, primary, name, PlanetType.EuArean, distance);
             }
 

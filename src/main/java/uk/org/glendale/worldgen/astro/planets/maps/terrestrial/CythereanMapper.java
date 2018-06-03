@@ -8,6 +8,7 @@ import uk.org.glendale.utils.graphics.Icosahedron;
 import uk.org.glendale.utils.graphics.SimpleImage;
 import uk.org.glendale.utils.graphics.Tile;
 import uk.org.glendale.utils.rpg.Die;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFeature;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
@@ -87,10 +88,11 @@ public class CythereanMapper extends TerrestrialMapper {
     private SimpleImage drawLowerCloudLayer(int width) throws IOException {
         Icosahedron cloud = getCloudLayer();
 
+        int modifier = planet.getPressure() / Physics.STANDARD_PRESSURE;
         for (int y=0; y < cloud.getNumRows(); y++) {
             for (int x=0; x < cloud.getWidthAtY(y); x++) {
                 int h = cloud.getHeight(x, y);
-                cloud.setHeight(x, y, 75 + h / 2);
+                cloud.setHeight(x, y, modifier + h / 2);
             }
         }
 
@@ -103,10 +105,11 @@ public class CythereanMapper extends TerrestrialMapper {
     private SimpleImage drawUpperCloudLayer(int width) throws IOException {
         Icosahedron cloud = getCloudLayer();
 
+        int modifier = planet.getPressure() / Physics.STANDARD_PRESSURE;
         for (int y=0; y < cloud.getNumRows(); y++) {
             for (int x=0; x < cloud.getWidthAtY(y); x++) {
                 int h = cloud.getHeight(x, y);
-                cloud.setHeight(x, y, h / 2);
+                cloud.setHeight(x, y, (modifier + h) / 3);
             }
         }
 

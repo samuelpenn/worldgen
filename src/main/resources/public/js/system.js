@@ -1,9 +1,9 @@
 
 function getPlural(value, text) {
     value = parseInt(value);
-    if (value == 0) {
+    if (value === 0) {
         return "";
-    } else if (value == 1) {
+    } else if (value === 1) {
         return value + " " + text + " ";
     } else {
         return value + " " + text + "s ";
@@ -29,6 +29,19 @@ function getDistance(km) {
     }
 
     return result;
+}
+
+function getPressure(pascals) {
+    let STANDARD = 100000;
+
+    if (pascals >= 10 * STANDARD) {
+        return parseInt(pascals / STANDARD) + " x Std";
+    } else if (pascals >= 0.05 * STANDARD) {
+        return parseInt((pascals * 100) / STANDARD) + "% Std";
+    } else {
+        let pct = parseInt((pascals * 1000) / STANDARD) / 10.0;
+        return pct + "% Std";
+    }
 }
 
 function getPeriod(seconds) {
@@ -256,7 +269,7 @@ function showPlanet(starId, planet) {
     if (planet.dayLength > 0) {
         $planetData.append(`<dt>Length of Day</dt><dd>${getPeriod(planet.dayLength)}</dd>`);
     }
-    $planetData.append(`<dt>Atmosphere</dt><dd>${planet.pressure === 0?"":planet.pressure} ${planet.atmosphere}</dd>`);
+    $planetData.append(`<dt>Atmosphere</dt><dd>${planet.pressure === 0?"":getPressure(planet.pressure)} ${planet.atmosphere}</dd>`);
     $planetData.append(`<dt>Temperature</dt><dd>${planet.temperature} K (${planet.temperature - 273} °C)</dd>`);
 
     if (planet.population > 0) {

@@ -40,7 +40,7 @@ public class DustDiscMapper extends PlanetMapper {
         // Nothing do do here.
     }
 
-    public void drawOrbit(SimpleImage image, int cx, int cy, int kmPerPixel) {
+    public void drawOrbit(SimpleImage image, int cx, int cy, long kmPerPixel) {
         Random  random = new Random(planet.getId());
         long    distance = planet.getDistance();
 
@@ -59,7 +59,7 @@ public class DustDiscMapper extends PlanetMapper {
                 default:
                     // Colour remains unchanged.
             }
-            image.circleOutline(cx, cy, (int) d / kmPerPixel, colour,
+            image.circleOutline(cx, cy, (int) (d / kmPerPixel), colour,
                     1 + random.nextInt((int) (planet.getRadius() / (kmPerPixel * 10))));
             d += 1 + random.nextInt((int) (planet.getRadius() / 10));
         }

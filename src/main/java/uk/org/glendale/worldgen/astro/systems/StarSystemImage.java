@@ -40,7 +40,7 @@ public class StarSystemImage {
     private List<Planet> planets;
 
     private SimpleImage image		= null;
-    private int			scale		= -1;
+    private long		scale		= -1;
     private int         objectScale = -1;
     private int         width       = 1000;
     private long        currentTime = 0;
@@ -80,7 +80,7 @@ public class StarSystemImage {
      * @param scale
      *            Size of the map.
      */
-    public void setScale(int scale) {
+    public void setScale(long scale) {
         this.scale = scale;
         this.objectScale = (int) Math.sqrt(scale);
     }
@@ -90,7 +90,7 @@ public class StarSystemImage {
      *
      * @return      Scale in kilometres per pixel.
      */
-    public int getScale() {
+    public long getScale() {
         return scale;
     }
 
@@ -224,9 +224,9 @@ public class StarSystemImage {
                 maxDistance = 1500 * Physics.MKM;
                 break;
         }
-        maxDistance *= 1.1;
-        scale = (int) (maxDistance * 2) / width;
-        objectScale = (int) Math.sqrt(scale);
+        maxDistance *= 1.2;
+        scale = (long) (maxDistance * 2) / width;
+        objectScale = (int) (Math.pow(scale, 1.0/3.0) * 1.5);
     }
 
     public SimpleImage draw() {
@@ -350,7 +350,6 @@ public class StarSystemImage {
                 break;
         }
 
-        System.out.println("There are " + moons.size() + " moons");
         if (moons.size() > 0) {
             for (Planet moon : moons) {
                 drawPlanetoid(star, cx, cy, planet, moon);
@@ -371,8 +370,6 @@ public class StarSystemImage {
      */
     private void drawPlanetoid(Star star, int cx, int cy, Planet belt, Planet planetoid) {
         logger.info("drawPlanetoid");
-
-        System.out.println("Draw planetoid " + planetoid.getName() + " " + planetoid.getDistance());
 
         long km = belt.getDistance() + planetoid.getDistance();
         double angle = getAngleOffset(star, km);

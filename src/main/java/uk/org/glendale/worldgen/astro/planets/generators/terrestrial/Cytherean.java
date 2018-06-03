@@ -34,11 +34,15 @@ public class Cytherean extends Terrestrial {
     public Planet getPlanet(String name) {
         Planet planet = definePlanet(name, PlanetType.Cytherean);
 
-        // Volcanic activity.
-        planet.setTemperature((int) (planet.getTemperature() * 2));
+        planet.setRadius(5700 + Die.d100(2) * 5);
+        planet.setTemperature((int) (planet.getTemperature() * 2.5));
         planet.setHydrographics(0);
-        planet.setPressure(Physics.STANDARD_PRESSURE * ( 70 + Die.d20(2)));
         planet.setAtmosphere(Atmosphere.CarbonDioxide);
+
+        // Calculate atmospheric pressure, based on planet's temperature. The hotter the
+        // temperature, the higher the pressure. Pressure is in Pascals.
+        int pressure = (int) (Math.sqrt(planet.getTemperature() * (9 + Die.dieV(3))) * Physics.STANDARD_PRESSURE);
+        planet.setPressure(pressure);
 
         addFeatures(planet);
 
