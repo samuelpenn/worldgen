@@ -37,6 +37,16 @@ public class EoGaian extends Terrestrial {
         planet.setTemperature((int) (planet.getTemperature() * 1.05));
         planet.setHydrographics(Die.d20(2));
 
+        if (planet.getTemperature() < 275) {
+            planet.addFeature(TerrestrialFeature.Cold);
+        } else if (planet.getTemperature() > 295) {
+            planet.addFeature(TerrestrialFeature.Warm);
+        }
+
+        if (planet.getHydrographics() < 30) {
+            planet.addFeature(TerrestrialFeature.Dry);
+        }
+
         switch (Die.d6(2)) {
             case 2: case 3:
                 planet.setLife(Life.None);
@@ -110,6 +120,9 @@ public class EoGaian extends Terrestrial {
                 break;
             case 7:
                 planet.addFeature(TerrestrialFeature.VolcanicFlats);
+                break;
+            case 8:
+                planet.addFeature(TerrestrialFeature.Volcanoes);
                 break;
         }
     }

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.WorldGen;
 import uk.org.glendale.worldgen.astro.Physics;
-import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFactory;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
@@ -75,10 +74,13 @@ public class BrownDwarf extends StarSystemGenerator {
      * @param system    System this star is created in.
      * @throws DuplicateStarException   Internal error, shouldn't occur.
      */
+    @SuppressWarnings("WeakerAccess")
     public void createLoneDwarf(StarSystem system) throws DuplicateStarException {
         system.setType(StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
         starGenerator.generateBrownDwarfPrimary();
+
+        setDescription(system, null);
     }
 
     /**
@@ -87,6 +89,7 @@ public class BrownDwarf extends StarSystemGenerator {
      * @param system    System this star is created in.
      * @throws DuplicateStarException   Internal error, shouldn't occur.
      */
+    @SuppressWarnings("WeakerAccess")
     public void createDwarfWithRing(StarSystem system) throws DuplicateStarException {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
 
@@ -95,7 +98,7 @@ public class BrownDwarf extends StarSystemGenerator {
         Star dwarf = starGenerator.generateBrownDwarfPrimary();
 
         String planetName = StarSystemFactory.getBeltName(dwarf, 1);
-        long   distance = Die.d20(5) * MKM + Die.die(1000000);
+        long   distance = Die.d20(5) * MKM + Die.die(1_000_000);
 
         planetFactory.createPlanet(system, dwarf, planetName, PlanetType.DustDisc, Physics.round(distance));
     }
@@ -106,6 +109,7 @@ public class BrownDwarf extends StarSystemGenerator {
      * @param system    System this star is created in.
      * @throws DuplicateStarException   Internal error, shouldn't occur.
      */
+    @SuppressWarnings("WeakerAccess")
     public void createDwarfWithAsteroid(StarSystem system) throws DuplicateStarException {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
 
@@ -115,7 +119,7 @@ public class BrownDwarf extends StarSystemGenerator {
 
         String      planetName = StarSystemFactory.getPlanetName(dwarf, 1);
         int         distance = 20 + Die.d20(3);
-        PlanetType  type = null;
+        PlanetType  type;
 
         switch (Die.d6()) {
             case 1:
@@ -139,6 +143,7 @@ public class BrownDwarf extends StarSystemGenerator {
      * @param system    System to create stars in.
      * @throws DuplicateStarException   If there is an error.
      */
+    @SuppressWarnings("WeakerAccess")
     public void createConjoinedTwins(StarSystem system) throws DuplicateStarException {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
 
@@ -184,6 +189,7 @@ public class BrownDwarf extends StarSystemGenerator {
      * @param system
      * @throws DuplicateStarException
      */
+    @SuppressWarnings("WeakerAccess")
     public void createClosePair(StarSystem system) throws DuplicateStarException {
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
 

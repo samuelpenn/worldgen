@@ -5,9 +5,11 @@
 
 package uk.org.glendale.worldgen.astro.planets.maps.terrestrial;
 
+import uk.org.glendale.utils.graphics.Icosahedron;
 import uk.org.glendale.utils.graphics.SimpleImage;
 import uk.org.glendale.utils.graphics.Tile;
 import uk.org.glendale.utils.rpg.Die;
+import uk.org.glendale.worldgen.astro.Physics;
 import uk.org.glendale.worldgen.astro.planets.Planet;
 import uk.org.glendale.worldgen.astro.planets.PlanetFeature;
 import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
@@ -21,7 +23,10 @@ import uk.org.glendale.worldgen.text.TextGenerator;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static uk.org.glendale.worldgen.astro.planets.generators.Terrestrial.TerrestrialFeature.*;
 
 public class EoGaianMapper extends TerrestrialMapper {
     public EoGaianMapper(final Planet planet) {
@@ -40,7 +45,6 @@ public class EoGaianMapper extends TerrestrialMapper {
                     }
                 }
             }
-
         }
     }
 
@@ -82,9 +86,43 @@ public class EoGaianMapper extends TerrestrialMapper {
         createCraters(0, 50);
 
         generateFeatures(planet.getFeatures());
+
+        // Mark world as having clouds.
+        hasCloudMap = true;
     }
 
+    public List<SimpleImage> drawClouds(int width) {
+        List<SimpleImage>  clouds = new ArrayList<>();
 
+        Icosahedron cloud = getCloudLayer();
+
+        int cloudLimit = 50;
+        if (planet.hasFeature(Dry)) {
+            cloudLimit = 75;
+        } else if (planet.hasFeature(Wet)) {
+            cloudLimit = 30;
+        }
+        for (int y=0; y < cloud.getNumRows(); y++) {
+            for (int x=0; x < cloud.getWidthAtY(y); x++) {
+                int h = cloud.getHeight(x, y);
+                if (h < cloudLimit) {
+                    cloud.setHeight(x, y, 0);
+                }
+            }
+        }
+
+        try {
+            String cloudColour = "#F0F0F0";
+            if (planet.hasFeature(Volcanoes) || planet.hasFeature(VolcanicFlats)) {
+                cloudColour = "#808080";
+            }
+            clouds.add(Icosahedron.stretchImage(cloud.drawTransparency("#F0F0F0", width), width));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return clouds;
+    }
 
     public static void main(String[] args) throws IOException {
         Planet planet = new Planet();

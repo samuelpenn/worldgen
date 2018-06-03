@@ -60,7 +60,7 @@ public class Barren extends StarSystemGenerator {
                 createSmallDwarf(system);
                 break;
             case 4:
-                createProtoDwarf(system);
+                createProtoStar(system);
                 break;
             case 5:
                 createSmallDwarfPair(system);
@@ -220,18 +220,39 @@ public class Barren extends StarSystemGenerator {
     }
 
     /**
-     * Creates a small dwarf star with a proto-planetary disc.
+     * Creates a small dwarf star with a single proto-planetary disc.
      */
     @SuppressWarnings("WeakerAccess")
-    public void createProtoDwarf(StarSystem system) throws DuplicateStarException {
+    public void createProtoStar(StarSystem system) throws DuplicateStarException {
         system.setType(StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
-        Star primary = null;
+        Star primary;
+        String type;
 
-        primary = starGenerator.generateDwarfPrimary();
-        addProtoWorlds(system, primary);
+        switch (Die.d6()) {
+            case 1: case 2: case 3:
+                type = "CoolDwarf";
+                primary = starGenerator.generatePrimary(Luminosity.VI,
+                        SpectralType.K8.getSpectralType(Die.dieV(6)));
+                break;
+            case 4: case 5:
+                type = "WarmDwarf";
+                primary = starGenerator.generatePrimary(Luminosity.V,
+                        SpectralType.K2.getSpectralType(Die.dieV(6)));
+                break;
+            default:
+                type = "SubGiant";
+                primary = starGenerator.generatePrimary(Luminosity.IV,
+                        SpectralType.A5.getSpectralType(Die.dieV(6)));
+                break;
+        }
 
-        setDescription(system, null);
+        PlanetFactory factory = worldgen.getPlanetFactory();
+        String name = StarSystemFactory.getBeltName(primary, 1);
+        long   distance = primary.getMinimumDistance() * 10;
+        system.addPlanets(factory.createPlanet(system, primary, name, PlanetType.DustDisc, distance));
+
+        setDescription(system, type);
     }
 
     /**
@@ -328,7 +349,8 @@ public class Barren extends StarSystemGenerator {
             case 1: case 2: case 3:
                 // Large proto-planetary disc.
                 distance *= 10;
-                planetName = StarSystemFactory.getPlanetName(star, orbit++);
+
+                planetName = StarSystemFactory.getBeltName(star, orbit++);
                 planets = planetFactory.createPlanet(system, star, planetName, PlanetType.DustDisc, distance);
                 distance += planets.get(0).getRadius() * 2;
                 allPlanets.addAll(planets);

@@ -92,11 +92,14 @@ function showPlanets(starId) {
         $.each(resp, function(p){
             let planetId = resp[p].id;
             let planetName = resp[p].name;
-            $planetMenu.append(`<li class="nav-item"><a class="nav-link" data-toggle="tab" id="planet-${planetId}-tab" href="#planet-${planetId}">${planetName}</a></li>`);
 
-            $planetContent.append(`<div class="tab-pane fade" id="planet-${planetId}"></div>`);
+            if (resp[p].moonOf === 0) {
+                $planetMenu.append(`<li class="nav-item"><a class="nav-link" data-toggle="tab" id="planet-${planetId}-tab" href="#planet-${planetId}">${planetName}</a></li>`);
 
-            showPlanet(starId, resp[p]);
+                $planetContent.append(`<div class="tab-pane fade" id="planet-${planetId}"></div>`);
+
+                showPlanet(starId, resp[p]);
+            }
         });
 
     });

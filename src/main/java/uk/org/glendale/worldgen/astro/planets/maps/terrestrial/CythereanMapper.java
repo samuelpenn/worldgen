@@ -65,23 +65,6 @@ public class CythereanMapper extends TerrestrialMapper {
         hasCloudMap = true;
     }
 
-    private Icosahedron getCloudLayer() {
-        Icosahedron cloud = new Icosahedron(12);
-        cloud.fractal();
-        int size = cloud.getFaceSize();
-
-        int variation = 48;
-        while (size < 48) {
-            size *= 2;
-            Icosahedron  map = new Icosahedron(size);
-            map.fractal(cloud, variation);
-            variation /= 2;
-            cloud = map;
-        }
-
-        return cloud;
-    }
-
     /**
      * Lower cloud layer is almost completely opaque.
      */

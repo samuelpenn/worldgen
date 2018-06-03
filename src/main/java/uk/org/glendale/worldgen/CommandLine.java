@@ -9,10 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.glendale.utils.rpg.Die;
 import uk.org.glendale.worldgen.astro.Universe;
-import uk.org.glendale.worldgen.astro.sectors.NoSuchSectorException;
-import uk.org.glendale.worldgen.astro.sectors.Sector;
-import uk.org.glendale.worldgen.astro.sectors.SectorFactory;
-import uk.org.glendale.worldgen.astro.sectors.SectorGenerator;
+import uk.org.glendale.worldgen.astro.sectors.*;
 import uk.org.glendale.worldgen.astro.systems.NoSuchStarSystemException;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
 import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
@@ -281,11 +278,16 @@ public class CommandLine extends Main {
         try (WorldGen wg = Main.getWorldGen()) {
             SectorFactory sectorFactory = wg.getSectorFactory();
 
-            String sectorId = options[0];
+            String      sectorId = options[0];
+            SubSector   subSector = null;
             Sector sector = sectorFactory.getSectorByIdentifier(sectorId);
 
+            if (options.length > 1) {
+                subSector = SubSector.valueOf(options[1]);
+            }
+
             SectorGenerator generator = new SectorGenerator(wg);
-            generator.createSectorByDensity(sector);
+            generator.createSectorByDensity(sector, subSector);
 
         } catch (NoSuchSectorException e) {
             System.out.println(e.getMessage());

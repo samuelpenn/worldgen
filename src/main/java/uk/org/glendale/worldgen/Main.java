@@ -90,7 +90,7 @@ public class Main {
                     } catch (NoSuchSectorException e) {
                         sector1 = new Sector("Sector " + SectorFactory.getSectorNumber(x, y), x, y);
                         sectorFactory.persist(sector1);
-                        new SectorGenerator(worldGen).createSectorByDensity(sector1);
+                        new SectorGenerator(worldGen).createSectorByDensity(sector1, null);
                     }
                     logger.debug("Sector 1: " + sector1.getId());
                 }

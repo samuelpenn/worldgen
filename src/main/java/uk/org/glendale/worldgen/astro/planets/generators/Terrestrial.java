@@ -30,13 +30,18 @@ public class Terrestrial extends PlanetGenerator {
 
     public enum TerrestrialFeature implements PlanetFeature {
         VolcanicFlats,
+        Volcanoes,
         Pangaea,
         EquatorialOcean,
         ManyIslands,
         RedIce,
         BacterialMats,
         BorderedInBlack,
-        BorderedInGreen
+        BorderedInGreen,
+        Cold,
+        Warm,
+        Dry,
+        Wet;
     }
 
     public Terrestrial(WorldGen worldgen, StarSystem system, Star star, Planet previous, long distance) {

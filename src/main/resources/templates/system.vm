@@ -45,16 +45,6 @@
       margin-top: 24px;
     }
 
-    span.beltCounter {
-      background-image: url("/icons/systems/belt.png");
-    }
-    span.rockCounter {
-      background-image: url("/icons/systems/rock.png");
-    }
-    span.gasCounter {
-      background-image: url("/icons/systems/gas.png");
-    }
-
     span.startype {
       display: inline-block;
       border: 1px solid black;
@@ -74,20 +64,19 @@
   <h1>$sector.name &gt; $subsector &gt; $system.name [$x$y] <span>${systemZone} / ${systemType}</span></h1>
 
   <div>
-    #set ($beltCount = $count['Belt'] )
-    #set ($rockCount = $count['Dwarf'] + $count['Terrestrial'] )
-    #set ($gasCount = $count['Jovian'] )
-
     <span class="counter" style="background-image: url('/icons/systems/port_${system.starPort.code}.png');"></span>
 
-    #if ($gasCount)
-      <span class="counter gasCounter"><span>$gasCount</span></span>
+    #if ($count['Jovian'])
+      <span class="counter" style="background-image: url('/icons/systems/group_Jovian.png')"><span>${count['Jovian']}</span></span>
     #end
-    #if ($rockCount)
-      <span class="counter rockCounter"><span>$rockCount</span></span>
+    #if ($count['Terrestrial'])
+      <span class="counter" style="background-image: url('/icons/systems/group_Terrestrial.png')"><span>${count['Terrestrial']}</span></span>
     #end
-    #if ($beltCount)
-      <span class="counter beltCounter"><span>$beltCount</span></span>
+    #if ($count['Dwarf'])
+      <span class="counter" style="background-image: url('/icons/systems/group_Dwarf.png')"><span>${count['Dwarf']}</span></span>
+    #end
+    #if ($count['Belt'])
+      <span class="counter" style="background-image: url('/icons/systems/group_Belt.png')"><span>${count['Belt']}</span></span>
     #end
 
     <p>

@@ -48,6 +48,23 @@ public enum SubSector {
         return y;
     }
 
+
+    public int getMinX() {
+        return (x * Sector.WIDTH / 4) + 1;
+    }
+
+    public int getMaxX() {
+        return ((x + 1) * Sector.WIDTH / 4);
+    }
+
+    public int getMinY() {
+        return (y * Sector.HEIGHT / 4) + 1;
+    }
+
+    public int getMaxY() {
+        return ((y + 1) * Sector.HEIGHT / 4);
+    }
+
     /**
      * Given a star's coordinates in a sector, gets the sub-sector to which the
      * star belongs. Star coordinates are 1-32 for X, 1-40 for Y. If the star is

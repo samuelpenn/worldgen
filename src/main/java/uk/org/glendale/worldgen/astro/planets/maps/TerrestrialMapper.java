@@ -72,6 +72,27 @@ public class TerrestrialMapper extends PlanetMapper {
 
             }
         }
+    }
 
+    /**
+     * Draws fractal clouds which can be applied to a cloud layer.
+     *
+     * @return  New high resolution icosahedron map.
+     */
+    protected Icosahedron getCloudLayer() {
+        Icosahedron cloud = new Icosahedron(12);
+        cloud.fractal();
+        int size = cloud.getFaceSize();
+
+        int variation = 48;
+        while (size < 48) {
+            size *= 2;
+            Icosahedron  map = new Icosahedron(size);
+            map.fractal(cloud, variation);
+            variation /= 2;
+            cloud = map;
+        }
+
+        return cloud;
     }
 }

@@ -17,12 +17,13 @@ import uk.org.glendale.worldgen.astro.planets.codes.PlanetType;
 import uk.org.glendale.worldgen.astro.sectors.Sector;
 import uk.org.glendale.worldgen.astro.stars.*;
 import uk.org.glendale.worldgen.astro.systems.StarSystem;
-import uk.org.glendale.worldgen.astro.systems.StarSystemFactory;
 import uk.org.glendale.worldgen.astro.systems.StarSystemGenerator;
 import uk.org.glendale.worldgen.astro.systems.StarSystemType;
 import uk.org.glendale.worldgen.exceptions.DuplicateObjectException;
 
-import java.util.ArrayList;
+import static uk.org.glendale.worldgen.astro.systems.StarSystemFactory.getPlanetName;
+import static uk.org.glendale.worldgen.astro.systems.StarSystemFactory.getBeltName;
+
 import java.util.List;
 
 /**
@@ -39,15 +40,24 @@ public class Simple extends StarSystemGenerator {
     public StarSystem generate(Sector sector, String name, int x, int y) throws DuplicateObjectException {
         StarSystem system = createEmptySystem(sector, name, x, y);
 
-        updateStarSystem(createSimple(system));
+        switch (Die.d6(2)) {
+            case 2:
+                createSol(system);
+                break;
+            default:
+                createSingleStar(system);
+                break;
+        }
+        updateStarSystem(system);
 
         return system;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public void createSol(StarSystem system) throws DuplicateStarException {
         system.setType(StarSystemType.SINGLE);
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
-        List<Planet> planets = new ArrayList<Planet>();
+        List<Planet> planets;
 
         // Generate a Sol-like star.
         Star primary;
@@ -69,46 +79,45 @@ public class Simple extends StarSystemGenerator {
         String  planetName;
         int     orbit = 1;
 
-
         // Mercury.
         long distance = 50 * Physics.MKM + Die.dieV(5_000_000);
-        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planetName = getPlanetName(primary, orbit++);
         planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Hermian, distance);
         system.addPlanets(planets);
 
         // Venus.
         distance = 110 * Physics.MKM + Die.dieV(5_000_000);
-        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planetName = getPlanetName(primary, orbit++);
         planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Cytherean, distance);
         system.addPlanets(planets);
 
         // Earth.
         distance = 150 * Physics.MKM + Die.dieV(5_000_000);
-        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planetName = getPlanetName(primary, orbit++);
         planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.EoGaian, distance);
         system.addPlanets(planets);
 
         // Mars.
         distance = 230 * Physics.MKM + Die.dieV(5_000_000);
-        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planetName = getPlanetName(primary, orbit++);
         planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.EuArean, distance);
         system.addPlanets(planets);
 
         // Asteroids.
         distance = 400 * Physics.MKM + Die.dieV(10_000_000);
-        planetName = StarSystemFactory.getBeltName(primary, 1);
+        planetName = getBeltName(primary, 1);
         planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, distance);
         system.addPlanets(planets);
 
         // Jupiter.
         distance = 750 * Physics.MKM + Die.dieV(30_000_000);
-        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planetName = getPlanetName(primary, orbit++);
         planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Jovic, distance);
         system.addPlanets(planets);
 
         // Saturn.
         distance = 1500 * Physics.MKM + Die.dieV(100_000_000);
-        planetName = StarSystemFactory.getPlanetName(primary, orbit++);
+        planetName = getPlanetName(primary, orbit++);
         planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, distance);
         system.addPlanets(planets);
 
@@ -118,84 +127,97 @@ public class Simple extends StarSystemGenerator {
     /**
      * Generates a simple predictable star system that is very similar to that of Sol.
      */
-    public StarSystem createSimple(StarSystem system) throws DuplicateObjectException {
+    @SuppressWarnings("WeakerAccess")
+    public void createSingleStar(StarSystem system) throws DuplicateObjectException {
         system.setType(StarSystemType.SINGLE);
 
         PlanetFactory planetFactory = worldgen.getPlanetFactory();
         StarGenerator starGenerator = new StarGenerator(worldgen, system, false);
+        List<Planet> planets;
 
         // Generate a Sol-like star.
         Luminosity l = Luminosity.V;
-        SpectralType hr = SpectralType.G2;
-        switch (Die.d6(2)) {
-            case 2: case 3:
-                hr = SpectralType.G0;
-                break;
-            case 4: case 5:
-                hr = SpectralType.G1;
-                break;
-            case 6: case 7: case 8:
-                hr = SpectralType.G2;
-                break;
-            case 9: case 10:
-                hr = SpectralType.G3;
-                break;
-            case 11: case 12:
-                hr = SpectralType.G4;
-                break;
-        }
-
+        SpectralType hr = SpectralType.G2.getSpectralType(Die.dieV(3));
         Star primary = starGenerator.generatePrimary(l, hr);
 
         int orbit = 1;
+        int belts = 1;
         String planetName;
 
-        planetName = factory.getPlanetName(primary, orbit++);
         switch (Die.d6(2)) {
-            case 2: case 3:
-                planetFactory.createPlanet(system, primary, planetName, PlanetType.VulcanianBelt,
-                        30 + Die.d12());
+            case 4:
+                planetName = getBeltName(primary, belts++);
+                planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.VulcanianBelt,
+                        (30 + Die.d12()) * Physics.MKM);
+                system.addPlanets(planets);
                 break;
-            case 4: case 5:
-                planetFactory.createPlanet(system, primary, planetName, PlanetType.Janian,
-                        40 + Die.d12(2));
+            case 5:
+                planetName = getPlanetName(primary, orbit++);
+                planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Janian,
+                        (40 + Die.d12(2)) * Physics.MKM);
+                system.addPlanets(planets);
                 break;
-            case 6: case 7: case 8: case 9:
-                planetFactory.createPlanet(system, primary, planetName, PlanetType.Hermian,
-                        40 + Die.d12(2));
+            case 6: case 7: case 8:
+                planetName = getPlanetName(primary, orbit++);
+                planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Hermian,
+                        (40 + Die.d12(2)) * Physics.MKM);
+                system.addPlanets(planets);
                 break;
-            case 10: case 11: case 12:
-                planetFactory.createPlanet(system, primary, planetName, PlanetType.Ferrinian,
-                        40 + Die.d8(2));
+            case 9: case 10:
+                planetName = getPlanetName(primary, orbit++);
+                planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Ferrinian,
+                        (40 + Die.d8(2)) * Physics.MKM);
+                system.addPlanets(planets);
                 break;
+            default:
+                // No planet.
         }
 
-        planetName = factory.getPlanetName(primary, orbit++);
-        planetFactory.createPlanet(system, primary, planetName, PlanetType.Cytherean, 110);
+        if (Die.d3() > 1) {
+            planetName = getPlanetName(primary, orbit++);
+            planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Cytherean,
+                    (70 + Die.d10(2) + orbit * 15) * Physics.MKM);
+            system.addPlanets(planets);
+        }
 
-        planetName = factory.getPlanetName(primary, orbit++);
-        planetFactory.createPlanet(system, primary, planetName, PlanetType.EoGaian, 150);
+        planetName = getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.EoGaian,
+                (140 + Die.d10(2)) * Physics.MKM);
+        system.addPlanets(planets);
 
-        planetName = factory.getPlanetName(primary, orbit++);
         switch (Die.d6()) {
             case 1: case 2:
-                planetFactory.createPlanet(system, primary, planetName, PlanetType.MesoArean, 250);
+                planetName = getPlanetName(primary, orbit++);
+                planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.MesoArean,
+                        (230 + Die.d20(2)) * Physics.MKM);
+                system.addPlanets(planets);
                 break;
-            case 3: case 4: case 5: case 6:
-                planetFactory.createPlanet(system, primary, planetName, PlanetType.EuArean, 250);
+            case 3: case 4: case 5:
+                planetName = getPlanetName(primary, orbit++);
+                planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.EuArean,
+                        (230 + Die.d20(2)) * Physics.MKM);
+                system.addPlanets(planets);
                 break;
+            default:
+                // No planet.
         }
 
-        planetName = factory.getPlanetName(primary, orbit++);
-        planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt, 400 + Die.d20(5));
+        planetName = getBeltName(primary, belts++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.AsteroidBelt,
+                (400 + Die.d20(5)) * Physics.MKM);
+        system.addPlanets(planets);
 
-        planetName = factory.getPlanetName(primary, orbit++);
-        planetFactory.createPlanet(system, primary, planetName, PlanetType.Junic, 700 + Die.d20(5));
+        planetName = getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Junic,
+                (700 + Die.d100(1)) * Physics.MKM);
+        system.addPlanets(planets);
 
-        planetName = factory.getPlanetName(primary, orbit++);
-        planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian, 1400 + Die.d100(2));
+        planetName = getPlanetName(primary, orbit++);
+        planets = planetFactory.createPlanet(system, primary, planetName, PlanetType.Saturnian,
+                (1400 + Die.d100(2)) * Physics.MKM);
+        system.addPlanets(planets);
 
-        return system;
+        setDescription(system, null);
 
     }
 

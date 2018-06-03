@@ -98,15 +98,32 @@ public class SectorGenerator {
      * Assumes that the sector is empty, but will work if it already has systems in it. The
      * chance of any given hex having a system is based on the density map.
      *
+     * If a sub-sector is provided, then systems are only created in that sub sector.
+     *
      * @param sector    Sector to create systems in.
+     * @param subSector Optional sub sector to limit creation to.
      */
-    public void createSectorByDensity(Sector sector) {
+    public void createSectorByDensity(Sector sector, SubSector subSector) {
         StarSystemFactory systemFactory = worldgen.getStarSystemFactory();
 
+        int minX = 1, maxX = 40;
+        int minY = 1, maxY = 32;
+
+        if (subSector != null) {
+            minX = subSector.getMinX();
+            maxX = subSector.getMaxX();
+
+            minY = subSector.getMinY();
+            maxY = subSector.getMaxY();
+        }
+
+        int totalHexes = (1 + maxX - minX) * (1 + maxY - minY);
+        int checkedHexes = 0;
         int count = 0;
-        for (int y=1; y <= 40; y++) {
-            for (int x=1; x <= 32; x++) {
-                System.out.println("createSectorByDensity: " + (int)(100 * ((y-1) * 31 + x) / (32*40)) + "%");
+        for (int y=minY; y <= maxY; y++) {
+            for (int x=minX; x <= maxX; x++) {
+                checkedHexes += 1;
+                System.out.println("createSectorByDensity: " + (int)((100 * checkedHexes) / (totalHexes)) + "%");
                 int density = getDensity(sector, x, y);
                 if (Die.d100() <= density) {
                     // Create a new star system.
